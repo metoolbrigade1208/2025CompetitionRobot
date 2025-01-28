@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
@@ -36,8 +37,10 @@ public class  Intake implements AutoCloseable {
   // Standard classes for controlling our arm
   private final PIDController m_controller = new PIDController(m_armKp, 0, 0);
   
-  private final SparkMax m_armMotor = new SparkMax(Constants.IntakeConstants.kMotorPort,MotorType.kBrushless);
+  private final SparkMax m_armMotor = new SparkMax(Constants.IntakeConstants.kArmMotorPort,MotorType.kBrushless);
   private final SparkAbsoluteEncoder m_encoder = m_armMotor.getAbsoluteEncoder();
+  private final SparkMax m_intakeMotor = new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);  
+  private final DigitalInput coraldetect = new DigitalInput(Constants.IntakeConstants.kIRsensorport);
   
   // Simulation classes help us simulate what's going on, including gravity.
   // This arm sim represents an arm that can travel from -75 degrees (rotated down front)

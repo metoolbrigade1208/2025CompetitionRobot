@@ -50,8 +50,10 @@ public final class Constants
   }
   public static class IntakeConstants
   {
-    public static final int kMotorPort = 0;
-    public static final int kEncoderAChannel = 0;
+    public static final int kArmMotorPort = 0;
+    public static final int kIntakeMotorPort = 0;
+    public static final int kIRsensorport = 0;
+    public static final int kEncoderAChannel = 0; 
     public static final int kEncoderBChannel = 1;
     public static final int kJoystickPort = 0;
   
