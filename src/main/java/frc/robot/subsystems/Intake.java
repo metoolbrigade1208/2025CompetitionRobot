@@ -12,13 +12,22 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.util.Units.*;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
+import swervelib.SwerveDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+
+import org.dyn4j.geometry.Convex;
+import org.dyn4j.geometry.Rectangle;
+import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -26,7 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
-public class  Intake implements AutoCloseable {
+public class Intake implements AutoCloseable {
   // The P gain for the PID controller that drives this arm.
   private double m_armKp = Constants.IntakeConstants.kArmKp;
   private double m_armSetpointDegrees = Constants.IntakeConstants.kArmKp;
@@ -37,10 +46,15 @@ public class  Intake implements AutoCloseable {
   // Standard classes for controlling our arm
   private final PIDController m_controller = new PIDController(m_armKp, 0, 0);
   
+  //Motor and encoder for deploying arm.
   private final SparkMax m_armMotor = new SparkMax(Constants.IntakeConstants.kArmMotorPort,MotorType.kBrushless);
   private final SparkAbsoluteEncoder m_encoder = m_armMotor.getAbsoluteEncoder();
+
+  //Motor and IR sensor for intake.
   private final SparkMax m_intakeMotor = new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);  
-  private final DigitalInput coraldetect = new DigitalInput(Constants.IntakeConstants.kIRsensorport);
+  private final DigitalInput m_coraldetect = new DigitalInput(Constants.IntakeConstants.kIRsensorport);
+
+  private final IntakeIOSim m_IntakeIOSim;
   
   // Simulation classes help us simulate what's going on, including gravity.
   // This arm sim represents an arm that can travel from -75 degrees (rotated down front)
@@ -58,6 +72,9 @@ public class  Intake implements AutoCloseable {
           Constants.IntakeConstants.kArmEncoderDistPerPulse,
           0.0 // Add noise with a std-dev of 1 tick
           );
+
+
+
   private final SparkAbsoluteEncoderSim m_encoderSim = new SparkAbsoluteEncoderSim(m_armMotor);
 
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
@@ -75,9 +92,9 @@ public class  Intake implements AutoCloseable {
               new Color8Bit(Color.kYellow)));
 
   /** Subsystem constructor. */
-  public Intake() {
+  public Intake(SwerveDrive drivetrain) {
    // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
-
+    new IntakeIOSim(drivetrain.getMapleSimDrive().get());
     // Put Mechanism 2d to SmartDashboard
     SmartDashboard.putData("Arm Sim", m_mech2d);
     m_armTower.setColor(new Color8Bit(Color.kBlue));
@@ -124,8 +141,25 @@ public class  Intake implements AutoCloseable {
     m_armMotor.setVoltage(pidOutput);
   }
 
-  public void stop() {
+  public void stoparm() {
     m_armMotor.set(0.0);
+  }
+
+
+
+  //sets intake speed
+  public void setintakespeed(Double speed) {
+    m_intakeMotor.set(speed);
+  }
+
+  //stops intake
+  public void stopintake() {
+    m_intakeMotor.set(0.0);
+  }
+
+  //gets IR sensor output as a boolean
+  public boolean IsDetected() {
+    return m_coraldetect.get();
   }
 
   @Override
