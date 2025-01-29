@@ -18,6 +18,10 @@ import swervelib.math.Matter;
  */
 public final class Constants
 {
+  public static final double LEVEL_1 = (Units.inchesToMeters(18));
+  public static final double LEVEL_2 = (Units.inchesToMeters(32));
+  public static final double LEVEL_3 = (Units.inchesToMeters(48));
+  public static final double LEVEL_4 = (Units.inchesToMeters(72));
 
   public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
