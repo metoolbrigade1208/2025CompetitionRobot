@@ -50,8 +50,8 @@ public final class Constants
   }
   public static class IntakeConstants
   {
-    public static final int kArmMotorPort = 0;
-    public static final int kIntakeMotorPort = 0;
+    public static final int kArmMotorPort = 1;
+    public static final int kIntakeMotorPort = 2;
     public static final int kIRsensorport = 0;
     public static final int kEncoderAChannel = 0; 
     public static final int kEncoderBChannel = 1;
@@ -80,6 +80,10 @@ public final class Constants
     public static final double kArmKg = 0;
     public static final double kArmKv = 0;
     public static final double kArmKa = 0;
+    public static final double kArmDownPosition = 90;
+    public static final double kArmUpPosition = 0;
+
+    public static final double kIntakeRunSpeed = 1.0;
     
   }
 }
