@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.spark.SparkMax;
+
+import org.opencv.core.TickMeter;
+
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -136,7 +139,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public Command elevatorLevel4Command() {
     return runOnce (() -> reachGoal (Constants.LEVEL_4));
   }
-  
+  public Command elevatorManualOverideCommand() {
+    return FunctionalCommand(())
+  }
 
   @Override
   public void close() {
