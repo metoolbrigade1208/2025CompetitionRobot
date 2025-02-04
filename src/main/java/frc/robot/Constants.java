@@ -18,6 +18,7 @@ import swervelib.math.Matter;
  */
 public final class Constants
 {
+  public static final double LEVEL_Intake = (Units.inchesToMeters(37.5));
   public static final double LEVEL_1 = (Units.inchesToMeters(18));
   public static final double LEVEL_2 = (Units.inchesToMeters(32));
   public static final double LEVEL_3 = (Units.inchesToMeters(48));

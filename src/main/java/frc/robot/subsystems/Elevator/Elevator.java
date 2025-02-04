@@ -19,11 +19,15 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-public class Elevator implements AutoCloseable {
+public class Elevator extends SubsystemBase implements AutoCloseable {
   // This gearbox represents a gearbox containing 4 Vex 775pro motors.
   private final DCMotor m_elevatorGearbox = DCMotor.getNEO(1);
 
@@ -116,6 +120,23 @@ public class Elevator implements AutoCloseable {
     // Update elevator visualization with position
     m_elevatorMech2d.setLength(m_encoder.getDistance());
   }
+  // Commands for Elevator
+  public Command elevatorLevelIntakeCommand(){
+      return runOnce(() -> reachGoal(Constants.LEVEL_Intake));
+  }
+  public Command elevatorLevel1Command() {
+    return runOnce(() -> reachGoal (Constants.LEVEL_1));
+  }
+  public Command elevatorLevel2Command() {
+    return runOnce(() -> reachGoal (Constants.LEVEL_2));
+  }
+  public Command elevatorLevel3Command() {
+    return runOnce(() -> reachGoal (Constants.LEVEL_3));
+  }
+  public Command elevatorLevel4Command() {
+    return runOnce (() -> reachGoal (Constants.LEVEL_4));
+  }
+  
 
   @Override
   public void close() {
