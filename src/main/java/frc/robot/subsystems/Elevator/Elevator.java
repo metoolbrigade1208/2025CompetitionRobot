@@ -30,6 +30,7 @@ import org.opencv.core.TickMeter;
 
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
   // This gearbox represents a gearbox containing 4 Vex 775pro motors.
@@ -47,6 +48,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
       Constants.elevatorConstants.kElevatorkV,
       Constants.elevatorConstants.kElevatorkA);
   private final SparkMax m_motor = new SparkMax(Constants.elevatorConstants.kMotorPort, MotorType.kBrushless);
+  private final SparkMax m_motor2 = new SparkMax(Constants.elevatorConstants.kMotorPort2, MotorType.kBrushless);
+
   private final Encoder m_encoder = (Encoder) m_motor.getAlternateEncoder();
   // Simulation classes help us simulate what's going on, including gravity.
   private final ElevatorSim m_elevatorSim = new ElevatorSim(
@@ -77,6 +80,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     // To view the Elevator visualization, select Network Tables -> SmartDashboard
     // -> Elevator Sim
     SmartDashboard.putData("Elevator Sim", m_mech2d);
+    SparkMaxConfig motor2config = new SparkMaxConfig();
+    motor2config.follow(m_motor);
+    m_motor2.configure(motor2config, null, null);
   }
 
   /** Advance the simulation. */

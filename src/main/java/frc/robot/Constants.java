@@ -70,5 +70,6 @@ public final class Constants
     public static final double kElevatorDrumRadius = 0;
     public static final double kMinElevatorHeightMeters = 0;
     public static final double kMaxElevatorHeightMeters = 0;
+    public static int kMotorPort2 = 0;
   }
 }
