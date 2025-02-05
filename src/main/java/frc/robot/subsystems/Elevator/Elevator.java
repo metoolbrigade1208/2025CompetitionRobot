@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -35,33 +36,30 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private final DCMotor m_elevatorGearbox = DCMotor.getNEO(1);
 
   // Standard classes for controlling our elevator
-  private final ProfiledPIDController m_controller =
-      new ProfiledPIDController(
-          Constants.elevatorConstants.kElevatorKp,
-          Constants.elevatorConstants.kElevatorKi,
-          Constants.elevatorConstants.kElevatorKd,
-          new TrapezoidProfile.Constraints(2.45, 2.45));
-  ElevatorFeedforward m_feedforward =
-      new ElevatorFeedforward(
-          Constants.elevatorConstants.kElevatorkS,
-          Constants.elevatorConstants.kElevatorkG,
-          Constants.elevatorConstants.kElevatorkV,
-          Constants.elevatorConstants.kElevatorkA);
+  private final ProfiledPIDController m_controller = new ProfiledPIDController(
+      Constants.elevatorConstants.kElevatorKp,
+      Constants.elevatorConstants.kElevatorKi,
+      Constants.elevatorConstants.kElevatorKd,
+      new TrapezoidProfile.Constraints(2.45, 2.45));
+  ElevatorFeedforward m_feedforward = new ElevatorFeedforward(
+      Constants.elevatorConstants.kElevatorkS,
+      Constants.elevatorConstants.kElevatorkG,
+      Constants.elevatorConstants.kElevatorkV,
+      Constants.elevatorConstants.kElevatorkA);
   private final SparkMax m_motor = new SparkMax(Constants.elevatorConstants.kMotorPort, MotorType.kBrushless);
   private final Encoder m_encoder = (Encoder) m_motor.getAlternateEncoder();
   // Simulation classes help us simulate what's going on, including gravity.
-  private final ElevatorSim m_elevatorSim =
-      new ElevatorSim(
-          m_elevatorGearbox,
-          Constants.elevatorConstants.kElevatorGearing,
-          Constants.elevatorConstants.kCarriageMass,
-          Constants.elevatorConstants.kElevatorDrumRadius,
-          Constants.elevatorConstants.kMinElevatorHeightMeters,
-          Constants.elevatorConstants.kMaxElevatorHeightMeters,
-          true,
-          0,
-          0.01,
-          0.0);
+  private final ElevatorSim m_elevatorSim = new ElevatorSim(
+      m_elevatorGearbox,
+      Constants.elevatorConstants.kElevatorGearing,
+      Constants.elevatorConstants.kCarriageMass,
+      Constants.elevatorConstants.kElevatorDrumRadius,
+      Constants.elevatorConstants.kMinElevatorHeightMeters,
+      Constants.elevatorConstants.kMaxElevatorHeightMeters,
+      true,
+      0,
+      0.01,
+      0.0);
 
   private final EncoderSim m_encoderSim = new EncoderSim(m_encoder);
   private final SparkMaxSim m_motorSim = new SparkMaxSim(m_motor, m_elevatorGearbox);
@@ -69,16 +67,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   // Create a Mechanism2d visualization of the elevator
   private final Mechanism2d m_mech2d = new Mechanism2d(20, 50);
   private final MechanismRoot2d m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 10, 0);
-  private final MechanismLigament2d m_elevatorMech2d =
-      m_mech2dRoot.append(
-          new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
+  private final MechanismLigament2d m_elevatorMech2d = m_mech2dRoot.append(
+      new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
 
   /** Subsystem constructor. */
   public Elevator() {
-  
 
     // Publish Mechanism2d to SmartDashboard
-    // To view the Elevator visualization, select Network Tables -> SmartDashboard -> Elevator Sim
+    // To view the Elevator visualization, select Network Tables -> SmartDashboard
+    // -> Elevator Sim
     SmartDashboard.putData("Elevator Sim", m_mech2d);
   }
 
@@ -91,7 +88,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     // Next, we update it. The standard loop time is 20ms.
     m_elevatorSim.update(0.020);
 
-    // Finally, we set our simulated encoder's readings and simulated battery voltage
+    // Finally, we set our simulated encoder's readings and simulated battery
+    // voltage
     m_encoderSim.setDistance(m_elevatorSim.getPositionMeters());
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
@@ -123,24 +121,35 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     // Update elevator visualization with position
     m_elevatorMech2d.setLength(m_encoder.getDistance());
   }
-  // Commands for Elevator
-  public Command elevatorLevelIntakeCommand(){
-      return runOnce(() -> reachGoal(Constants.LEVEL_Intake));
+
+  // Commands for Elevator setpoints
+  public Command elevatorLevelIntakeCommand() {
+    return runOnce(() -> reachGoal(Constants.LEVEL_Intake));
   }
+
   public Command elevatorLevel1Command() {
-    return runOnce(() -> reachGoal (Constants.LEVEL_1));
+    return runOnce(() -> reachGoal(Constants.LEVEL_1));
   }
+
   public Command elevatorLevel2Command() {
-    return runOnce(() -> reachGoal (Constants.LEVEL_2));
+    return runOnce(() -> reachGoal(Constants.LEVEL_2));
   }
+
   public Command elevatorLevel3Command() {
-    return runOnce(() -> reachGoal (Constants.LEVEL_3));
+    return runOnce(() -> reachGoal(Constants.LEVEL_3));
   }
+
   public Command elevatorLevel4Command() {
-    return runOnce (() -> reachGoal (Constants.LEVEL_4));
+    return runOnce(() -> reachGoal(Constants.LEVEL_4));
   }
-  public Command elevatorManualOverideCommand() {
-    return FunctionalCommand(())
+  //command for manual override 
+  public Command elevatorManualOverideCommand(XboxController opXboxController) {
+    return new FunctionalCommand(
+      () -> { },
+      () -> reachGoal(m_controller.getGoal().position + opXboxController.getLeftX()),
+      (done) -> m_controller.setGoal(m_controller.getSetpoint()), 
+      () -> false,
+      this);
   }
 
   @Override

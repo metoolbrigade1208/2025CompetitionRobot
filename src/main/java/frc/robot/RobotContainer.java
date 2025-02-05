@@ -40,6 +40,7 @@ public class RobotContainer {
       "swerve"));
 
   private final Elevator elevator = new Elevator();
+  
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -171,7 +172,7 @@ public class RobotContainer {
       opXbox.povDownRight().onTrue(Commands.runOnce(elevator::elevatorLevel2Command));
       opXbox.povRight().onTrue(Commands.runOnce(elevator::elevatorLevel3Command));
       opXbox.povUpRight().onTrue(Commands.runOnce(elevator::elevatorLevel4Command));
-    
+      opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
     }
 
   }
