@@ -5,11 +5,17 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -33,23 +39,20 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Intake implements Subsystem {
+public class Intake extends SubsystemBase implements AutoCloseable {
   // The P gain for the PID controller that drives this arm.
   private double m_armKp = Constants.IntakeConstants.kArmKp;
-  private double m_armSetpointDegrees = Constants.IntakeConstants.kArmKp;
+  private double m_armSetpointDegrees = Constants.IntakeConstants.kDefaultArmSetpointDegrees;
 
   // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-  private final DCMotor m_armGearbox = DCMotor.getVex775Pro(2);
-
-  // Standard classes for controlling our arm
-  private final PIDController m_controller = new PIDController(m_armKp, 0, 0);
+  private final DCMotor m_armGearbox = DCMotor.getNEO(1); 
 
   // Motor and encoder for deploying arm.
   private final SparkMax m_armMotor = new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
-  private final SparkAbsoluteEncoder m_encoder = m_armMotor.getAbsoluteEncoder();
-
+  // Standard classes for controlling our arm
+  private final SparkClosedLoopController m_controller = m_armMotor.getClosedLoopController();
   // Motor and IR sensor for intake.
   private final SparkMax m_intakeMotor = new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
   private final DigitalInput m_coraldetect = new DigitalInput(Constants.IntakeConstants.kIRsensorport);
@@ -96,6 +99,35 @@ public class Intake implements Subsystem {
     SmartDashboard.putData("Arm Sim", m_mech2d);
     m_armTower.setColor(new Color8Bit(Color.kBlue));
 
+    // Configure the arm motor
+    SparkMaxConfig armMotorConfig = new SparkMaxConfig();
+    armMotorConfig
+        .smartCurrentLimit(50)
+        .idleMode(IdleMode.kBrake);
+
+    armMotorConfig.closedLoop
+        .pid(Constants.IntakeConstants.kArmKp,
+            Constants.IntakeConstants.kArmKi,
+            Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+    armMotorConfig.closedLoop.maxMotion
+        .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)
+        .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
+        .allowedClosedLoopError(Constants.IntakeConstants.kArmMaxError);
+
+    armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
+    m_armMotor.configure(armMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    // Configure the intake motor
+    SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
+    intakeMotorConfig
+        .smartCurrentLimit(50)
+        .idleMode(IdleMode.kBrake);
+
+        intakeMotorConfig.closedLoop
+            .pidf(Constants.IntakeConstants.kIntakeKp,
+            Constants.IntakeConstants.kIntakeKi, Constants.IntakeConstants.kIntakeKd, 1.0/Constants.IntakeConstants.kIntakeKv, ClosedLoopSlot.kSlot0);
+
     // Set the Arm position setpoint and P constant to Preferences if the keys don't
     // already exist
     Preferences.initDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
@@ -126,19 +158,13 @@ public class Intake implements Subsystem {
   public void loadPreferences() {
     // Read Preferences for Arm setpoint and kP on entering Teleop
     m_armSetpointDegrees = Preferences.getDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
-    if (m_armKp != Preferences.getDouble(Constants.IntakeConstants.kArmPKey, m_armKp)) {
-      m_armKp = Preferences.getDouble(Constants.IntakeConstants.kArmPKey, m_armKp);
-      m_controller.setP(m_armKp);
-    }
   }
 
   /**
    * Run the control loop to reach and maintain the setpoint from the preferences.
    */
   public void reachSetpoint() {
-    var pidOutput = m_controller.calculate(
-        m_encoder.getPosition(), Units.degreesToRadians(m_armSetpointDegrees));
-    m_armMotor.setVoltage(pidOutput);
+    m_controller.setReference(m_armSetpointDegrees, ControlType.kMAXMotionPositionControl);
   }
 
   public void stoparm() {
@@ -165,7 +191,7 @@ public class Intake implements Subsystem {
     return m_coraldetect.get();
   }
 
-  //Commands for arm
+  // Commands for arm
   public Command armDownCommand() {
     return runOnce(() -> this.m_armSetpointDegrees = Constants.IntakeConstants.kArmDownPosition);
   }
@@ -191,7 +217,6 @@ public class Intake implements Subsystem {
     // m_encoder.close();
     m_mech2d.close();
     m_armPivot.close();
-    m_controller.close();
     m_arm.close();
   }
 }

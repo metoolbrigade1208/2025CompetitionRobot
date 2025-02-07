@@ -82,8 +82,20 @@ public final class Constants
     public static final double kArmKa = 0;
     public static final double kArmDownPosition = 90;
     public static final double kArmUpPosition = 0;
+    public static final double kArmMaxSpeed = 0.5;
+    public static final double kArmMaxAcceleration = 0.5;
+    public static final double kArmMaxError = 0.5;
 
     public static final double kIntakeRunSpeed = 1.0;
+    
+    public static final double kIntakeKp = 0;
+    public static final double kIntakeKi = 0;
+    public static final double kIntakeKd = 0;
+    public static final double kIntakeKv = 473 ;
+    public static final double kIntakeMaxSpeed = 0.5;
+    public static final double kIntakeMaxAcceleration = 0.5;
+    public static final double kIntakeMaxError = 0.5;
+
     
   }
 }
