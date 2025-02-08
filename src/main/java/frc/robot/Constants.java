@@ -61,7 +61,7 @@ public final class Constants
 
     public static final double kElevatorkS = 0;
     public static final double kElevatorkG = 0;
-    public static final double kElevatorkV = 0;
+    public static final double kElevatorkV = 473; //for NEO V1.1
     public static final double kElevatorkA = 0;
     public static final int kMotorPort = 0;
 
@@ -70,6 +70,9 @@ public final class Constants
     public static final double kElevatorDrumRadius = 0;
     public static final double kMinElevatorHeightMeters = 0;
     public static final double kMaxElevatorHeightMeters = 0;
+    public static final double kPositionConversionFactor = kElevatorDrumRadius * Math.PI * kElevatorGearing;
     public static int kMotorPort2 = 0;
+
+    public static final double kVelocityMultiplier = 5;
   }
 }
