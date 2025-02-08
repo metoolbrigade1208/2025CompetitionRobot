@@ -61,6 +61,7 @@
       "/LiveWindow/Ungrouped/Pigeon 2 [13]": "Gyro",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Elevator Sim": "Mechanism2d",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",
@@ -126,6 +127,15 @@
         "open": true
       },
       "SmartDashboard": {
+        "Elevator Sim": {
+          "Elevator Root": {
+            "open": true
+          },
+          "open": true
+        },
+        "Encoders": {
+          "open": true
+        },
         "Field": {
           "open": true
         },

@@ -34,7 +34,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
-  final CommandXboxController opXbox = new CommandXboxController(1);
+  final CommandXboxController opXbox = new CommandXboxController(0);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
       "swerve"));
@@ -144,6 +144,7 @@ public class RobotContainer {
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
       driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+  
 
     }
     if (DriverStation.isTest()) {
@@ -166,12 +167,12 @@ public class RobotContainer {
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(Commands.none());
     }
-    if (DriverStation.isTest()) {
-      opXbox.rightTrigger().onTrue(Commands.runOnce(elevator::elevatorLevelIntakeCommand));
-      opXbox.povDown().onTrue(Commands.runOnce(elevator::elevatorLevel1Command));
-      opXbox.povDownRight().onTrue(Commands.runOnce(elevator::elevatorLevel2Command));
-      opXbox.povRight().onTrue(Commands.runOnce(elevator::elevatorLevel3Command));
-      opXbox.povUpRight().onTrue(Commands.runOnce(elevator::elevatorLevel4Command));
+    if (true) {
+      opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
+      opXbox.povDown().onTrue(elevator.elevatorLevel1Command());
+      opXbox.povDownRight().onTrue(elevator.elevatorLevel2Command());
+      opXbox.povRight().onTrue(elevator.elevatorLevel3Command());
+      opXbox.povUpRight().onTrue(elevator.elevatorLevel4Command());
       opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
     }
 

@@ -62,7 +62,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   // Create a Mechanism2d visualization of the elevator
   private final Mechanism2d m_mech2d = new Mechanism2d(20, 50);
-  private final MechanismRoot2d m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 10, 0);
+  private final MechanismRoot2d m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 10, 1);
   private final MechanismLigament2d m_elevatorMech2d = m_mech2dRoot.append(
       new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
 
@@ -80,13 +80,13 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
             Constants.elevatorConstants.kElevatorKd, ClosedLoopSlot.kSlot0)
         .outputRange(Constants.elevatorConstants.kMaxElevatorHeightMeters,
             Constants.elevatorConstants.kMaxElevatorHeightMeters, ClosedLoopSlot.kSlot0).maxMotion
-        .maxVelocity(0, ClosedLoopSlot.kSlot0)
-        .maxAcceleration(0, ClosedLoopSlot.kSlot0);
+        .maxVelocity(1, ClosedLoopSlot.kSlot0)
+        .maxAcceleration(1, ClosedLoopSlot.kSlot0);
     motor1config.closedLoop
         .pid(Constants.elevatorConstants.kElevatorKp, Constants.elevatorConstants.kElevatorKi,
             Constants.elevatorConstants.kElevatorKd, ClosedLoopSlot.kSlot1)
         .velocityFF(1 / Constants.elevatorConstants.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
-        .maxAcceleration(0, ClosedLoopSlot.kSlot1); // no max velocity, because it's in velocity control mode for this,
+        .maxAcceleration(1, ClosedLoopSlot.kSlot1); // no max velocity, because it's in velocity control mode for this,
                                                     // not position control
 /*     motor1config.limitSwitch.setSparkMaxDataPortConfig()
         .forwardLimitSwitchEnabled(true)
@@ -109,13 +109,18 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
     // Next, we update it. The standard loop time is 20ms.
     m_elevatorSim.update(0.020);
-
+    
+    // We set the simulated motor voltage and current draw
     // Finally, we set our simulated encoder's readings and simulated battery
     // voltage
     m_encoderSim.setPosition(m_elevatorSim.getPositionMeters());
+
+    SmartDashboard.putNumber("ElevatorSimPosition", m_elevatorSim.getPositionMeters());
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_elevatorSim.getCurrentDrawAmps()));
+        
+   
   }
 
   /**
@@ -124,8 +129,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
    * @param goal the position to maintain
    */
   public void reachGoal(double goal) {
+    //i feel like we need to add something to tell the sim to go to the goal; no idea what though
     m_controller.setReference(goal, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-
     // With the setpoint value we run PID control like normal
   }
 
