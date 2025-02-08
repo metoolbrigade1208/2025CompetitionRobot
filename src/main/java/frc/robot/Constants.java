@@ -55,21 +55,24 @@ public final class Constants
   }
   public static class elevatorConstants
   {
-    public static final double kElevatorKp = 0;
+    public static final double kElevatorKp = 1;
     public static final double kElevatorKi = 0;
     public static final double kElevatorKd = 0;
 
     public static final double kElevatorkS = 0;
     public static final double kElevatorkG = 0;
-    public static final double kElevatorkV = 0;
+    public static final double kElevatorkV = 473; //for NEO V1.1
     public static final double kElevatorkA = 0;
-    public static final int kMotorPort = 0;
+    public static final int kMotorPort = 51;
+    public static int kMotorPort2 = 52;
 
-    public static final double kElevatorGearing = 0;
-    public static final double kCarriageMass = 0;
-    public static final double kElevatorDrumRadius = 0;
-    public static final double kMinElevatorHeightMeters = 0;
-    public static final double kMaxElevatorHeightMeters = 0;
-    public static int kMotorPort2 = 0;
+    public static final double kElevatorGearing = 5.0;
+    public static final double kCarriageMass = 10;
+    public static final double kElevatorDrumRadius = 5;
+    public static final double kMinElevatorHeightMeters = 0.0;
+    public static final double kMaxElevatorHeightMeters = 1.0;
+    public static final double kPositionConversionFactor = kElevatorDrumRadius * Math.PI * kElevatorGearing;
+
+    public static final double kVelocityMultiplier = 5;
   }
 }
