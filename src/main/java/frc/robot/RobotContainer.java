@@ -173,7 +173,7 @@ public class RobotContainer {
       opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
-      opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
+      opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
     }
 
   }
