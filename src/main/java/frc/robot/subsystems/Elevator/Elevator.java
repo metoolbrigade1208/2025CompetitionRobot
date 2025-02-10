@@ -94,6 +94,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
     m_motor.configure(motor1config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     m_encoder = m_motor.getEncoder();
+    reachGoal(0.7);
   }
 
   /** Advance the simulation. */
@@ -101,7 +102,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     final double loopTime = .02;
     // In this method, we update our simulation of what our elevator is doing
     // First, we set our "inputs" (voltages)
-    m_elevatorSim.setInput(m_motorSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
+    double elevVolts = m_motorSim.getAppliedOutput() * RoboRioSim.getVInVoltage();
+    m_elevatorSim.setInput(elevVolts);
 
     // Next, we update it. The standard loop time is 20ms.
     m_elevatorSim.update(loopTime);
