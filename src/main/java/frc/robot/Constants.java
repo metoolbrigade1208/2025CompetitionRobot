@@ -18,7 +18,7 @@ import swervelib.math.Matter;
  */
 public final class Constants
 {
-  public static final double LEVEL_Intake = (Units.inchesToMeters(37.5));
+  public static final double LEVEL_Intake = (Units.inchesToMeters(37.5));      
   public static final double LEVEL_1 = (Units.inchesToMeters(18));
   public static final double LEVEL_2 = (Units.inchesToMeters(32));
   public static final double LEVEL_3 = (Units.inchesToMeters(48));
@@ -53,7 +53,7 @@ public final class Constants
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
-  public static class elevatorConstants
+  public static class Elevator
   {
     public static final double kElevatorKp = 1;
     public static final double kElevatorKi = 0;
@@ -70,8 +70,9 @@ public final class Constants
     public static final double kCarriageMass = 10;
     public static final double kElevatorDrumRadius = 5;
     public static final double kMinElevatorHeightMeters = 0.0;
-    public static final double kMaxElevatorHeightMeters = 1.0;
-    public static final double kPositionConversionFactor = kElevatorDrumRadius * Math.PI * kElevatorGearing;
+    public static final double kMaxElevatorHeightMeters = 2.0;
+    public static final double kPositionConversionFactor = kElevatorDrumRadius * 2 * Math.PI * kElevatorGearing;
+    public static final double kVelocityConversionFactor = kPositionConversionFactor / 60;
 
     public static final double kVelocityMultiplier = 5;
   }
