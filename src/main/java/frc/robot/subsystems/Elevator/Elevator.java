@@ -96,6 +96,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     SparkMaxConfig motor2config = new SparkMaxConfig();
     motor2config.follow(m_motor);
+    motor2config.inverted(true);
     m_motor2.configure(motor2config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
