@@ -34,7 +34,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
-  final CommandXboxController opXbox = new CommandXboxController(0);
+  final CommandXboxController opXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
       "swerve"));
@@ -170,9 +170,9 @@ public class RobotContainer {
     if (true) {
       opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
       opXbox.povDown().onTrue(elevator.elevatorLevel1Command());
-      opXbox.povDownRight().onTrue(elevator.elevatorLevel2Command());
-      opXbox.povRight().onTrue(elevator.elevatorLevel3Command());
-      opXbox.povUpRight().onTrue(elevator.elevatorLevel4Command());
+      opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
+      opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
+      opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
       opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
     }
 

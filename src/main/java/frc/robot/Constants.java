@@ -66,13 +66,16 @@ public final class Constants
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
 
-    public static final double kElevatorGearing = 5.0;
-    public static final double kCarriageMass = 10;
-    public static final double kElevatorDrumRadius = 5;
+    public static final double kElevatorGearing = 9.0;
+    public static final double kCarriageMass = 10.0;
+    public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
     public static final double kMinElevatorHeightMeters = 0.0;
-    public static final double kMaxElevatorHeightMeters = 1.0;
-    public static final double kPositionConversionFactor = kElevatorDrumRadius * Math.PI * kElevatorGearing;
+    public static final double kMaxElevatorHeightMeters = 2.5;
+    //Position is rotation to meter
+    public static final double kPositionConversionFactor = 2 * kElevatorDrumRadius * Math.PI / kElevatorGearing;
+    //Velocity is rpm to mps 
+    public static final double kVelocityConversionFactor = kPositionConversionFactor / 60;
 
-    public static final double kVelocityMultiplier = 5;
+    public static final double kVelocityMultiplier = 5.0;
   }
 }

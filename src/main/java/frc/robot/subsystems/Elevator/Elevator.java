@@ -35,7 +35,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
   // This gearbox represents a gearbox containing 4 Vex 775pro motors.
-  private final DCMotor m_elevatorGearbox = DCMotor.getNEO(1);
+  private final DCMotor m_elevatorGearbox = DCMotor.getNEO(2);
 
   // Standard classes for controlling our elevator
 
@@ -62,7 +62,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   // Create a Mechanism2d visualization of the elevator
   private final Mechanism2d m_mech2d = new Mechanism2d(20, 50);
-  private final MechanismRoot2d m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 10, 1);
+  private final MechanismRoot2d m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 10, 0);
   private final MechanismLigament2d m_elevatorMech2d = m_mech2dRoot.append(
       new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
 
@@ -78,22 +78,20 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     motor1config.closedLoop
         .pid(Constants.elevatorConstants.kElevatorKp, Constants.elevatorConstants.kElevatorKi,
             Constants.elevatorConstants.kElevatorKd, ClosedLoopSlot.kSlot0)
-        .outputRange(Constants.elevatorConstants.kMaxElevatorHeightMeters,
-            Constants.elevatorConstants.kMaxElevatorHeightMeters, ClosedLoopSlot.kSlot0).maxMotion
-        .maxVelocity(1, ClosedLoopSlot.kSlot0)
-        .maxAcceleration(1, ClosedLoopSlot.kSlot0);
+        .outputRange(-1, 1, ClosedLoopSlot.kSlot0).maxMotion
+        .maxVelocity(2500, ClosedLoopSlot.kSlot0)
+        .maxAcceleration(5000, ClosedLoopSlot.kSlot0);
     motor1config.closedLoop
         .pid(Constants.elevatorConstants.kElevatorKp, Constants.elevatorConstants.kElevatorKi,
             Constants.elevatorConstants.kElevatorKd, ClosedLoopSlot.kSlot1)
         .velocityFF(1 / Constants.elevatorConstants.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
-        .maxAcceleration(1, ClosedLoopSlot.kSlot1); // no max velocity, because it's in velocity control mode for this,
+        .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in velocity control mode for this,
                                                     // not position control
 /*     motor1config.limitSwitch.setSparkMaxDataPortConfig()
         .forwardLimitSwitchEnabled(true)
         .forwardLimitSwitchType(Type.kNormallyOpen)
         .reverseLimitSwitchEnabled(true)
         .reverseLimitSwitchType(Type.kNormallyOpen); */
-    motor1config.encoder.positionConversionFactor(Constants.elevatorConstants.kPositionConversionFactor);
 
     m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     SparkMaxConfig motor2config = new SparkMaxConfig();
@@ -105,8 +103,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public void simulationPeriodic() {
     // In this method, we update our simulation of what our elevator is doing
     // First, we set our "inputs" (voltages)
-    m_elevatorSim.setInput(m_motorSim.getVelocity() * RobotController.getBatteryVoltage());
+    m_elevatorSim.setInput(m_motorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
 
+    m_motorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond() / Constants.elevatorConstants.kVelocityConversionFactor, RoboRioSim.getVInVoltage(), 0.020);
     // Next, we update it. The standard loop time is 20ms.
     m_elevatorSim.update(0.020);
     
@@ -126,11 +125,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   /**
    * Run control loop to reach and maintain goal.
    *
-   * @param goal the position to maintain
+   * @param goalMeters the position to maintain
    */
-  public void reachGoal(double goal) {
-    //i feel like we need to add something to tell the sim to go to the goal; no idea what though
-    m_controller.setReference(goal, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+  public void reachGoal(double goalMeters) {
+    m_controller.setReference(goalMeters / Constants.elevatorConstants.kPositionConversionFactor, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     // With the setpoint value we run PID control like normal
   }
 
