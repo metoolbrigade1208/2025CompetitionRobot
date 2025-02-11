@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.Elevator;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -25,6 +26,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -102,7 +106,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   /** Advance the simulation. */
   public void simulationPeriodic() {
-    // In this method, we update our simulation of what our elevator is doing
+    // In this method, we update our simulat  ion of what our elevator is doing
     // First, we set our "inputs" (voltages)
     m_elevatorSim.setInput(m_motorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
 
@@ -188,6 +192,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         () -> isForwardLimitSwitchPressed() || isReverseLimitSwitchPressed(),
         this);
   }
+
 
   @Override
   public void close() {
