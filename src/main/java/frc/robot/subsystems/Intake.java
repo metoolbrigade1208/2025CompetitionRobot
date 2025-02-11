@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
+import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -72,8 +73,11 @@ public class Intake implements Subsystem {
       Constants.IntakeConstants.kArmEncoderDistPerPulse,
       0.0 // Add noise with a std-dev of 1 tick
   );
+  
 
   private final SparkAbsoluteEncoderSim m_encoderSim = new SparkAbsoluteEncoderSim(m_armMotor);
+  private final SparkMaxSim m_armMotorSim = new SparkMaxSim(m_armMotor, m_armGearbox);
+
 
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
@@ -108,6 +112,7 @@ public class Intake implements Subsystem {
     // First, we set our "inputs" (voltages)
     m_armSim.setInput(m_armMotor.get() * RobotController.getBatteryVoltage());
 
+    m_armMotorSim.iterate(m_armSim.getVelocityRadPerSec() / Constants.IntakeConstants.kArmPositionConversionFactor,RoboRioSim.getVInVoltage(), 0.020);
     // Next, we update it. The standard loop time is 20ms.
     m_armSim.update(0.020);
 

@@ -85,5 +85,7 @@ public final class Constants
 
     public static final double kIntakeRunSpeed = 1.0;
     
+
+    public static final double kArmPositionConversionFactor = 1.0;
   }
 }
