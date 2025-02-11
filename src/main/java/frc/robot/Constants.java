@@ -87,7 +87,7 @@ public final class Constants
     public static final double kArmMaxError = 0.5;
 
     public static final double kIntakeRunSpeed = 1.0;
-    
+   
     public static final double kIntakeKp = 0;
     public static final double kIntakeKi = 0;
     public static final double kIntakeKd = 0;
@@ -96,6 +96,10 @@ public final class Constants
     public static final double kIntakeMaxAcceleration = 0.5;
     public static final double kIntakeMaxError = 0.5;
 
+    
+
+
+    public static final double kArmPositionConversionFactor = 1.0;
     
   }
 }
