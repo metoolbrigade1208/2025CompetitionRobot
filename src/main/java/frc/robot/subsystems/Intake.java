@@ -48,8 +48,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private double m_armKp = Constants.IntakeConstants.kArmKp;
   private double m_armSetpointDegrees = Constants.IntakeConstants.kDefaultArmSetpointDegrees;
 
-  // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-  private final DCMotor m_armGearbox = DCMotor.getNEO(1); 
+  // The arm gearbox represents a gearbox containing two Neo motors.
+  private final DCMotor m_armGearbox = DCMotor.getNEO(2); 
 
   // Motor and encoder for deploying arm.
   private final SparkMax m_armMotor = new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
@@ -73,7 +73,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
       Constants.IntakeConstants.kMinAngleRads,
       Constants.IntakeConstants.kMaxAngleRads,
       true,
-      0,
+      Units.degreesToRadians(0),
       Constants.IntakeConstants.kArmEncoderDistPerPulse,
       0.0 // Add noise with a std-dev of 1 tick
   );
@@ -86,11 +86,11 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
   private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-  private final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
+  private final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", .1, -90));
   private final MechanismLigament2d m_arm = m_armPivot.append(
       new MechanismLigament2d(
           "Arm",
-          30,
+          Constants.IntakeConstants.kArmLength*3,
           Units.radiansToDegrees(m_armSim.getAngleRads()),
           6,
           new Color8Bit(Color.kYellow)));
@@ -120,7 +120,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
         .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
         .allowedClosedLoopError(Constants.IntakeConstants.kArmMaxError);
 
-    armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
+    //armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotor.configure(armMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     // Configure the intake motor
@@ -139,19 +139,22 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     Preferences.initDouble(Constants.IntakeConstants.kArmPKey, m_armKp);
   }
 
+  public void periodic() {
+    SmartDashboard.putNumber("armSimPosition",Units.radiansToDegrees(m_armSim.getAngleRads()));
+  }
   /** Update the simulation model. */
   public void simulationPeriodic() {
     // In this method, we update our simulation of what our arm is doing
     // First, we set our "inputs" (voltages)
-    m_armSim.setInput(m_armMotor.get() * RobotController.getBatteryVoltage());
+    m_armSim.setInput(m_armMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-    m_armMotorSim.iterate(m_armSim.getVelocityRadPerSec() / Constants.IntakeConstants.kArmPositionConversionFactor,RoboRioSim.getVInVoltage(), 0.020);
+    m_armMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_armSim.getVelocityRadPerSec()),RoboRioSim.getVInVoltage(), 0.020);
     // Next, we update it. The standard loop time is 20ms.
     m_armSim.update(0.020);
 
     // Finally, we set our simulated encoder's readings and simulated battery
     // voltage
-    m_encoderSim.setPosition(m_armSim.getAngleRads());
+    m_encoderSim.setPosition(Units.radiansToRotations(m_armSim.getAngleRads()));
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
@@ -169,8 +172,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   /**
    * Run the control loop to reach and maintain the setpoint from the preferences.
    */
-  public void reachSetpoint() {
-    m_controller.setReference(m_armSetpointDegrees, ControlType.kMAXMotionPositionControl);
+  public void reachSetpoint(Double setPoint) {
+    m_controller.setReference(setPoint, ControlType.kPosition);
   }
 
   public void stoparm() {
@@ -199,11 +202,11 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   // Commands for arm
   public Command armDownCommand() {
-    return runOnce(() -> this.m_armSetpointDegrees = Constants.IntakeConstants.kArmDownPosition);
+    return runOnce(() -> this.reachSetpoint(Constants.IntakeConstants.kArmDownPosition));
   }
 
   public Command armUpCommand() {
-    return runOnce(() -> this.m_armSetpointDegrees = Constants.IntakeConstants.kArmUpPosition);
+    return runOnce(() -> this.reachSetpoint(Constants.IntakeConstants.kArmUpPosition));
   }
 
   // Commands for Intake

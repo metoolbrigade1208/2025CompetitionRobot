@@ -154,8 +154,8 @@ public class RobotContainer
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(Commands.none());
-      driverXbox.rightTrigger(0.2).onTrue(intake.armDownCommand());
-      driverXbox.rightTrigger(0.1).onFalse(intake.armUpCommand());
+      driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
+      driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
     }
 
