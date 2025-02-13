@@ -47,4 +47,55 @@ public final class Constants {
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT = 6;
   }
+  public static class IntakeConstants
+  {
+    public static final int kArmMotorPort = 61;
+    public static final int kIntakeMotorPort = 62;
+    public static final int kIRsensorport = 0;
+    public static final int kEncoderAChannel = 0; 
+    public static final int kEncoderBChannel = 1;
+    public static final int kJoystickPort = 0;
+  
+    public static final String kArmPositionKey = "ArmPosition";
+    public static final String kArmPKey = "ArmP";
+  
+    // The P gain for the PID controller that drives this arm.
+    public static final double kDefaultArmKp = 50.0;
+    public static final double kDefaultArmSetpointDegrees = 75.0;
+  
+    // distance per pulse = (angle per revolution) / (pulses per revolution)
+    //  = (2 * PI rads) / (4096 pulses)
+    public static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
+  
+    public static final double kArmReduction = 200.0;
+    public static final double kArmMass = 8.0; // Kilograms
+    public static final double kArmLength = Units.inchesToMeters(30);
+    public static final double kMinAngleRads = Units.degreesToRadians(-15);
+    public static final double kMaxAngleRads = Units.degreesToRadians(100);
+    public static final double kArmKp = 1;
+    public static final double kArmKi = 0;
+    public static final double kArmKd = 0.01;
+    public static final double kArmKs = 0;
+    public static final double kArmKg = 0;
+    public static final double kArmKv = 0;
+    public static final double kArmKa = 0;
+    public static final double kArmDownPosition = Units.degreesToRotations(90);
+    public static final double kArmUpPosition = 0;
+    public static final double kArmMaxSpeed = 1000;
+    public static final double kArmMaxAcceleration = 1500;
+    public static final double kArmMaxError = Units.degreesToRotations(1);
+
+    public static final double kIntakeRunSpeed = 1.0;
+   
+    public static final double kIntakeKp = 0;
+    public static final double kIntakeKi = 0;
+    public static final double kIntakeKd = 0;
+    public static final double kIntakeKv = 473 ;
+    public static final double kIntakeMaxSpeed = 0.5;
+    public static final double kIntakeMaxAcceleration = 0.5;
+    public static final double kIntakeMaxError = 0.5;
+
+    public static final double kArmPositionConversionFactor = 2 * Math.PI;
+    
+  }
 }
