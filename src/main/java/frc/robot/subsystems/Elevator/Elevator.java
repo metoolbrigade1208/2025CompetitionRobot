@@ -43,19 +43,19 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   // Standard classes for controlling our elevator
 
-  private final SparkMax m_motor = new SparkMax(Constants.elevatorConstants.kMotorPort, MotorType.kBrushless);
-  private final SparkMax m_motor2 = new SparkMax(Constants.elevatorConstants.kMotorPort2, MotorType.kBrushless);
+  private final SparkMax m_motor = new SparkMax(Constants.elevator.kMotorPort, MotorType.kBrushless);
+  private final SparkMax m_motor2 = new SparkMax(Constants.elevator.kMotorPort2, MotorType.kBrushless);
   private final SparkClosedLoopController m_controller = m_motor.getClosedLoopController();
 
   private final RelativeEncoder m_encoder = m_motor.getAlternateEncoder();
   // Simulation classes help us simulate what's going on, including gravity.
   private final ElevatorSim m_elevatorSim = new ElevatorSim(
       m_elevatorGearbox,
-      Constants.elevatorConstants.kElevatorGearing,
-      Constants.elevatorConstants.kCarriageMass,
-      Constants.elevatorConstants.kElevatorDrumRadius,
-      Constants.elevatorConstants.kMinElevatorHeightMeters,
-      Constants.elevatorConstants.kMaxElevatorHeightMeters,
+      Constants.elevator.kElevatorGearing,
+      Constants.elevator.kCarriageMass,
+      Constants.elevator.kElevatorDrumRadius,
+      Constants.elevator.kMinElevatorHeightMeters,
+      Constants.elevator.kMaxElevatorHeightMeters,
       true,
       0,
       0.01,
@@ -80,15 +80,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     SparkMaxConfig motor1config = new SparkMaxConfig();
     motor1config.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
     motor1config.closedLoop
-        .pid(Constants.elevatorConstants.kElevatorKp, Constants.elevatorConstants.kElevatorKi,
-            Constants.elevatorConstants.kElevatorKd, ClosedLoopSlot.kSlot0)
+        .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
+            Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot0)
         .outputRange(-1, 1, ClosedLoopSlot.kSlot0).maxMotion
         .maxVelocity(2500, ClosedLoopSlot.kSlot0)
         .maxAcceleration(5000, ClosedLoopSlot.kSlot0);
     motor1config.closedLoop
-        .pid(Constants.elevatorConstants.kElevatorKp, Constants.elevatorConstants.kElevatorKi,
-            Constants.elevatorConstants.kElevatorKd, ClosedLoopSlot.kSlot1)
-        .velocityFF(1 / Constants.elevatorConstants.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
+        .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
+            Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot1)
+        .velocityFF(1 / Constants.elevator.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
         .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in velocity control mode for this,
                                                     // not position control
 /*     motor1config.limitSwitch.setSparkMaxDataPortConfig()
@@ -110,7 +110,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     // First, we set our "inputs" (voltages)
     m_elevatorSim.setInput(m_motorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-    m_motorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond() / Constants.elevatorConstants.kVelocityConversionFactor, RoboRioSim.getVInVoltage(), 0.020);
+    m_motorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond() / Constants.elevator.kVelocityConversionFactor, RoboRioSim.getVInVoltage(), 0.020);
     // Next, we update it. The standard loop time is 20ms.
     m_elevatorSim.update(0.020);
     
@@ -133,7 +133,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
    * @param goalMeters the position to maintain
    */
   public void reachGoal(double goalMeters) {
-    m_controller.setReference(goalMeters / Constants.elevatorConstants.kPositionConversionFactor, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    m_controller.setReference(goalMeters / Constants.elevator.kPositionConversionFactor, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     // With the setpoint value we run PID control like normal
   }
 
@@ -187,7 +187,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     return new FunctionalCommand(
         () -> {
         },
-        () -> setVelocity(opXboxController.getLeftX() * Constants.elevatorConstants.kVelocityMultiplier),
+        () -> setVelocity(opXboxController.getLeftX() * Constants.elevator.kVelocityMultiplier),
         (done) -> stop(),
         () -> isForwardLimitSwitchPressed() || isReverseLimitSwitchPressed(),
         this);

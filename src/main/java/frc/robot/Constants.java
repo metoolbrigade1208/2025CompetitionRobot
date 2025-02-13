@@ -53,7 +53,7 @@ public final class Constants
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
-  public static class elevatorConstants
+  public static class elevator
   {
     public static final double kElevatorKp = 1;
     public static final double kElevatorKi = 0;
@@ -68,11 +68,12 @@ public final class Constants
 
     public static final double kElevatorGearing = 9.0;
     public static final double kCarriageMass = 10.0;
-    public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
+    public static final double kElevatorDrumCirc = Units.inchesToMeters(.25) *22; // 22 teeth number 25 chain (quater inch)
+    public static final double kElevatorDrumRadius = kElevatorDrumCirc / 2 * Math.PI;
     public static final double kMinElevatorHeightMeters = 0.0;
     public static final double kMaxElevatorHeightMeters = 2.5;
     //Position is rotation to meter
-    public static final double kPositionConversionFactor = 2 * kElevatorDrumRadius * Math.PI / kElevatorGearing;
+    public static final double kPositionConversionFactor = (kElevatorDrumCirc / kElevatorGearing) * 2;
     //Velocity is rpm to mps 
     public static final double kVelocityConversionFactor = kPositionConversionFactor / 60;
 
