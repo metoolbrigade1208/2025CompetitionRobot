@@ -129,7 +129,12 @@ public class SwerveSubsystem extends SubsystemBase
                                              Rotation2d.fromDegrees(0)));
   }
 
-  /**
+  public SwerveSubsystem(SwerveSubsystem drivetrain, double d, int i, int j) {
+    this.swerveDrive = drivetrain.swerveDrive;
+    //TODO Auto-generated constructor stub
+}
+
+/**
    * Setup the photon vision class.
    */
   public void setupPhotonVision()

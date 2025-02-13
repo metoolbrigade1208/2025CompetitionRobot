@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -31,11 +32,15 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
+  final CommandXboxController opXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase =
       new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
   private final Intake intake = new Intake(drivebase.getSwerveDrive());
+
+  private final Elevator elevator = new Elevator();
+
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -113,6 +118,7 @@ public class RobotContainer {
           Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
       driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
+
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command
@@ -136,6 +142,17 @@ public class RobotContainer {
       driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
+    }
+    if (true)
+
+    {
+      opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
+      opXbox.povDown().onTrue(elevator.elevatorLevel1Command());
+      opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
+      opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
+      opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
+      opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
+      opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
     }
 
   }
