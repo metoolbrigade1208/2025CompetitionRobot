@@ -103,7 +103,7 @@ public final class Constants {
 
   }
   public static class elevator {
-    public static final double kElevatorKp = 1;
+    public static final double kElevatorKp = 10;
     public static final double kElevatorKi = 0;
     public static final double kElevatorKd = 0;
 
@@ -120,9 +120,9 @@ public final class Constants {
                                                                                    // number 25
                                                                                    // chain (quater
                                                                                    // inch)
-    public static final double kElevatorDrumRadius = kElevatorDrumCirc / 2 * Math.PI;
-    public static final double kMinElevatorHeightMeters = 0.0;
-    public static final double kMaxElevatorHeightMeters = 2.5;
+    public static final double kElevatorDrumRadius = kElevatorDrumCirc / (2 * Math.PI);
+    public static final double kMinElevatorHeightMeters = LEVEL_1;
+    public static final double kMaxElevatorHeightMeters = LEVEL_4;
     // Position is rotation to meter
     public static final double kPositionConversionFactor =
         (kElevatorDrumCirc / kElevatorGearing) * 2;

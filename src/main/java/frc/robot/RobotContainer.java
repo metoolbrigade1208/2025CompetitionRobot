@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.Intake;
+// import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
@@ -37,7 +37,7 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase =
       new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
-  private final Intake intake = new Intake(drivebase.getSwerveDrive());
+  // private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
   private final Elevator elevator = new Elevator();
 
@@ -139,9 +139,9 @@ public class RobotContainer {
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(Commands.none());
-      driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
-      driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
-      driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
+      // driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
+      // driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
+      // driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
     }
     if (true)
 
@@ -151,8 +151,8 @@ public class RobotContainer {
       opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
-      opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
-      opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
+      // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
+      // opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
     }
 
   }
