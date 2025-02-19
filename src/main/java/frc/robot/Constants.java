@@ -4,8 +4,14 @@
 
 package frc.robot;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.function.Function;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.math.Matter;
 
 /**
@@ -18,11 +24,19 @@ import swervelib.math.Matter;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final double LEVEL_Intake = (Units.inchesToMeters(37.5));
-  public static final double LEVEL_1 = (Units.inchesToMeters(18));
-  public static final double LEVEL_2 = (Units.inchesToMeters(32));
-  public static final double LEVEL_3 = (Units.inchesToMeters(48));
-  public static final double LEVEL_4 = (Units.inchesToMeters(72));
+  public static final Optional<RobotConfig> config =
+      loadConfig(Filesystem.getDeployDirectory().toPath().resolve("config.json").toString());
+
+  private static double getConfigValue(Function<RobotConfig, Double> mapper, double defaultValue) {
+    return config.flatMap(c -> Optional.ofNullable(mapper.apply(c))).orElse(defaultValue);
+  }
+
+  public static final double LEVEL_Intake =
+      Units.inchesToMeters(getConfigValue(c -> c.inIntake, 18.0));
+  public static final double LEVEL_1 = Units.inchesToMeters(getConfigValue(c -> c.inL1, 18.0));
+  public static final double LEVEL_2 = Units.inchesToMeters(getConfigValue(c -> c.inL2, 32.0));
+  public static final double LEVEL_3 = Units.inchesToMeters(getConfigValue(c -> c.inL3, 48.0));
+  public static final double LEVEL_4 = Units.inchesToMeters(getConfigValue(c -> c.inL4, 72.0));
 
   public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS =
@@ -130,5 +144,15 @@ public final class Constants {
     public static final double kVelocityConversionFactor = kPositionConversionFactor / 60;
 
     public static final double kVelocityMultiplier = 5.0;
+  }
+
+  static Optional<RobotConfig> loadConfig(String path) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      return Optional.of(objectMapper.readValue(new File(path), RobotConfig.class));
+    } catch (IOException e) {
+      e.printStackTrace();
+      return Optional.empty();
+    }
   }
 }
