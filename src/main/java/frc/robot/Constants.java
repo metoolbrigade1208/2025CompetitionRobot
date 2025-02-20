@@ -131,4 +131,10 @@ public final class Constants {
 
     public static final double kVelocityMultiplier = 5.0;
   }
+  public static class OutputConstants {
+    public static final int kOutputMotorPort = 53; // SparkMax moter for output
+    public static final int kOutputGearbox = 1; // Gearbox for output
+    public static final int kIRsensorport = 2; // IR sensor for output
+  }
+
 }
