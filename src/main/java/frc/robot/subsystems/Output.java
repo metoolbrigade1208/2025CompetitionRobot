@@ -56,7 +56,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
   // declares IR Sensor
   private final DigitalInput m_coraldetect =
-      new DigitalInput(Constants.IntakeConstants.kIRsensorport);
+      new DigitalInput(Constants.OutputConstants.kIRsensorport);
   private final DigitalInput input = new DigitalInput(1);
   DigitalInput input2 = new DigitalInput(1);
 
@@ -66,23 +66,31 @@ public class Output extends SubsystemBase implements AutoCloseable {
   private final RelativeEncoder m_OutputEncoder = m_OutputMotor.getAlternateEncoder();
 
 
+  // declares the simulation for the output
+  private OutputSimulation m_OutputSim;
+
   public void periodic() {
 
+  public void setoutputpeed(Double speed) {
+    m_OutputMotor.set(speed);
+    m_OutputSim.startOutput();
+  }
+
   public Output(SwerveDrive drivetrain) {
-    // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
-    m_OutputSim = IntakeSimulation.OverTheBumperIntake("Coral", drivetrain.getMapleSimDrive().get(),
-        Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
-    // Put Mechanism 2d to SmartDashboard
-    SmartDashboard.putData("Arm Sim", m_mech2d);
-    m_armTower.setColor(new Color8Bit(Color.kBlue));
+    m_OutputSim = new OutputSimulation(m_OutputGearbox);
+
+    // Configure the output motor
+    SparkMaxConfig OutputMotorConfig = new SparkMaxConfig();
+    OutputMotorConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+
+    OutputMotorConfig.closedLoop.pidf(Constants.OutputConstants.kOutputKp,
+        Constants.OutputConstants.kOutputKi, Constants.OutputConstants.kOutputKd,
+        1.0 / Constants.OutputConstants.kOutputKv, ClosedLoopSlot.kSlot0);
   }
 
   /** Update the simulation model. */
 
 
-  }
-
-  }
 
   public Command isCoralDetected() {
     return new Command() {

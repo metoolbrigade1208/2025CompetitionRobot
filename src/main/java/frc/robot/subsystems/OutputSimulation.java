@@ -45,7 +45,8 @@ public class OutputSimulation {
     // Define the estimateMOI method
     public static double estimateMOI(int outputGearbox, int IRsensorport) {
         // Add the logic to estimate MOI
-        return 0.0; // Placeholder return value
+            return 0.0; // Placeholder return value
+        }
 
     private final OutputSimulation m_OutputSim;
 
@@ -57,6 +58,17 @@ public class OutputSimulation {
                 true, Units.degreesToRadians(0), Constants.IntakeConstants.kArmEncoderDistPerPulse,
                 0.0 // Add noise with a std-dev of 1 tick
         );
+    }
+    
+    // Define the constructor with the required parameters
+    public OutputSimulation(Object m_OutputGearbox,
+            int motorPort,
+            double moi, 
+            boolean flag, 
+            double radians, 
+            double encoderDistPerPulse, 
+            double noise) {
+        // Initialize the fields or add the logic for the constructor
     }
 
 }
