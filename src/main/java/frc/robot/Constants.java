@@ -113,6 +113,7 @@ public final class Constants {
     public static final double kElevatorkA = 0;
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
+    public static int kLimitSwitchPort = 1;
 
     public static final double kElevatorGearing = 9.0;
     public static final double kCarriageMass = 10.0;

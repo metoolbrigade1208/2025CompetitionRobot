@@ -69,7 +69,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private final MechanismLigament2d m_elevatorMech2d = m_mech2dRoot
       .append(new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
 
-  DigitalInput input = new DigitalInput(0);
+  DigitalInput input = new DigitalInput(Constants.elevator.kLimitSwitchPort);
 
 
   public Elevator() {
