@@ -6,6 +6,8 @@ package frc.robot.subsystems.Elevator;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.AnalogTrigger;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
@@ -43,23 +45,20 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   // Standard classes for controlling our elevator
 
-  private final SparkMax m_motor = new SparkMax(Constants.elevator.kMotorPort, MotorType.kBrushless);
-  private final SparkMax m_motor2 = new SparkMax(Constants.elevator.kMotorPort2, MotorType.kBrushless);
+  private final SparkMax m_motor =
+      new SparkMax(Constants.elevator.kMotorPort, MotorType.kBrushless);
+  private final SparkMax m_motor2 =
+      new SparkMax(Constants.elevator.kMotorPort2, MotorType.kBrushless);
   private final SparkClosedLoopController m_controller = m_motor.getClosedLoopController();
 
-  private final RelativeEncoder m_encoder = m_motor.getAlternateEncoder();
+  private final RelativeEncoder m_encoder = m_motor.getEncoder();
+  private final RelativeEncoder m_encoder2 = m_motor2.getEncoder();
+
   // Simulation classes help us simulate what's going on, including gravity.
-  private final ElevatorSim m_elevatorSim = new ElevatorSim(
-      m_elevatorGearbox,
-      Constants.elevator.kElevatorGearing,
-      Constants.elevator.kCarriageMass,
-      Constants.elevator.kElevatorDrumRadius,
-      Constants.elevator.kMinElevatorHeightMeters,
-      Constants.elevator.kMaxElevatorHeightMeters,
-      true,
-      0,
-      0.01,
-      0.0);
+  private final ElevatorSim m_elevatorSim = new ElevatorSim(m_elevatorGearbox,
+      Constants.elevator.kElevatorGearing, Constants.elevator.kCarriageMass,
+      Constants.elevator.kElevatorDrumRadius, Constants.elevator.kMinElevatorHeightMeters,
+      Constants.elevator.kMaxElevatorHeightMeters, true, 0, 0.01, 0.0);
 
   private final SparkRelativeEncoderSim m_encoderSim = new SparkRelativeEncoderSim(m_motor);
   private final SparkMaxSim m_motorSim = new SparkMaxSim(m_motor, m_elevatorGearbox);
@@ -67,10 +66,12 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   // Create a Mechanism2d visualization of the elevator
   private final Mechanism2d m_mech2d = new Mechanism2d(20, 50);
   private final MechanismRoot2d m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 10, 0);
-  private final MechanismLigament2d m_elevatorMech2d = m_mech2dRoot.append(
-      new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
+  private final MechanismLigament2d m_elevatorMech2d = m_mech2dRoot
+      .append(new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
 
-  /** Subsystem constructor. */
+  DigitalInput input = new DigitalInput(0);
+
+
   public Elevator() {
 
     // Publish Mechanism2d to SmartDashboard
@@ -83,37 +84,45 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
             Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot0)
         .outputRange(-1, 1, ClosedLoopSlot.kSlot0).maxMotion
-        .maxVelocity(2500, ClosedLoopSlot.kSlot0)
-        .maxAcceleration(5000, ClosedLoopSlot.kSlot0);
+            .maxVelocity(2500, ClosedLoopSlot.kSlot0).maxAcceleration(5000, ClosedLoopSlot.kSlot0);
     motor1config.closedLoop
         .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
             Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot1)
         .velocityFF(1 / Constants.elevator.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
-        .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in velocity control mode for this,
-                                                    // not position control
-/*     motor1config.limitSwitch.setSparkMaxDataPortConfig()
-        .forwardLimitSwitchEnabled(true)
-        .forwardLimitSwitchType(Type.kNormallyOpen)
-        .reverseLimitSwitchEnabled(true)
-        .reverseLimitSwitchType(Type.kNormallyOpen); */
+            .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in
+                                                           // velocity control mode for this,
+    // not position control
+    /*
+     * motor1config.limitSwitch.setSparkMaxDataPortConfig() .forwardLimitSwitchEnabled(true)
+     * .forwardLimitSwitchType(Type.kNormallyOpen) .reverseLimitSwitchEnabled(true)
+     * .reverseLimitSwitchType(Type.kNormallyOpen);
+     */
 
-    m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters,
+        PersistMode.kNoPersistParameters);
     SparkMaxConfig motor2config = new SparkMaxConfig();
     motor2config.follow(m_motor);
     motor2config.inverted(true);
-    m_motor2.configure(motor2config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_motor2.configure(motor2config, ResetMode.kNoResetSafeParameters,
+        PersistMode.kNoPersistParameters);
+  }
+
+  public boolean isAtBottom() {
+    return input.get();
   }
 
   /** Advance the simulation. */
   public void simulationPeriodic() {
-    // In this method, we update our simulat  ion of what our elevator is doing
+    // In this method, we update our simulat ion of what our elevator is doing
     // First, we set our "inputs" (voltages)
     m_elevatorSim.setInput(m_motorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-    m_motorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond() / Constants.elevator.kVelocityConversionFactor, RoboRioSim.getVInVoltage(), 0.020);
+    m_motorSim.iterate(
+        m_elevatorSim.getVelocityMetersPerSecond() / Constants.elevator.kVelocityConversionFactor,
+        RoboRioSim.getVInVoltage(), 0.020);
     // Next, we update it. The standard loop time is 20ms.
     m_elevatorSim.update(0.020);
-    
+
     // We set the simulated motor voltage and current draw
     // Finally, we set our simulated encoder's readings and simulated battery
     // voltage
@@ -123,8 +132,17 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_elevatorSim.getCurrentDrawAmps()));
-        
-   
+
+
+  }
+
+  public void periodic() {
+    // This method will be called once per scheduler run
+    updateTelemetry();
+    if (isAtBottom()) {
+      m_encoder.setPosition(0);
+      m_encoder2.setPosition(0);
+    }
   }
 
   /**
@@ -133,7 +151,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
    * @param goalMeters the position to maintain
    */
   public void reachGoal(double goalMeters) {
-    m_controller.setReference(goalMeters / Constants.elevator.kPositionConversionFactor, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    m_controller.setReference(goalMeters / Constants.elevator.kPositionConversionFactor,
+        ControlType.kPosition, ClosedLoopSlot.kSlot0);
     // With the setpoint value we run PID control like normal
   }
 
@@ -184,12 +203,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   // command for manual override
   public Command elevatorManualOverideCommand(XboxController opXboxController) {
-    return new FunctionalCommand(
-        () -> {
-        },
-        () -> setVelocity(opXboxController.getLeftX() * Constants.elevator.kVelocityMultiplier),
-        (done) -> stop(),
-        () -> isForwardLimitSwitchPressed() || isReverseLimitSwitchPressed(),
+    return new FunctionalCommand(() -> {
+    }, () -> setVelocity(opXboxController.getLeftX() * Constants.elevator.kVelocityMultiplier),
+        (done) -> stop(), () -> isForwardLimitSwitchPressed() || isReverseLimitSwitchPressed(),
         this);
   }
 
