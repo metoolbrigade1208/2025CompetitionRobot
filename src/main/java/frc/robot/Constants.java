@@ -143,6 +143,7 @@ public final class Constants {
     public static final double kOutputMaxSpeed = 0.5;
     public static final double kOutputMaxAcceleration = 0.5;
     public static final double kOutputMaxError = 0.5;
+    public static final double kOutputRunSpeed = 1.0;
   }
 
 }
