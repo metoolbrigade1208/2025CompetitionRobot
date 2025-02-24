@@ -77,6 +77,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // declares the simulation for the output
   public OutputSimulation m_OutputSim;
   private final SwerveDriveSimulation m_DriveSimulation;
+  private final SparkMax m_OutputMotorSim;
 
   // Creates Output Simulation
   public class OutputSimulation {
@@ -92,18 +93,23 @@ public class Output extends SubsystemBase implements AutoCloseable {
       Translation2d robotPosition = m_DriveSimulation.getSimulatedDriveTrainPose().getTranslation();
       if (isInSourceArea(robotPosition)) {
         // If the robot is in the specific area, start the output
-        runmotor();
+        m_OutputSim.runmotor();
         // check if the coral is detected
         if (m_coraldetect.get()) {
           // run the motor to grip the coral
-          runmotoronce();
+
+
         }
       }
     }
 
+    public void runmotor() {
+      m_OutputMotorSim.set(1);
+    }
+
     private boolean isInSourceArea(Translation2d position) {
-      Rectangle2d sourceArea = new Rectangle2d(
-          new Pose2d(Inches.of(0), Inches.of(0), new Rotation2d()), Inches.of(10), Inches.of(10));
+      Translation2d sourceArea = new Translation2d.
+      return sourceArea.contains(position);
     }
 
 
