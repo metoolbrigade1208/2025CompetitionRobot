@@ -20,6 +20,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 
 /**
@@ -34,12 +35,19 @@ public class RobotContainer {
   final CommandXboxController driverXbox = new CommandXboxController(0);
   final CommandXboxController opXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
+
+  private static final boolean useDrivebase = true;
   private final SwerveSubsystem drivebase =
-      new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+      useDrivebase ? new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"))
+          : null;
+  private final SwerveDrive swerveDrive = useDrivebase ? drivebase.getSwerveDrive() : null;
 
-  private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
-  private final Elevator elevator = new Elevator();
+  private static final boolean useIntake = true;
+  private final Intake intake = useIntake ? new Intake(swerveDrive) : null;
+
+  private static final boolean useElevator = true;
+  private final Elevator elevator = useElevator ? new Elevator() : null;
 
 
   /**
