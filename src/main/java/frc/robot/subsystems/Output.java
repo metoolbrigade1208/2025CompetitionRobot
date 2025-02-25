@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeReefSimulation;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -28,6 +29,7 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly
 import org.ironmaple.simulation.SimulatedArena;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
+import java.lang.reflect.Type;
 import java.util.Optional;
 import static edu.wpi.first.units.Units.Degrees;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -36,6 +38,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 // import org.ironmaple.simulation.OutputSimulation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -88,12 +91,14 @@ public class Output extends SubsystemBase implements AutoCloseable {
       m_OutputGearbox = OutputGearbox;
     }
 
-    public void startOutput() {
+
+
+    public void startOutputSim() {
       // Check if the robot is in the specific area
       Translation2d robotPosition = m_DriveSimulation.getSimulatedDriveTrainPose().getTranslation();
       if (isInSourceArea(robotPosition)) {
         // If the robot is in the specific area, start the output
-        m_OutputSim.runmotor();
+        m_OutputSim.runmotorSim();
         // check if the coral is detected
         if (m_coraldetect.get()) {
           // run the motor to grip the coral
@@ -103,28 +108,20 @@ public class Output extends SubsystemBase implements AutoCloseable {
       }
     }
 
-    public void runmotor() {
-      m_OutputMotorSim.set(1);
-    }
-
-    private boolean isInSourceArea(Translation2d position) {
-      Translation2d sourceArea = new Translation2d.
-      return sourceArea.contains(position);
+    public void runmotorSim() {
+      double simulatedMotorPosition = 1.0;
     }
 
 
   }
 
-  public void runmotor() {
-    m_OutputMotor.set(1);
+
+  public void runmotorOnceSim() {
+    SparkClosedLoopController simulatedMotorController = m_OutputMotorSim.getClosedLoopController();
+    simulatedMotorController.setReference(2, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
-  public void runmotorOnce() {
-    SparkClosedLoopController outputController = m_OutputMotor.getClosedLoopController();
-    outputController.setReference(2, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
-  }
-
-  public void stopOutput() {
+  public void stopOutputSim() {
     m_OutputMotor.set(0);
   }
 
@@ -154,12 +151,13 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // public int getGamePiecesAmount() {
   // int gamePiecesAmount = 0;
 
-  // Optional<ReefscapeReefSimulation> reefSimulation =
+  // Optional<ReefscapeReefSimulation> GetGamePiecesByType(String Type) {}
   // SimulatedArena.getInstance().getGamePiecesByType(ReefscapeReefSimulation.class);
   // if (reefSimulation.isPresent()) {
-  // gamePiecesAmount = reefSimulation.get().getTotalGamePieces();
+  // gamePiecesAmount = reefSimulation.get().getTotalGamePieces().size();
   // }
   // return gamePiecesAmount;
+  // }
 
   // }
 
