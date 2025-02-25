@@ -153,6 +153,14 @@ public class RobotContainer {
     }
     if (true)
 
+    // Operator Bindings:
+    // Right Trigger = go to intake position on elevator,
+    // Left Trigger = manual override elevator controls (Must hold button to move joysitcks)
+    // Dpad Down = go to elevator level 1
+    // Dpad Right = go to elevator level 2
+    // Dpad Up = go to elevator level 3
+    // Dpad Left = go to elevator level 4
+
     {
       opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
       opXbox.povDown().onTrue(elevator.elevatorLevel1Command());
@@ -160,7 +168,6 @@ public class RobotContainer {
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
       opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
-      opXbox.rightTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
 
     }
 
