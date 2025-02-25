@@ -4,24 +4,39 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Inches;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import swervelib.SwerveDrive;
+import frc.robot.Constants;
 
 public class LocationService extends SubsystemBase {
+  private static final AprilTagFieldLayout field =
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+
   /** Creates a new LocationService. */
   public LocationService(SwerveDrive drive) {
     m_drive = drive;
   }
 
-  List<AprilTag> tags =
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded).getTags();
+  List<AprilTag> tags = field.getTags();
   private SwerveDrive m_drive;
+  private List<Integer> redSourceTags = List.of(1, 2);
+  private List<Integer> blueSourceTags = List.of(12, 13);
+  private List<Integer> redReefTags = List.of(6, 7, 8, 9, 10, 11);
+  private List<Integer> blueReefTags = List.of(17, 18, 19, 20, 21, 22);
+  private List<Integer> bargeTags = List.of(4, 5, 14, 15);
 
   // Returns the closest tag ID to the robot
   public int closestTagId() {
@@ -41,6 +56,59 @@ public class LocationService extends SubsystemBase {
     return closestTagId;
   }
 
+  // in source region
+  public boolean inSourceRegion() {
+    Optional<Alliance> ally = DriverStation.getAlliance();
+    if (ally.isPresent()) {
+      if (ally.get() == Alliance.Red) {
+        return redSourceTags.contains(closestTagId()); // red alliance source april tags
+      }
+      if (ally.get() == Alliance.Blue) {
+
+        return blueSourceTags.contains(closestTagId()); // blue alliance source april tags
+      }
+    }
+    return false;
+  }
+
+  // in reef region
+  public boolean inReefRegion() {
+    Optional<Alliance> ally = DriverStation.getAlliance();
+    if (ally.isPresent()) {
+      if (ally.get() == Alliance.Red) {
+        return redReefTags.contains(closestTagId()); // red alliance reef april tags
+      }
+      if (ally.get() == Alliance.Blue) {
+        return blueReefTags.contains(closestTagId()); // blue alliance reef april tags
+      }
+    }
+    return false;
+  }
+
+  // in algae region
+  public boolean inAlgaeRegion() {
+    Optional<Alliance> ally = DriverStation.getAlliance();
+    if (ally.isPresent()) {
+      if (ally.get() == Alliance.Red) {
+        return closestTagId() == 3; // red alliance algae april tag
+      }
+      if (ally.get() == Alliance.Blue) {
+        return closestTagId() == 16; // blue alliance algae april tag
+      }
+    }
+    return false;
+  }
+
+  // in barge region
+  public boolean inBargeRegion() {
+    return bargeTags.contains(closestTagId()); // barge april tags
+  }
+
+  public Pose2d genPoseForReefFromTag(int TagID) {
+    Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
+    return tagPose.transformBy(
+        new Transform2d(Constants.kRobotLength.div(2), Inches.of(0), Rotation2d.fromDegrees(0)));
+  }
 
   @Override
   public void periodic() {
