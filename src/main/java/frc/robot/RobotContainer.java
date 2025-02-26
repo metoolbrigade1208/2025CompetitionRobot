@@ -179,7 +179,8 @@ public class RobotContainer {
     }
     // TODO: get rid of this code for publishing poses to network tables
     List<Pose2d> poses = new ArrayList<Pose2d>();
-    Arrays.stream(tagID).forEach((tagID) -> poses.add(locate.genPoseForReefFromTag(tagID, null)));
+    Arrays.stream(tagID).forEach(
+        (tagID) -> poses.add(locate.genPoseForReefFromTag(tagID, LocationService.Offset.LEFT)));
     robotPose.set(poses.toArray(new Pose2d[0]));
   }
 

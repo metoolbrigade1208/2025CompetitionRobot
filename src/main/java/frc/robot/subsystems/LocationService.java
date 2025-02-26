@@ -30,7 +30,7 @@ public class LocationService extends SubsystemBase {
     m_drive = drive;
   }
 
-  enum Offset {
+  public enum Offset {
     LEFT, RIGHT, CENTER
 
   }
@@ -120,6 +120,7 @@ public class LocationService extends SubsystemBase {
    */
   public Pose2d genPoseForReefFromTag(int TagID, Offset offset) {
     double inOffset = 0;
+    offset = offset == null ? Offset.CENTER : offset;
     switch (offset) {
       case LEFT:
         inOffset = -12.94 / 2;
@@ -131,8 +132,8 @@ public class LocationService extends SubsystemBase {
         break;
     }
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
-    Transform2d poseOffset = new Transform2d(Constants.kRobotLength.div(2), Inches.of(inOffset),
-        Rotation2d.fromDegrees(0));
+    Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(inOffset),
+        Rotation2d.fromDegrees(90));
     return tagPose.transformBy(poseOffset);
   }
 
