@@ -8,6 +8,13 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.struct.Pose2dStruct;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructArrayTopic;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.networktables.StructTopic;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -17,9 +24,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import swervelib.SwerveInputStream;
 
 /**
@@ -40,6 +51,17 @@ public class RobotContainer {
   private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
   private final Elevator elevator = new Elevator();
+
+  NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  NetworkTable table = inst.getTable("tagRobotPoses");
+
+  private final LocationService locate = new LocationService(drivebase.getSwerveDrive());
+  // TODO: get rid of this code for publishing poses to network tables
+  final int[] tagID = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+
+  final StructArrayTopic<Pose2d> robotPoseTopic =
+      table.getStructArrayTopic(String.valueOf(tagID), Pose2d.struct);
+  final StructArrayPublisher<Pose2d> robotPose = robotPoseTopic.publish();
 
 
   /**
@@ -130,6 +152,7 @@ public class RobotContainer {
       driverXbox.back().whileTrue(drivebase.centerModulesCommand());
       driverXbox.leftBumper().onTrue(Commands.none());
       driverXbox.rightBumper().onTrue(Commands.none());
+      // publish tag based robot poses to network tables
     } else {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
@@ -154,7 +177,10 @@ public class RobotContainer {
       opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
       opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
     }
-
+    // TODO: get rid of this code for publishing poses to network tables
+    List<Pose2d> poses = new ArrayList<Pose2d>();
+    Arrays.stream(tagID).forEach((tagID) -> poses.add(locate.genPoseForReefFromTag(tagID, null)));
+    robotPose.set(poses.toArray(new Pose2d[0]));
   }
 
   /**

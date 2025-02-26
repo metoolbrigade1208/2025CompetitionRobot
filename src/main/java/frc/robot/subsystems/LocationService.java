@@ -30,6 +30,11 @@ public class LocationService extends SubsystemBase {
     m_drive = drive;
   }
 
+  enum Offset {
+    LEFT, RIGHT, CENTER
+
+  }
+
   List<AprilTag> tags = field.getTags();
   private SwerveDrive m_drive;
   private List<Integer> redSourceTags = List.of(1, 2);
@@ -104,10 +109,31 @@ public class LocationService extends SubsystemBase {
     return bargeTags.contains(closestTagId()); // barge april tags
   }
 
-  public Pose2d genPoseForReefFromTag(int TagID) {
+  /**
+   * Generates a Pose2d for the reef region from a tag ID
+   * 
+   * OFFSET is whether to be offset to the left or right of the tag
+   * 
+   * @param TagID - the tag ID to generate the pose from
+   * @param offset - if null, it will return as if used CENTER
+   * @return Pose2d - the pose of the robot lined up on the tag.
+   */
+  public Pose2d genPoseForReefFromTag(int TagID, Offset offset) {
+    double inOffset = 0;
+    switch (offset) {
+      case LEFT:
+        inOffset = -12.94 / 2;
+        break;
+      case RIGHT:
+        inOffset = 12.94 / 2;
+        break;
+      default:
+        break;
+    }
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
-    return tagPose.transformBy(
-        new Transform2d(Constants.kRobotLength.div(2), Inches.of(0), Rotation2d.fromDegrees(0)));
+    Transform2d poseOffset = new Transform2d(Constants.kRobotLength.div(2), Inches.of(inOffset),
+        Rotation2d.fromDegrees(0));
+    return tagPose.transformBy(poseOffset);
   }
 
   @Override
