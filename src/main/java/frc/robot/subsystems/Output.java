@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.gamepieces.GamePieceOnFieldSimulation;
+import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeReefSimulation;
@@ -17,6 +19,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -31,6 +34,9 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import static edu.wpi.first.units.Units.Degrees;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -81,6 +87,8 @@ public class Output extends SubsystemBase implements AutoCloseable {
   public OutputSimulation m_OutputSim;
   private final SwerveDriveSimulation m_DriveSimulation;
   private final SparkMax m_OutputMotorSim;
+  private final List<GamePieceOnFieldSimulation> gamePiecesOnField = new ArrayList<>();
+  private final List<GamePieceProjectile> gamePiecesLaunched = new ArrayList<>();
 
   // Creates Output Simulation
   public class OutputSimulation {
@@ -102,7 +110,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
         // check if the coral is detected
         if (m_coraldetect.get()) {
           // run the motor to grip the coral
-
+          m_OutputSim.runmotorOnceSim();
 
         }
       }
@@ -112,14 +120,16 @@ public class Output extends SubsystemBase implements AutoCloseable {
       double simulatedMotorPosition = 1.0;
     }
 
+    public void runmotorOnceSim() {
+      SparkClosedLoopController simulatedMotorController =
+          m_OutputMotorSim.getClosedLoopController();
+      simulatedMotorController.setReference(2, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    }
+
 
   }
 
 
-  public void runmotorOnceSim() {
-    SparkClosedLoopController simulatedMotorController = m_OutputMotorSim.getClosedLoopController();
-    simulatedMotorController.setReference(2, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-  }
 
   public void stopOutputSim() {
     m_OutputMotor.set(0);
@@ -148,18 +158,34 @@ public class Output extends SubsystemBase implements AutoCloseable {
     // Initialize the fields or add the logic for the constructor
   }
 
-  // public int getGamePiecesAmount() {
-  // int gamePiecesAmount = 0;
 
-  // Optional<ReefscapeReefSimulation> GetGamePiecesByType(String Type) {}
-  // SimulatedArena.getInstance().getGamePiecesByType(ReefscapeReefSimulation.class);
-  // if (reefSimulation.isPresent()) {
-  // gamePiecesAmount = reefSimulation.get().getTotalGamePieces().size();
-  // }
-  // return gamePiecesAmount;
-  // }
+  public int getGamePiecesAmount() {
+    Optional<ReefscapeReefSimulation> reefSimulation =
+        SimulatedArena.getInstance().getGamePiecesByType("ReefscapeReefSimulation").stream()
+            .filter(ReefscapeReefSimulation.class::isInstance)
+            .map(ReefscapeReefSimulation.class::cast).findFirst();
+    if (reefSimulation.isPresent()) {
+      return reefSimulation.get().getTotalGamePieces();
+      // I literally cant figure out why this has an error if you have ANY IDEAS please let me know
+    }
+    return 0;
+  }
 
-  // }
+
+
+  // puts game pieces on the field (if this isnt needed then we can delete it)
+  public synchronized List<Pose3d> getGamePiecesByType(String type) {
+    final List<Pose3d> gamePiecesPoses = new ArrayList<>();
+    for (GamePieceOnFieldSimulation gamePiece : gamePiecesOnField)
+      if (Objects.equals(gamePiece.type, type))
+        gamePiecesPoses.add(gamePiece.getPose3d());
+
+    for (GamePieceProjectile gamePiece : gamePiecesLaunched)
+      if (Objects.equals(gamePiece.gamePieceType, type))
+        gamePiecesPoses.add(gamePiece.getPose3d());
+
+    return gamePiecesPoses;
+  }
 
 
 
