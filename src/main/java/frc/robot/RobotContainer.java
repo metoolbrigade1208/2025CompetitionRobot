@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 
 /**
@@ -45,12 +46,19 @@ public class RobotContainer {
   final CommandXboxController driverXbox = new CommandXboxController(0);
   final CommandXboxController opXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
+
+  private static final boolean useDrivebase = true;
   private final SwerveSubsystem drivebase =
-      new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+      useDrivebase ? new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"))
+          : null;
+  private final SwerveDrive swerveDrive = useDrivebase ? drivebase.getSwerveDrive() : null;
 
-  private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
-  private final Elevator elevator = new Elevator();
+  private static final boolean useIntake = true;
+  private final Intake intake = useIntake ? new Intake(swerveDrive) : null;
+
+  private static final boolean useElevator = true;
+  private final Elevator elevator = useElevator ? new Elevator() : null;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable table = inst.getTable("tagRobotPoses");
@@ -62,7 +70,6 @@ public class RobotContainer {
   final StructArrayTopic<Pose2d> robotPoseTopic =
       table.getStructArrayTopic(String.valueOf(tagID), Pose2d.struct);
   final StructArrayPublisher<Pose2d> robotPose = robotPoseTopic.publish();
-
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
