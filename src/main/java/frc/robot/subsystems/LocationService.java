@@ -15,6 +15,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.IntegerTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,10 +32,23 @@ public class LocationService extends SubsystemBase {
   /** Creates a new LocationService. */
   public LocationService(SwerveDrive drive) {
     m_drive = drive;
+    offsetSub = OffsetTopic.subscribe(0);
   }
 
   public enum Offset {
-    LEFT, RIGHT, CENTER
+    LEFT(-1), RIGHT(1), CENTER(0);
+
+    private int val;
+
+    Offset(int i) {
+      val = i;
+    }
+
+    public int getVal() {
+      return val;
+    }
+
+
 
   }
 
@@ -42,6 +59,12 @@ public class LocationService extends SubsystemBase {
   private List<Integer> redReefTags = List.of(6, 7, 8, 9, 10, 11);
   private List<Integer> blueReefTags = List.of(17, 18, 19, 20, 21, 22);
   private List<Integer> bargeTags = List.of(4, 5, 14, 15);
+
+  NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  NetworkTable table = inst.getTable("SmartDashboard");
+
+  IntegerTopic OffsetTopic = table.getIntegerTopic("Offset");
+  IntegerSubscriber offsetSub;
 
   // Returns the closest tag ID to the robot
   public int closestTagId() {
@@ -135,6 +158,25 @@ public class LocationService extends SubsystemBase {
     Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(inOffset),
         Rotation2d.fromDegrees(90));
     return tagPose.transformBy(poseOffset);
+  }
+
+  public Pose2d getTagAutoPose2d() {
+    int offsetNum = (int) offsetSub.get();
+    Offset offset = Offset.CENTER;
+    switch (offsetNum) {
+      case -1:
+        offset = Offset.LEFT;
+        break;
+      case 1:
+        offset = Offset.RIGHT;
+        break;
+      default:
+        break;
+    }
+    if (inReefRegion()) {
+      return genPoseForReefFromTag(closestTagId(), offset);
+    }
+    return null;
   }
 
   @Override
