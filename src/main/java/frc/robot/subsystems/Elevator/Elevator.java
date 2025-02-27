@@ -7,6 +7,8 @@ package frc.robot.subsystems.Elevator;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogTrigger;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
@@ -49,7 +51,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private final SparkClosedLoopController m_controller = m_motor.getClosedLoopController();
   private final SparkClosedLoopController m_controller2 = m_motor2.getClosedLoopController();
 
-  private final RelativeEncoder m_encoder = m_motor.getAlternateEncoder();
+  private final RelativeEncoder m_encoder = m_motor.getEncoder();
+  private final RelativeEncoder m_encoder2 = m_motor2.getEncoder();
+
   // Simulation classes help us simulate what's going on, including gravity.
   private final ElevatorSim m_elevatorSim =
       new ElevatorSim(m_elevatorGearbox, Constants.elevator.kElevatorGearing,
@@ -68,7 +72,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private final MechanismLigament2d m_elevatorMech2d = m_mech2dRoot
       .append(new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
 
-  /** Subsystem constructor. */
+  DigitalInput input = new DigitalInput(Constants.elevator.kLimitSwitchPort);
+
+
   public Elevator() {
 
     // Publish Mechanism2d to SmartDashboard
@@ -130,13 +136,19 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         m_elevatorSim.getPositionMeters() / Constants.elevator.kPositionConversionFactor);
     m_encoderSim2.setPosition(
         m_elevatorSim.getPositionMeters() / Constants.elevator.kPositionConversionFactor);
-
-    SmartDashboard.putNumber("ElevatorSimPosition", m_elevatorSim.getPositionMeters());
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_elevatorSim.getCurrentDrawAmps() * 2));
 
+  }
 
+  public void periodic() {
+    // This method will be called once per scheduler run
+    updateTelemetry();
+    if (isAtBottom()) {
+      m_encoder.setPosition(0);
+      m_encoder2.setPosition(0);
+    }
   }
 
   /**
