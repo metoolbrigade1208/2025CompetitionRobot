@@ -5,21 +5,38 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.struct.Pose2dStruct;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.networktables.IntegerPublisher;
+import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.IntegerTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructArrayTopic;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.networktables.StructTopic;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 
@@ -50,6 +67,20 @@ public class RobotContainer {
   private final Elevator elevator = useElevator ? new Elevator() : null;
 
 
+
+  NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  NetworkTable table = inst.getTable("tagRobotPoses");
+
+
+  NetworkTable offsetTable = inst.getTable("SmartDashboard");
+
+  IntegerTopic OffsetTopic = offsetTable.getIntegerTopic("Offset");
+  IntegerPublisher offsetPub = OffsetTopic.publish();
+
+
+  private final LocationService locate = new LocationService(drivebase.getSwerveDrive());
+  private int elevatorLevel = 1;
+
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
    * velocity.
@@ -75,8 +106,30 @@ public class RobotContainer {
   SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream
       .of(drivebase.getSwerveDrive(), () -> -driverXbox.getLeftY(), () -> -driverXbox.getLeftX())
       .withControllerRotationAxis(() -> -driverXbox.getRawAxis(4))
-      .deadband(OperatorConstants.DEADBAND).scaleTranslation(0.8).allianceRelativeControl(true);
-  // Derive the heading axis with math!
+      .deadband(OperatorConstants.DEADBAND).scaleTranslation(0.8).allianceRelativeControl(true)
+      .driveToPose(() -> autoPose(),
+          new ProfiledPIDController(10.0, 0.0, 0.1,
+              new Constraints(Constants.MAX_SPEED, Constants.MAX_ACCELERATION)),
+          new ProfiledPIDController(10.0, 0.0, 0.1, new Constraints(100, 100)))
+      .driveToPoseEnabled(() -> autoPoseEnable());
+
+  private Pose2d autoPose() {
+
+    Pose2d tagAutoPose2d = locate.getTagAutoPose2d();
+    if (tagAutoPose2d == null) {
+      poseable = false;
+      return new Pose2d();
+    }
+    return tagAutoPose2d;
+  }
+
+  private boolean poseable = false;
+
+  private boolean autoPoseEnable() {
+    return poseable;
+  }
+
+  // Derive the heading axis with math!p\
   SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
       .withControllerHeadingAxis(
           () -> Math.sin(-driverXbox.getRawAxis(4) * Math.PI) * (Math.PI * 2),
@@ -138,6 +191,7 @@ public class RobotContainer {
       driverXbox.back().whileTrue(drivebase.centerModulesCommand());
       driverXbox.leftBumper().onTrue(Commands.none());
       driverXbox.rightBumper().onTrue(Commands.none());
+      // publish tag based robot poses to network tables
     } else {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
@@ -150,6 +204,17 @@ public class RobotContainer {
       driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
+      driverXbox.povLeft()
+          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.LEFT.getVal())));
+      driverXbox.povRight()
+          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.RIGHT.getVal())));
+      driverXbox.povCenter()
+          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.CENTER.getVal())));
+      driverXbox.rightStick().onTrue(Commands.runOnce(() -> poseable = true))
+          .onFalse(Commands.runOnce(() -> poseable = false));
+      // driverXbox.povUp().onTrue(Command.runOnce(() -> {
+      // elevatorLevel = java.Math.max(elevatorLevel + 1, 4);
+      // }));
     }
     if (true)
 
