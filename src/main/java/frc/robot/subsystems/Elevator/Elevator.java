@@ -74,7 +74,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   DigitalInput input = new DigitalInput(Constants.elevator.kLimitSwitchPort);
 
-
   public Elevator() {
 
     // Publish Mechanism2d to SmartDashboard
@@ -178,12 +177,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     m_motor2.set(0.0);
   }
 
-  public boolean isForwardLimitSwitchPressed() {
-    return m_motor.getForwardLimitSwitch().isPressed();
-  }
-
-  public boolean isReverseLimitSwitchPressed() {
-    return m_motor.getReverseLimitSwitch().isPressed();
+  public boolean isAtBottom() {
+    return input.get();
   }
 
   /** Update telemetry, including the mechanism visualization. */
