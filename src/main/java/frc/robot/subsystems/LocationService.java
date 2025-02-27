@@ -113,15 +113,15 @@ public class LocationService extends SubsystemBase {
     return false;
   }
 
-  // in algae region
-  public boolean inAlgaeRegion() {
+  // in processor region
+  public boolean inProcessorRegion() {
     Optional<Alliance> ally = DriverStation.getAlliance();
     if (ally.isPresent()) {
       if (ally.get() == Alliance.Red) {
-        return closestTagId() == 3; // red alliance algae april tag
+        return closestTagId() == 3; // red alliance processor april tag
       }
       if (ally.get() == Alliance.Blue) {
-        return closestTagId() == 16; // blue alliance algae april tag
+        return closestTagId() == 16; // blue alliance processor april tag
       }
     }
     return false;
@@ -160,6 +160,32 @@ public class LocationService extends SubsystemBase {
     return tagPose.transformBy(poseOffset);
   }
 
+  public Pose2d genPoseForSourceFromTag(int TagID, Offset offset) {
+    double inOffset = 0;
+    offset = offset == null ? Offset.CENTER : offset;
+    switch (offset) {
+      case LEFT:
+        inOffset = -12.94 / 2;
+        break;
+      case RIGHT:
+        inOffset = 12.94 / 2;
+        break;
+      default:
+        break;
+    }
+    Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
+    Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(inOffset),
+        Rotation2d.fromDegrees(270));
+    return tagPose.transformBy(poseOffset);
+  }
+
+  public Pose2d genPoseForProcessorFromTag(int TagID) {
+    Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
+    Transform2d poseOffset =
+        new Transform2d(Constants.kRobotWidth.div(2), Inches.of(0.0), Rotation2d.fromDegrees(0));
+    return tagPose.transformBy(poseOffset);
+  }
+
   public Pose2d getTagAutoPose2d() {
     int offsetNum = (int) offsetSub.get();
     Offset offset = Offset.CENTER;
@@ -176,6 +202,13 @@ public class LocationService extends SubsystemBase {
     if (inReefRegion()) {
       return genPoseForReefFromTag(closestTagId(), offset);
     }
+    if (inSourceRegion()) {
+      return genPoseForSourceFromTag(closestTagId(), offset);
+    }
+    if (inProcessorRegion()) {
+      return genPoseForProcessorFromTag(closestTagId());
+    }
+
     return null;
   }
 
