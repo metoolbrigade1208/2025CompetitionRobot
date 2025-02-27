@@ -79,13 +79,6 @@ public class RobotContainer {
 
 
   private final LocationService locate = new LocationService(drivebase.getSwerveDrive());
-  // TODO: get rid of this code for publishing poses to network tables
-  final int[] tagID = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
-
-  final StructArrayTopic<Pose2d> robotPoseTopic =
-      table.getStructArrayTopic(String.valueOf(tagID), Pose2d.struct);
-  final StructArrayPublisher<Pose2d> robotPose = robotPoseTopic.publish();
-
   private int elevatorLevel = 1;
 
   /**
@@ -242,11 +235,7 @@ public class RobotContainer {
       opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
 
     }
-    // TODO: get rid of this code for publishing poses to network tables
-    List<Pose2d> poses = new ArrayList<Pose2d>();
-    Arrays.stream(tagID).forEach(
-        (tagID) -> poses.add(locate.genPoseForReefFromTag(tagID, LocationService.Offset.LEFT)));
-    robotPose.set(poses.toArray(new Pose2d[0]));
+
   }
 
   /**
