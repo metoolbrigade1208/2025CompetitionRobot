@@ -208,7 +208,6 @@ public class LocationService extends SubsystemBase {
     if (inProcessorRegion()) {
       return genPoseForProcessorFromTag(closestTagId());
     }
-
     return null;
   }
 

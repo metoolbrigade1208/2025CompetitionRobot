@@ -114,11 +114,28 @@ public class RobotContainer {
       .of(drivebase.getSwerveDrive(), () -> -driverXbox.getLeftY(), () -> -driverXbox.getLeftX())
       .withControllerRotationAxis(() -> -driverXbox.getRawAxis(4))
       .deadband(OperatorConstants.DEADBAND).scaleTranslation(0.8).allianceRelativeControl(true)
-      .driveToPose(() -> locate.getTagAutoPose2d(),
-          new ProfiledPIDController(1.0, 0.0, 0.0,
+      .driveToPose(() -> autoPose(),
+          new ProfiledPIDController(10.0, 0.0, 0.1,
               new Constraints(Constants.MAX_SPEED, Constants.MAX_ACCELERATION)),
-          new ProfiledPIDController(1.0, 0.0, 0.0, null))
-      .driveToPoseEnabled(() -> driverXbox.rightStick().getAsBoolean());
+          new ProfiledPIDController(10.0, 0.0, 0.1, new Constraints(100, 100)))
+      .driveToPoseEnabled(() -> autoPoseEnable());
+
+  private Pose2d autoPose() {
+
+    Pose2d tagAutoPose2d = locate.getTagAutoPose2d();
+    if (tagAutoPose2d == null) {
+      poseable = false;
+      return new Pose2d();
+    }
+    return tagAutoPose2d;
+  }
+
+  private boolean poseable = false;
+
+  private boolean autoPoseEnable() {
+    return poseable;
+  }
+
   // Derive the heading axis with math!p\
   SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
       .withControllerHeadingAxis(
@@ -200,6 +217,8 @@ public class RobotContainer {
           .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.RIGHT.getVal())));
       driverXbox.povCenter()
           .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.CENTER.getVal())));
+      driverXbox.rightStick().onTrue(Commands.runOnce(() -> poseable = true))
+          .onFalse(Commands.runOnce(() -> poseable = false));
       // driverXbox.povUp().onTrue(Command.runOnce(() -> {
       // elevatorLevel = java.Math.max(elevatorLevel + 1, 4);
       // }));
