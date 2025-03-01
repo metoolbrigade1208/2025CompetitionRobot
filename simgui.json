@@ -11,6 +11,11 @@
           "open": true
         }
       },
+      "SPARK MAX [51]": {
+        "header": {
+          "open": true
+        }
+      },
       "SPARK MAX [5]": {
         "header": {
           "open": true
@@ -67,6 +72,7 @@
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/Arm Sim": "Mechanism2d",
+      "/SmartDashboard/Elevator Sim": "Mechanism2d",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",
@@ -132,6 +138,15 @@
         "open": true
       },
       "SmartDashboard": {
+        "Elevator Sim": {
+          "Elevator Root": {
+            "open": true
+          },
+          "open": true
+        },
+        "Encoders": {
+          "open": true
+        },
         "Field": {
           "open": true
         },
