@@ -11,6 +11,7 @@ import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeReefSimulation;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 // import com.revrobotics.spark.SparkClosedLoopController;
@@ -37,8 +38,6 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.subsystems.LocationService.Offset;
 import swervelib.SwerveDrive;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
-import org.ironmaple.simulation.SimulatedArena;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import java.lang.reflect.Type;
@@ -73,7 +72,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
       new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
 
   // declares the moter gearbox
-  private final DCMotor m_OutputGearbox = DCMotor.getNEO(1);
+  private DCMotor m_OutputGearbox = DCMotor.getNEO(1);
 
   // declares IR Sensor
   private final DigitalInput m_coraldetect =
@@ -97,14 +96,21 @@ public class Output extends SubsystemBase implements AutoCloseable {
     OutputMotorConfig.closedLoop.pidf(Constants.OutputConstants.kOutputKp,
         Constants.OutputConstants.kOutputKi, Constants.OutputConstants.kOutputKd,
         1.0 / Constants.OutputConstants.kOutputKv, ClosedLoopSlot.kSlot0);
-  }}
 
+    // Initialize the blank final fields
+    m_LocationService = new LocationService(drivetrain);
+    m_OutputMotorSim =
+        new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
+  }
 
-  public OutputSimulation m_OutputSim;
+  // declares everything needed for the Output sim
+  @SuppressWarnings("unused")
   private final SwerveDriveSimulation m_DriveSimulation;
   private final SparkMax m_OutputMotorSim;
+  @SuppressWarnings("unused")
   private final LocationService m_LocationService;
 
+  // gets the source tag
   public Pose2d genPoseForSourceFromTag(int TagID, Offset offset) {
     double inOffset = 0;
     offset = offset == null ? Offset.CENTER : offset;
@@ -153,9 +159,9 @@ public class Output extends SubsystemBase implements AutoCloseable {
   private SwerveDrive m_drive;
   private List<Integer> redSourceTags = List.of(1, 2);
   private List<Integer> blueSourceTags = List.of(12, 13);
-  private List<Integer> redReefTags = List.of(6, 7, 8, 9, 10, 11);
-  private List<Integer> blueReefTags = List.of(17, 18, 19, 20, 21, 22);
-  private List<Integer> bargeTags = List.of(4, 5, 14, 15);
+  // private List<Integer> redReefTags = List.of(6, 7, 8, 9, 10, 11);
+  // private List<Integer> blueReefTags = List.of(17, 18, 19, 20, 21, 22);
+  // private List<Integer> bargeTags = List.of(4, 5, 14, 15);
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable table = inst.getTable("SmartDashboard");
@@ -208,103 +214,145 @@ public class Output extends SubsystemBase implements AutoCloseable {
       default:
         break;
     }
+    {
+      return genPoseForSourceFromTag(offsetNum, offset);
+    }
+  }
+
+  public class ReefscapeReefSimulation {
+
+    // puts game pieces on the field (if this isnt needed then we can delete it)
+    // public synchronized List<Pose3d> getGamePiecesByType(String type) {
+    // final List<Pose3d> gamePiecesPoses = new ArrayList<>();
+    // for (GamePieceOnFieldSimulation gamePiece : gamePiecesOnField)
+    // if (Objects.equals(gamePiece.type, type))
+    // gamePiecesPoses.add(gamePiece.getPose3d());
+
+    // for (GamePieceProjectile gamePiece : gamePiecesLaunched)
+    // if (Objects.equals(gamePiece.gamePieceType, type))
+    // gamePiecesPoses.add(gamePiece.getPose3d());
+
+    // return gamePiecesPoses;
+    // }
+
+    private List<GamePiece> gamePieces;
+
+    public ReefscapeReefSimulation() {
+      // Intitalize the list of game pieces
+      gamePieces = new ArrayList<>();
+    }
+
+    // Method to add a game piece to the simulation
+    public void addGamePiece(GamePiece gamePiece) {
+      gamePieces.add(gamePiece);
+    }
+
+    // Method to get the total number of game pieces
+    public int getTotalGamePieces() {
+      return gamePieces.size();
+    }
+  }
+  // Inner class to represent a game piece
+  public static class GamePiece {
+    private String type;
+    private Pose3d pose;
+
+    public GamePiece(String type, Pose3d pose) {
+      this.type = type;
+      this.pose = pose;
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    public Pose3d getPose() {
+      return pose;
+    }
+  }
 
 
   // Creates Output Simulation
-  // public OutputSimulation m_OutputSim;
-  // private final DCMotor m_OutputGearbox;
 
-
+  public OutputSimulation m_OutputSim;
 
   public void OutputSimulation(DCMotor OutputGearbox) {
+    m_OutputGearbox = OutputGearbox;
+  }
+
+  public class OutputSimulation {
+    public OutputSimulation(DCMotor OutputGearbox) {
       m_OutputGearbox = OutputGearbox;
-
-
-  public void startOutputSim() {
-    // Check if the robot is in the specific area
-    if (inSourceRegion()) {
-      return genPoseForSourceFromTag(closestTagId(), offset);
     }
-    m_OutputSim.runmotorSim();
-    // check if the coral is detected
-    if (m_coraldetect.get()) {
-      // run the motor to grip the coral
-      m_OutputSim.runmotorOnceSim();
 
+    public void startOutputSim() {
+      // Check if the robot is in the specific area
+      Offset offset = Offset.CENTER; // Define the offset variable
+      if (inSourceRegion()) {
+        genPoseForSourceFromTag(closestTagId(), offset);
+        return;
+      }
+      m_OutputSim.runmotorSim();
+      // check if the coral is detected
+      if (m_coraldetect.get()) {
+        // run the motor to grip the coral
+        m_OutputSim.runmotorOnceSim();
+
+      }
+    }
+
+    public void runmotorSim() {
+      m_OutputMotorSim.set(1);
+    }
+
+    public void runmotorOnceSim() {
+      SparkClosedLoopController simulatedMotorController =
+          m_OutputMotorSim.getClosedLoopController();
+      simulatedMotorController.setReference(2, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    }
+
+
+
+    public void stopOutputSim() {
+      m_OutputMotor.set(0);
+    }
+
+    public void addGamePieceProjectile(SwerveDriveSimulation driveSimulation, double height) {
+      SimulatedArena.getInstance().addGamePieceProjectile(new ReefscapeCoralOnFly(
+          // Obtain robot position from drive simulation
+          driveSimulation.getSimulatedDriveTrainPose().getTranslation(),
+          // The scoring mechanism is installed at (0.46, 0) (meters) on the robot
+          new Translation2d(0.35, 0),
+          // Obtain robot speed from drive simulation
+          driveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+          // Obtain robot facing from drive simulation
+          driveSimulation.getSimulatedDriveTrainPose().getRotation(),
+          // The height at which the coral is ejected
+          Inches.of(height),
+          // The initial speed of the coral
+          InchesPerSecond.of(10),
+          // The coral is ejected at a 35-degree slope
+          Degrees.of(-35)));
+    }
+
+    public void initializeOutputSimulation(DCMotor OutputGearbox, int motorPort, double moi,
+        boolean flag, double radians, double encoderDistPerPulse, double noise) {
+      // Initialize the fields or add the logic for the constructor
+    }
+
+    public int getGamePiecesAmount() {
+      Optional<ReefscapeReefSimulation> reefSimulation =
+          SimulatedArena.getInstance().getGamePiecesByType("ReefscapeReefSimulation").stream()
+              .filter(ReefscapeReefSimulation.class::isInstance)
+              .map(ReefscapeReefSimulation.class::cast).findFirst();
+      if (reefSimulation.isPresent()) {
+        return reefSimulation.get().getTotalGamePieces();
+        // I literally cant figure out why this has an error if you have ANY IDEAS please let me
+        // know
+      }
+      return 0;
     }
   }
-
-
-
-  public void runmotorSim() {
-    double simulatedMotorPosition = 1.0;
-  }
-
-  public void runmotorOnceSim() {
-    SparkClosedLoopController simulatedMotorController = m_OutputMotorSim.getClosedLoopController();
-    simulatedMotorController.setReference(2, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-  }
-
-
-
-  public void stopOutputSim() {
-    m_OutputMotor.set(0);
-  }
-
-  public void addGamePieceProjectile(SwerveDriveSimulation driveSimulation, double height) {
-    SimulatedArena.getInstance().addGamePieceProjectile(new ReefscapeCoralOnFly(
-        // Obtain robot position from drive simulation
-        driveSimulation.getSimulatedDriveTrainPose().getTranslation(),
-        // The scoring mechanism is installed at (0.46, 0) (meters) on the robot
-        new Translation2d(0.35, 0),
-        // Obtain robot speed from drive simulation
-        driveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-        // Obtain robot facing from drive simulation
-        driveSimulation.getSimulatedDriveTrainPose().getRotation(),
-        // The height at which the coral is ejected
-        Inches.of(height),
-        // The initial speed of the coral
-        InchesPerSecond.of(10),
-        // The coral is ejected at a 35-degree slope
-        Degrees.of(-35)));
-  }
-
-  public void OutputSimulation(DCMotor OutputGearbox, int motorPort, double moi, boolean flag,
-      double radians, double encoderDistPerPulse, double noise) {
-    // Initialize the fields or add the logic for the constructor
-  }
-
-
-  public int getGamePiecesAmount() {
-    Optional<ReefscapeReefSimulation> reefSimulation =
-        SimulatedArena.getInstance().getGamePiecesByType("ReefscapeReefSimulation").stream()
-            .filter(ReefscapeReefSimulation.class::isInstance)
-            .map(ReefscapeReefSimulation.class::cast).findFirst();
-    if (reefSimulation.isPresent()) {
-      return reefSimulation.get().getTotalGamePieces();
-      // I literally cant figure out why this has an error if you have ANY IDEAS please let me
-      // know
-    }
-    return 0;
-  }
-
-
-
-  // puts game pieces on the field (if this isnt needed then we can delete it)
-  // public synchronized List<Pose3d> getGamePiecesByType(String type) {
-  // final List<Pose3d> gamePiecesPoses = new ArrayList<>();
-  // for (GamePieceOnFieldSimulation gamePiece : gamePiecesOnField)
-  // if (Objects.equals(gamePiece.type, type))
-  // gamePiecesPoses.add(gamePiece.getPose3d());
-
-  // for (GamePieceProjectile gamePiece : gamePiecesLaunched)
-  // if (Objects.equals(gamePiece.gamePieceType, type))
-  // gamePiecesPoses.add(gamePiece.getPose3d());
-
-  // return gamePiecesPoses;
-  // }
-
-
 
   public void periodic() {
 
@@ -323,7 +371,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
   // starts output
   public void setoutputspeed(Double speed) {
-
+    runmotor();
   }
 
   // runs motor again to grip coral
@@ -355,8 +403,9 @@ public class Output extends SubsystemBase implements AutoCloseable {
   }
 
 
-@Override
+  @Override
   public void close() {
     m_OutputMotor.close();
     // m_encoder.close();
   }
+}

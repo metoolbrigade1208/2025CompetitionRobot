@@ -100,4 +100,14 @@ public class OutputSimulation {
         // Initialize the fields or add the logic for the constructor
     }
 
+    public void runmotorSim() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'runmotorSim'");
+    }
+
+    public void runmotorOnceSim() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'runmotorOnceSim'");
+    }
+
 }
