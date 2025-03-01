@@ -53,6 +53,7 @@ public class RobotContainer {
           : null;
   private final SwerveDrive swerveDrive = useDrivebase ? drivebase.getSwerveDrive() : null;
 
+  // private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
   private static final boolean useIntake = true;
   private final Intake intake = useIntake ? new Intake(swerveDrive) : null;
@@ -224,7 +225,7 @@ public class RobotContainer {
       opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
-      opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
+      // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
 
     }
 
