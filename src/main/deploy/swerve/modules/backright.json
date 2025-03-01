@@ -3,7 +3,7 @@
     "front": 9.125,
     "left": -11.375
   },
-  "absoluteEncoderOffset": 90,
+  "absoluteEncoderOffset": 270,
   "drive": {
     "type": "sparkflex_vortex",
     "id": 12,
