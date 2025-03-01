@@ -9,21 +9,14 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.struct.Pose2dStruct;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructArrayTopic;
-import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.networktables.StructTopic;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -34,9 +27,6 @@ import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 import frc.robot.subsystems.Output;
@@ -49,6 +39,10 @@ import frc.robot.subsystems.Output;
  */
 public class RobotContainer {
 
+  private final ProfiledPIDController drivePoseTranslationPID = new ProfiledPIDController(10.0, 0.0,
+      0.1, new Constraints(Constants.MAX_SPEED, Constants.MAX_ACCELERATION));
+  private final ProfiledPIDController drivePoseAnglePIDController =
+      new ProfiledPIDController(10.0, 0.0, 0.1, new Constraints(1000, 10000));
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
   final CommandXboxController opXbox = new CommandXboxController(1);
@@ -60,6 +54,7 @@ public class RobotContainer {
           : null;
   private final SwerveDrive swerveDrive = useDrivebase ? drivebase.getSwerveDrive() : null;
 
+  // private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
   private static final boolean useIntake = true;
   private final Intake intake = useIntake ? new Intake(swerveDrive) : null;
@@ -110,10 +105,7 @@ public class RobotContainer {
       .of(drivebase.getSwerveDrive(), () -> -driverXbox.getLeftY(), () -> -driverXbox.getLeftX())
       .withControllerRotationAxis(() -> -driverXbox.getRawAxis(4))
       .deadband(OperatorConstants.DEADBAND).scaleTranslation(0.8).allianceRelativeControl(true)
-      .driveToPose(() -> autoPose(),
-          new ProfiledPIDController(10.0, 0.0, 0.1,
-              new Constraints(Constants.MAX_SPEED, Constants.MAX_ACCELERATION)),
-          new ProfiledPIDController(10.0, 0.0, 0.1, new Constraints(100, 100)))
+      .driveToPose(() -> autoPose(), drivePoseTranslationPID, drivePoseAnglePIDController)
       .driveToPoseEnabled(() -> autoPoseEnable());
 
   private Pose2d autoPose() {
@@ -147,6 +139,7 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    drivePoseAnglePIDController.enableContinuousInput(0, Math.PI * 2);
   }
 
   /**
@@ -237,9 +230,10 @@ public class RobotContainer {
       opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
-      opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
+      // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
+
     }
 
   }
@@ -257,26 +251,4 @@ public class RobotContainer {
   public void setMotorBrake(boolean brake) {
     drivebase.setMotorBrake(brake);
   }
-
 }
-                                                                  
-
-  
-  
-   
-  
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-
-   
-
-  
