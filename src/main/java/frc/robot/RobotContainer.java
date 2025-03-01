@@ -22,6 +22,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
+import frc.robot.subsystems.Output;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -49,6 +50,8 @@ public class RobotContainer {
   private static final boolean useElevator = true;
   private final Elevator elevator = useElevator ? new Elevator() : null;
 
+  private static final boolean useOutput = true;
+  private final Output output = useOutput ? new Output(swerveDrive) : null;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -150,6 +153,8 @@ public class RobotContainer {
       driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
+      driverXbox.back().whileTrue(output.gripCoralCommand());
+      driverXbox.start().whileTrue(output.ejectCoralCommand());
     }
     if (true)
 
@@ -160,7 +165,8 @@ public class RobotContainer {
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
       opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
-      opXbox.leftBumper().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
+      opXbox.leftBumper().whileTrue(output.gripCoralCommand());
+      opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
     }
 
   }
