@@ -33,6 +33,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
   private OutputSimulation m_OutputSim;
   private LocationService m_LocationService;
+  private SwerveDrive m_Drive;
   // declares the motor on the output device
   private final SparkMax m_OutputMotor =
       new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
@@ -67,10 +68,6 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // Creates Output Simulation
 
 
-  public void OutputSimulation(DCMotor OutputGearbox) {
-    m_OutputGearbox = OutputGearbox;
-  }
-
   public class OutputSimulation {
     private boolean havePiece = false;
 
@@ -90,7 +87,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
     // function to addprojectile, called by ejectCoralCommand in sim mode
     public void ejectCoralSim() {
-      m_OutputSim.addGamePieceProjectile(null, 0);
+      m_OutputSim.addGamePieceProjectile(m_Drive.getMapleSimDrive().get(), 72);
     }
 
     public void addGamePieceProjectile(SwerveDriveSimulation driveSimulation, double height) {
@@ -111,10 +108,8 @@ public class Output extends SubsystemBase implements AutoCloseable {
           Degrees.of(-35)));
     }
 
-    public void initializeOutputSimulation(DCMotor OutputGearbox, int motorPort, double moi,
-        boolean flag, double radians, double encoderDistPerPulse, double noise) {
-      // Initialize the fields or add the logic for the constructor
-    }
+
+
   }
 
   public void periodic() {
