@@ -29,6 +29,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
+import frc.robot.subsystems.Output;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -61,6 +62,8 @@ public class RobotContainer {
   private static final boolean useElevator = true;
   private final Elevator elevator = useElevator ? new Elevator() : null;
 
+  private static final boolean useOutput = true;
+  private final Output output = useOutput ? new Output(swerveDrive) : null;
 
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -208,6 +211,8 @@ public class RobotContainer {
       // driverXbox.povUp().onTrue(Command.runOnce(() -> {
       // elevatorLevel = java.Math.max(elevatorLevel + 1, 4);
       // }));
+      driverXbox.back().whileTrue(output.gripCoralCommand());
+      driverXbox.start().whileTrue(output.ejectCoralCommand());
     }
     if (true)
 
@@ -225,6 +230,8 @@ public class RobotContainer {
       opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
+      opXbox.leftBumper().whileTrue(output.gripCoralCommand());
+      opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
       // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
 
     }
