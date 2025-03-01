@@ -16,6 +16,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import swervelib.SwerveDrive;
@@ -62,11 +63,11 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
     // Initialize the blank final fields
     m_OutputSim = new OutputSimulation(m_OutputGearbox);
+    m_LocationService = new LocationService(drivetrain);
 
   }
 
   // Creates Output Simulation
-
 
   public class OutputSimulation {
     private boolean havePiece = false;
@@ -87,7 +88,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
     // function to addprojectile, called by ejectCoralCommand in sim mode
     public void ejectCoralSim() {
-      m_OutputSim.addGamePieceProjectile(m_Drive.getMapleSimDrive().get(), 72);
+      m_OutputSim.addGamePieceProjectile(m_Drive.getMapleSimDrive().get(), 37.5);
     }
 
     public void addGamePieceProjectile(SwerveDriveSimulation driveSimulation, double height) {
@@ -108,12 +109,13 @@ public class Output extends SubsystemBase implements AutoCloseable {
           Degrees.of(-35)));
     }
 
-
-
   }
 
   public void periodic() {
     // if in simulation, call the Sim's periodic function
+    if (Robot.isSimulation()) {
+      m_OutputSim.periodic();
+    }
   }
 
   // runs motor
