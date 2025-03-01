@@ -15,6 +15,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.BooleanTopic;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTable;
@@ -214,6 +217,94 @@ public class LocationService extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    NetworkTable reefTagTable = inst.getTable("SmartDashboard");
+
+    BooleanTopic reefTag1Topic = reefTagTable.getBooleanTopic("reefTag1");
+    BooleanPublisher reefTag1Pub = reefTag1Topic.publish();
+
+    BooleanTopic reefTag2Topic = reefTagTable.getBooleanTopic("reefTag2");
+    BooleanPublisher reefTag2Pub = reefTag2Topic.publish();
+
+    BooleanTopic reefTag3Topic = reefTagTable.getBooleanTopic("reefTag3");
+    BooleanPublisher reefTag3Pub = reefTag3Topic.publish();
+
+    BooleanTopic reefTag4Topic = reefTagTable.getBooleanTopic("reefTag4");
+    BooleanPublisher reefTag4Pub = reefTag4Topic.publish();
+
+    BooleanTopic reefTag5Topic = reefTagTable.getBooleanTopic("reefTag5");
+    BooleanPublisher reefTag5Pub = reefTag5Topic.publish();
+
+    BooleanTopic reefTag6Topic = reefTagTable.getBooleanTopic("reefTag6");
+    BooleanPublisher reefTag6Pub = reefTag6Topic.publish();
+
+    int tagID = closestTagId();
+    switch (tagID) {
+      case 6:
+      case 17:
+        reefTag1Pub.set(true);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+
+        break;
+      case 7:
+      case 18:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(true);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+      case 8:
+      case 19:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(true);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+      case 9:
+      case 20:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(true);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+      case 10:
+      case 21:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(true);
+        reefTag6Pub.set(false);
+        break;
+      case 11:
+      case 22:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(true);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(true);
+        break;
+
+      default:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+    }
+
   }
 }
 
