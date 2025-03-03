@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 
@@ -139,18 +140,22 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // runs motor again to grip coral
   public Command gripCoralCommand() {
     return new FunctionalCommand(() -> {
-    }, () -> runmotor(), (x) -> runmotoronce(), () -> IsDetected(), this);
+    }, this::runmotor, (x) -> runmotoronce(), this::IsDetected, this);
 
   }
 
   // shoots coral onto reef
   public Command ejectCoralCommand() {
     return new FunctionalCommand(() -> {
-    }, () -> runmotor(), (x) -> runmotoronce(), () -> !IsDetected(), this);
+    }, this::runmotor, (x) -> runmotoronce(), () -> !IsDetected(), this);
   }
 
   public Command runOutputMotor() {
-    return new StartEndCommand(() -> runmotor(), () -> stopmotor(), this);
+    return new StartEndCommand(this::runmotor, this::stopmotor, this);
+  }
+
+  public Trigger clearOutput() {
+    return new Trigger(this::IsDetected);
   }
 
   // gets IR sensor output as a boolean
