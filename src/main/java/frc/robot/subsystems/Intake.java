@@ -54,8 +54,12 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // Motor and encoder for deploying arm.
   private final SparkMax m_armMotor =
       new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
+
+  private final SparkMax m_armMotor2 =
+      new SparkMax(Constants.IntakeConstants.kArmMotor2Port, MotorType.kBrushless);
   // Standard classes for controlling our arm
   private final SparkClosedLoopController m_controller = m_armMotor.getClosedLoopController();
+  private final SparkClosedLoopController m_controller2 = m_armMotor2.getClosedLoopController();
   // Motor and IR sensor for intake.
   private final SparkMax m_intakeMotor =
       new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
@@ -117,6 +121,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotor.configure(armMotorConfig, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
+    m_armMotor2.configure(armMotorConfig, ResetMode.kNoResetSafeParameters,
+        PersistMode.kNoPersistParameters);
 
     // Configure the intake motor
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
@@ -171,10 +177,12 @@ public class Intake extends SubsystemBase implements AutoCloseable {
    */
   public void reachSetpoint(Double setPoint) {
     m_controller.setReference(setPoint, ControlType.kPosition);
+    m_controller2.setReference(setPoint, ControlType.kPosition);
   }
 
   public void stoparm() {
     m_armMotor.set(0.0);
+    m_armMotor2.set(0.0);
   }
 
   // sets intake speed

@@ -59,7 +59,8 @@ public final class Constants {
   }
   public static class IntakeConstants {
     public static final int kArmMotorPort = 61;
-    public static final int kIntakeMotorPort = 62;
+    public static final int kArmMotor2Port = 62;
+    public static final int kIntakeMotorPort = 60;
     public static final int kIRsensorport = 0;
     public static final int kEncoderAChannel = 0;
     public static final int kEncoderBChannel = 1;
