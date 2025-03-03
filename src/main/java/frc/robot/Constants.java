@@ -82,9 +82,9 @@ public final class Constants {
     public static final double kArmLength = Units.inchesToMeters(30);
     public static final double kMinAngleRads = Units.degreesToRadians(-15);
     public static final double kMaxAngleRads = Units.degreesToRadians(100);
-    public static final double kArmKp = 1;
+    public static final double kArmKp = 2;
     public static final double kArmKi = 0;
-    public static final double kArmKd = 0.01;
+    public static final double kArmKd = 0.02;
     public static final double kArmKs = 0;
     public static final double kArmKg = 0;
     public static final double kArmKv = 0;
