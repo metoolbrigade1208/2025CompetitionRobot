@@ -212,9 +212,8 @@ public class RobotContainer {
           .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.CENTER.getVal())));
       driverXbox.rightStick().onTrue(Commands.runOnce(() -> poseable = true))
           .onFalse(Commands.runOnce(() -> poseable = false));
-      // driverXbox.povUp().onTrue(Command.runOnce(() -> {
-      // elevatorLevel = java.Math.max(elevatorLevel + 1, 4);
-      // }));
+      driverXbox.povUp().onTrue(Commands.runOnce(() -> increaseElevatorLevel()));
+      driverXbox.povDown().onTrue(Commands.runOnce(() -> decreaseElevatorLevel()));
     }
     if (true)
 
@@ -232,10 +231,16 @@ public class RobotContainer {
       opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
       opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
       opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
-      opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
-
     }
 
+  }
+
+  private void increaseElevatorLevel() {
+    elevatorLevel = java.lang.Math.max(elevatorLevel + 1, 4);
+  }
+
+  private void decreaseElevatorLevel() {
+    elevatorLevel = java.lang.Math.min(elevatorLevel - 1, 1);
   }
 
   /**
