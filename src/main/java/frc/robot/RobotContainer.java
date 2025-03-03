@@ -213,6 +213,7 @@ public class RobotContainer {
       // }));
       driverXbox.back().whileTrue(output.gripCoralCommand());
       driverXbox.start().whileTrue(output.ejectCoralCommand());
+      driverXbox.leftBumper().whileTrue(output.runOutputMotor());
     }
     if (true)
 
