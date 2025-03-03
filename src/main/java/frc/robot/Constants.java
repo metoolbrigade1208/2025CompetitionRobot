@@ -97,7 +97,7 @@ public final class Constants {
 
     public static final double kIntakeRunSpeed = 1.0;
 
-    public static final double kIntakeKp = 0;
+    public static final double kIntakeKp = 1;
     public static final double kIntakeKi = 0;
     public static final double kIntakeKd = 0;
     public static final double kIntakeKv = 473;
@@ -119,7 +119,7 @@ public final class Constants {
     public static final double kElevatorkA = 0;
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
-    public static int kLimitSwitchPort = 1;
+    public static int kLimitSwitchPort = 0;
 
     public static final double kElevatorGearing = 9.0;
     public static final double kCarriageMass = 10.0;
