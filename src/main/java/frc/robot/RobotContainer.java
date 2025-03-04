@@ -27,7 +27,6 @@ import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
-import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 import frc.robot.subsystems.Output;
 
@@ -52,18 +51,19 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase =
       useDrivebase ? new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"))
           : null;
-  private final SwerveDrive swerveDrive = useDrivebase ? drivebase.getSwerveDrive() : null;
 
   // private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
+  private final LocationService locate = new LocationService();
+
   private static final boolean useIntake = true;
-  private final Intake intake = useIntake ? new Intake(swerveDrive) : null;
+  private final Intake intake = useIntake ? new Intake() : null;
 
   private static final boolean useElevator = true;
   private final Elevator elevator = useElevator ? new Elevator() : null;
 
   private static final boolean useOutput = true;
-  private final Output output = useOutput ? new Output(swerveDrive) : null;
+  private final Output output = useOutput ? new Output() : null;
 
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -76,7 +76,6 @@ public class RobotContainer {
   IntegerPublisher offsetPub = OffsetTopic.publish();
 
 
-  private final LocationService locate = new LocationService(drivebase.getSwerveDrive());
   private int elevatorLevel = 1;
 
   /**

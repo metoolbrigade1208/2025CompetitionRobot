@@ -16,9 +16,9 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveDrive;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
@@ -33,6 +33,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 public class Output extends SubsystemBase implements AutoCloseable {
+  // singleton instance
+  private static Output instance;
+
+  public static Output getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Instance not created yet");
+    }
+    return instance;
+  }
 
   private OutputSimulation m_OutputSim;
   private LocationService m_LocationService;
@@ -53,7 +62,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // private final SparkClosedLoopController m_Outputcontroller =
   // m_OutputMotor.getClosedLoopController();
   // private final RelativeEncoder m_OutputEncoder = m_OutputMotor.getAlternateEncoder();
-  public Output(SwerveDrive drivetrain) {
+  public Output() {
 
     // Configure the output motor
     SparkMaxConfig OutputMotorConfig = new SparkMaxConfig();
@@ -65,8 +74,13 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
     // Initialize the blank final fields
     m_OutputSim = new OutputSimulation(m_OutputGearbox);
-    m_LocationService = new LocationService(drivetrain);
+    m_LocationService = LocationService.getInstance();
+    m_Drive = SwerveSubsystem.getInstance().getSwerveDrive();
 
+    if (instance != null) {
+      throw new IllegalStateException("Cannot create new instance of singleton class");
+    }
+    instance = this;
   }
 
   // Creates Output Simulation
