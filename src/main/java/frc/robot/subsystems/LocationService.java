@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Inches;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -23,7 +24,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import swervelib.SwerveDrive;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -228,17 +228,17 @@ public class LocationService extends SubsystemBase {
     return null;
   }
 
-  public Trigger autoPoseTriggerFactory(double maxPoseDistance) {
-    return new Trigger(() -> (m_drive.getPose().getTranslation()
-        .getDistance(getTagAutoPose2d().getTranslation())) < maxPoseDistance);
+  public BooleanSupplier autoPoseBool(double maxPoseDistance) {
+    return () -> (m_drive.getPose().getTranslation()
+        .getDistance(getTagAutoPose2d().getTranslation())) < maxPoseDistance;
   }
 
-  public Trigger atAutoPose() {
-    return autoPoseTriggerFactory(Units.inchesToMeters(2));
+  public BooleanSupplier atAutoPose() {
+    return autoPoseBool(Units.inchesToMeters(2));
   }
 
-  public Trigger nearAutoPose() {
-    return autoPoseTriggerFactory(Units.inchesToMeters(36));
+  public BooleanSupplier nearAutoPose() {
+    return autoPoseBool(Units.inchesToMeters(36));
   }
 
 
