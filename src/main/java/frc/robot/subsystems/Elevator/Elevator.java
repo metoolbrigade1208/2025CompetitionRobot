@@ -4,13 +4,10 @@
 
 package frc.robot.subsystems.Elevator;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.AnalogTrigger;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -20,9 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -35,10 +30,20 @@ import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
+
+  // Singleton stuff
+  private static Elevator instance;
+
+  public static Elevator getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Instance not created yet");
+    }
+    return instance;
+  }
+
   // This gearbox represents a gearbox containing 2 NEO motors.
   private final DCMotor m_elevatorGearbox = DCMotor.getNEO(2);
 
@@ -111,6 +116,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     // motor2config.follow(m_motor, true);
     m_motor2.configure(motor2config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
+    if (instance != null) {
+      throw new IllegalStateException("Cannot create new instance of singleton class");
+    }
+    instance = this;
   }
 
   /** Advance the simulation. */

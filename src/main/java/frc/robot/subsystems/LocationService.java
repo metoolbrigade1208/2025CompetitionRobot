@@ -24,15 +24,30 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import swervelib.SwerveDrive;
 import frc.robot.Constants;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class LocationService extends SubsystemBase {
+  // singleton instance
+  private static LocationService instance;
+
+  public static LocationService getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Instance not created yet");
+    }
+    return instance;
+  }
+
   private static final AprilTagFieldLayout field =
       AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
   /** Creates a new LocationService. */
-  public LocationService(SwerveDrive drive) {
-    m_drive = drive;
+  public LocationService() {
+    m_drive = SwerveSubsystem.getInstance().getSwerveDrive();
     offsetSub = OffsetTopic.subscribe(0);
+    if (instance != null) {
+      throw new IllegalStateException("Cannot create new instance of singleton class");
+    }
+    instance = this;
   }
 
   public enum Offset {
