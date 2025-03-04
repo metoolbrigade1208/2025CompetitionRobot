@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -19,10 +21,13 @@ public class ReefbotAutos {
          */
 
         // TODO: change this to go to the commanded level
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        NetworkTable table = inst.getTable("elevatorAtlevelcommand");
         Command elevatorCommand = elevator.elevatorLevel2Command();
 
         return new WaitUntilCommand(locationService.nearAutoPose()).andThen(elevatorCommand)
                 .andThen(new WaitUntilCommand(locationService.atAutoPose()))
+                .andThen(new WaitUntilCommand(elevator.elevatorAtLevel))
                 .andThen(output.ejectCoralCommand())
                 .andThen(new WaitUntilCommand(() -> !output.IsDetected()))
                 .andThen(new WaitCommand(0.5)).andThen(elevator::elevatorLevel1Command);

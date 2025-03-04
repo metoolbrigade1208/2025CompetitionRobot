@@ -9,6 +9,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
+import frc.robot.Constants.elevator;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
@@ -25,7 +26,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-
+import java.util.function.BooleanSupplier;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -221,10 +222,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     return runOnce(() -> reachGoal(Constants.LEVEL_4));
   }
 
-  public Trigger elevatorAtLevel() {
-    return new Trigger(() -> java.lang.Math.abs(m_encoder.getPosition()
-        - currentGoalRotations) < Constants.elevator.kElevatorPositionTolerance);
-  }
+  public BooleanSupplier elevatorAtLevel = (() -> java.lang.Math.abs(m_encoder.getPosition()
+      - currentGoalRotations) < Constants.elevator.kElevatorPositionTolerance);
+
+
 
   @Override
   public void close() {
