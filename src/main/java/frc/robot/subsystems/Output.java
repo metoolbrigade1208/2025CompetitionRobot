@@ -26,7 +26,9 @@ import static edu.wpi.first.units.Units.Degrees;
 import com.revrobotics.spark.SparkClosedLoopController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 
@@ -137,6 +139,11 @@ public class Output extends SubsystemBase implements AutoCloseable {
     m_OutputMotor.set(1.0);
   }
 
+  // stops motor
+  public void stopmotor() {
+    m_OutputMotor.set(0.0);
+  }
+
   // grips onto coral after detection
   public void runmotoronce() {
     SparkClosedLoopController outputController = m_OutputMotor.getClosedLoopController();
@@ -147,14 +154,22 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // runs motor again to grip coral
   public Command gripCoralCommand() {
     return new FunctionalCommand(() -> {
-    }, () -> runmotor(), (x) -> runmotoronce(), () -> IsDetected(), this);
+    }, this::runmotor, (x) -> runmotoronce(), this::IsDetected, this);
 
   }
 
   // shoots coral onto reef
   public Command ejectCoralCommand() {
     return new FunctionalCommand(() -> {
-    }, () -> runmotor(), (x) -> runmotoronce(), () -> !IsDetected(), this);
+    }, this::runmotor, (x) -> runmotoronce(), () -> !IsDetected(), this);
+  }
+
+  public Command runOutputMotor() {
+    return new StartEndCommand(this::runmotor, this::stopmotor, this);
+  }
+
+  public Trigger clearOutput() {
+    return new Trigger(this::IsDetected);
   }
 
   // gets IR sensor output as a boolean

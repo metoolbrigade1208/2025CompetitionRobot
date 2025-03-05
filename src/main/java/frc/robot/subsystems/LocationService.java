@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Inches;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTable;
@@ -225,6 +227,20 @@ public class LocationService extends SubsystemBase {
     }
     return null;
   }
+
+  public BooleanSupplier autoPoseBool(double maxPoseDistance) {
+    return () -> (m_drive.getPose().getTranslation()
+        .getDistance(getTagAutoPose2d().getTranslation())) < maxPoseDistance;
+  }
+
+  public BooleanSupplier atAutoPose() {
+    return autoPoseBool(Units.inchesToMeters(2));
+  }
+
+  public BooleanSupplier nearAutoPose() {
+    return autoPoseBool(Units.inchesToMeters(36));
+  }
+
 
   @Override
   public void periodic() {

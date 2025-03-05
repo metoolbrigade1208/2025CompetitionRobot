@@ -150,6 +150,7 @@ public final class Constants {
     public static final double kVelocityConversionFactor = kPositionConversionFactor / 60;
 
     public static final double kVelocityMultiplier = 5.0;
+    public static final double kElevatorPositionTolerance = 0.5 / kPositionConversionFactor;
   }
 
   static Optional<RobotConfig> loadConfig(String path) {
