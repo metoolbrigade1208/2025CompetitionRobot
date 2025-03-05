@@ -20,7 +20,7 @@ jobs:
           java-version: '17'       # Change this if you need another version
 
       - name: Verify Gradle Wrapper
-        run: gradlew --version  # Windows can run `gradlew.bat` directly
+        run: gradlew.bat  # Windows can run `gradlew.bat` directly
 
       - name: Build with Gradle
         run: gradlew.bat build  # Use `gradlew.bat` on Windows
