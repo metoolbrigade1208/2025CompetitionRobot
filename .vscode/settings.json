@@ -32,5 +32,6 @@
   "editor.formatOnSave": true,
   "editor.formatOnType": true,
   "githubIssues.issueBranchTitle": "${user}/${issueNumber}-${sanitizedIssueTitle}",
-  "githubIssues.workingIssueFormatScm": "${issueTitle} \nFixes ${issueNumber}"
+  "githubIssues.workingIssueFormatScm": "${issueTitle} \nFixes ${issueNumber}",
+  "github.copilot.editor.enableAutoCompletions": false
 }
