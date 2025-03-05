@@ -1,0 +1,26 @@
+name: Build Check
+
+on:
+  pull_request:
+    branches:
+      - main  # Change this to match your default branch
+
+jobs:
+  build:
+    runs-on: windows-latest  # Run on Windows
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'  # Use Eclipse Temurin distribution
+          java-version: '17'       # Change this if you need another version
+
+      - name: Verify Gradle Wrapper
+        run: gradlew --version  # Windows can run `gradlew.bat` directly
+
+      - name: Build with Gradle
+        run: gradlew.bat build  # Use `gradlew.bat` on Windows
