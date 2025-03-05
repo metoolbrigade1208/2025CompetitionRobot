@@ -40,7 +40,7 @@ public final class Constants {
   public static final double LEVEL_3 = Units.inchesToMeters(getConfigValue(c -> c.inL3, 48.0));
   public static final double LEVEL_4 = Units.inchesToMeters(getConfigValue(c -> c.inL4, 72.0));
 
-  public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
+  public static final double ROBOT_MASS = Units.lbsToKilograms(148 - 20.3); // 32lbs * kg per pound
   public static final Matter CHASSIS =
       new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
@@ -95,9 +95,9 @@ public final class Constants {
     public static final double kArmLength = Units.inchesToMeters(30);
     public static final double kMinAngleRads = Units.degreesToRadians(-15);
     public static final double kMaxAngleRads = Units.degreesToRadians(100);
-    public static final double kArmKp = 1;
-    public static final double kArmKi = 0;
-    public static final double kArmKd = 0.01;
+    public static final double kArmKp = getConfigValue(c -> c.armKp, 1.0);
+    public static final double kArmKi = getConfigValue(c -> c.armKi, 0);
+    public static final double kArmKd = getConfigValue(c -> c.armKd, 0.01);
     public static final double kArmKs = 0;
     public static final double kArmKg = 0;
     public static final double kArmKv = 0;
@@ -110,11 +110,11 @@ public final class Constants {
 
     public static final double kIntakeRunSpeed = 1.0;
 
-    public static final double kIntakeKp = 0;
-    public static final double kIntakeKi = 0;
-    public static final double kIntakeKd = 0;
+    public static final double kIntakeKp = getConfigValue(c -> c.intakeKp, 0);
+    public static final double kIntakeKi = getConfigValue(c -> c.intakeKi, 0);
+    public static final double kIntakeKd = getConfigValue(c -> c.intakeKd, 0);
     public static final double kIntakeKv = 473;
-    public static final double kIntakeMaxSpeed = 0.5;
+    public static final double kIntakeMaxSpeed = getConfigValue(c -> c.intakeMaxSpeed, 0.5);
     public static final double kIntakeMaxAcceleration = 0.5;
     public static final double kIntakeMaxError = 0.5;
 
