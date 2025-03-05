@@ -73,8 +73,9 @@ public final class Constants {
   }
   public static class IntakeConstants {
     public static final int kArmMotorPort = 61;
-    public static final int kIntakeMotorPort = 62;
-    public static final int kIRsensorport = 0;
+    public static final int kArmMotor2Port = 62;
+    public static final int kIntakeMotorPort = 60;
+    public static final int kIRsensorport = 1;
     public static final int kEncoderAChannel = 0;
     public static final int kEncoderBChannel = 1;
     public static final int kJoystickPort = 0;
@@ -132,7 +133,7 @@ public final class Constants {
     public static final double kElevatorkA = 0;
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
-    public static int kLimitSwitchPort = 1;
+    public static int kLimitSwitchPort = 0;
 
     public static final double kElevatorGearing = 9.0;
     public static final double kCarriageMass = 10.0;
