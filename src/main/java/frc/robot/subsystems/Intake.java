@@ -11,7 +11,6 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -107,6 +106,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
     // Configure the arm motor
     SparkMaxConfig armMotorConfig = new SparkMaxConfig();
+    SparkMaxConfig armMotorConfig2 = new SparkMaxConfig();
     armMotorConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
 
     armMotorConfig.closedLoop
@@ -117,11 +117,13 @@ public class Intake extends SubsystemBase implements AutoCloseable {
         .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)
         .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
         .allowedClosedLoopError(Constants.IntakeConstants.kArmMaxError);
+    armMotorConfig2.apply(armMotorConfig);
+    armMotorConfig2.inverted(true);
 
     // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotor.configure(armMotorConfig, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
-    m_armMotor2.configure(armMotorConfig, ResetMode.kNoResetSafeParameters,
+    m_armMotor2.configure(armMotorConfig2, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
 
     // Configure the intake motor
