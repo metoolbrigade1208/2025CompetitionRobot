@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
@@ -43,6 +44,16 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase implements AutoCloseable {
+  // singleton Stuff
+  private static Intake instance;
+
+  public static Intake getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Instance not created yet");
+    }
+    return instance;
+  }
+
   // The P gain for the PID controller that drives this arm.
   private double m_armKp = Constants.IntakeConstants.kArmKp;
   private double m_armSetpointDegrees = Constants.IntakeConstants.kDefaultArmSetpointDegrees;
@@ -96,7 +107,9 @@ public class Intake extends SubsystemBase implements AutoCloseable {
           Units.radiansToDegrees(m_armSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
   /** Subsystem constructor. */
-  public Intake(SwerveDrive drivetrain) {
+  public Intake() {
+    SwerveSubsystem driveSubsystem = SwerveSubsystem.getInstance();
+    SwerveDrive drivetrain = driveSubsystem.getSwerveDrive();
     // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
     m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", drivetrain.getMapleSimDrive().get(),
         Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
@@ -138,6 +151,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     // already exist
     Preferences.initDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
     Preferences.initDouble(Constants.IntakeConstants.kArmPKey, m_armKp);
+    if (instance != null) {
+      throw new IllegalStateException("Cannot create new instance of singleton class");
+    }
+    instance = this;
   }
 
   public void periodic() {

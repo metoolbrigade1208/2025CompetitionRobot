@@ -16,9 +16,9 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveDrive;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
@@ -26,11 +26,22 @@ import static edu.wpi.first.units.Units.Degrees;
 import com.revrobotics.spark.SparkClosedLoopController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 
 public class Output extends SubsystemBase implements AutoCloseable {
+  // singleton instance
+  private static Output instance;
+
+  public static Output getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Instance not created yet");
+    }
+    return instance;
+  }
 
   private OutputSimulation m_OutputSim;
   private LocationService m_LocationService;
@@ -51,7 +62,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // private final SparkClosedLoopController m_Outputcontroller =
   // m_OutputMotor.getClosedLoopController();
   // private final RelativeEncoder m_OutputEncoder = m_OutputMotor.getAlternateEncoder();
-  public Output(SwerveDrive drivetrain) {
+  public Output() {
 
     // Configure the output motor
     SparkMaxConfig OutputMotorConfig = new SparkMaxConfig();
@@ -63,8 +74,13 @@ public class Output extends SubsystemBase implements AutoCloseable {
 
     // Initialize the blank final fields
     m_OutputSim = new OutputSimulation(m_OutputGearbox);
-    m_LocationService = new LocationService(drivetrain);
+    m_LocationService = LocationService.getInstance();
+    m_Drive = SwerveSubsystem.getInstance().getSwerveDrive();
 
+    if (instance != null) {
+      throw new IllegalStateException("Cannot create new instance of singleton class");
+    }
+    instance = this;
   }
 
   // Creates Output Simulation
@@ -123,6 +139,11 @@ public class Output extends SubsystemBase implements AutoCloseable {
     m_OutputMotor.set(1.0);
   }
 
+  // stops motor
+  public void stopmotor() {
+    m_OutputMotor.set(0.0);
+  }
+
   // grips onto coral after detection
   public void runmotoronce() {
     SparkClosedLoopController outputController = m_OutputMotor.getClosedLoopController();
@@ -133,14 +154,22 @@ public class Output extends SubsystemBase implements AutoCloseable {
   // runs motor again to grip coral
   public Command gripCoralCommand() {
     return new FunctionalCommand(() -> {
-    }, () -> runmotor(), (x) -> runmotoronce(), () -> IsDetected(), this);
+    }, this::runmotor, (x) -> runmotoronce(), this::IsDetected, this);
 
   }
 
   // shoots coral onto reef
   public Command ejectCoralCommand() {
     return new FunctionalCommand(() -> {
-    }, () -> runmotor(), (x) -> runmotoronce(), () -> !IsDetected(), this);
+    }, this::runmotor, (x) -> runmotoronce(), () -> !IsDetected(), this);
+  }
+
+  public Command runOutputMotor() {
+    return new StartEndCommand(this::runmotor, this::stopmotor, this);
+  }
+
+  public Trigger clearOutput() {
+    return new Trigger(this::IsDetected);
   }
 
   // gets IR sensor output as a boolean

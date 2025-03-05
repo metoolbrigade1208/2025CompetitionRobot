@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Inches;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTable;
@@ -24,15 +26,30 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import swervelib.SwerveDrive;
 import frc.robot.Constants;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class LocationService extends SubsystemBase {
+  // singleton instance
+  private static LocationService instance;
+
+  public static LocationService getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Instance not created yet");
+    }
+    return instance;
+  }
+
   private static final AprilTagFieldLayout field =
       AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
   /** Creates a new LocationService. */
-  public LocationService(SwerveDrive drive) {
-    m_drive = drive;
+  public LocationService() {
+    m_drive = SwerveSubsystem.getInstance().getSwerveDrive();
     offsetSub = OffsetTopic.subscribe(0);
+    if (instance != null) {
+      throw new IllegalStateException("Cannot create new instance of singleton class");
+    }
+    instance = this;
   }
 
   public enum Offset {
@@ -210,6 +227,20 @@ public class LocationService extends SubsystemBase {
     }
     return null;
   }
+
+  public BooleanSupplier autoPoseBool(double maxPoseDistance) {
+    return () -> (m_drive.getPose().getTranslation()
+        .getDistance(getTagAutoPose2d().getTranslation())) < maxPoseDistance;
+  }
+
+  public BooleanSupplier atAutoPose() {
+    return autoPoseBool(Units.inchesToMeters(2));
+  }
+
+  public BooleanSupplier nearAutoPose() {
+    return autoPoseBool(Units.inchesToMeters(36));
+  }
+
 
   @Override
   public void periodic() {

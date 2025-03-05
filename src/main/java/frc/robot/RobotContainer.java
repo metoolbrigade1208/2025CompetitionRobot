@@ -27,7 +27,6 @@ import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
-import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 import frc.robot.subsystems.Output;
 
@@ -52,32 +51,34 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase =
       useDrivebase ? new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"))
           : null;
-  private final SwerveDrive swerveDrive = useDrivebase ? drivebase.getSwerveDrive() : null;
 
   // private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
+  private final LocationService locate = new LocationService();
+
   private static final boolean useIntake = true;
-  private final Intake intake = useIntake ? new Intake(swerveDrive) : null;
+  private final Intake intake = useIntake ? new Intake() : null;
 
   private static final boolean useElevator = true;
   private final Elevator elevator = useElevator ? new Elevator() : null;
 
   private static final boolean useOutput = true;
-  private final Output output = useOutput ? new Output(swerveDrive) : null;
+  private final Output output = useOutput ? new Output() : null;
 
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable table = inst.getTable("tagRobotPoses");
 
 
-  NetworkTable offsetTable = inst.getTable("SmartDashboard");
+  NetworkTable SmartDashboardTable = inst.getTable("SmartDashboard");
 
-  IntegerTopic OffsetTopic = offsetTable.getIntegerTopic("Offset");
+  IntegerTopic OffsetTopic = SmartDashboardTable.getIntegerTopic("Offset");
   IntegerPublisher offsetPub = OffsetTopic.publish();
 
+  IntegerTopic ElevatorLevelTopic = SmartDashboardTable.getIntegerTopic("ElevatorLevel");
+  IntegerPublisher ElevatorLevelPub = ElevatorLevelTopic.publish();
 
-  private final LocationService locate = new LocationService(drivebase.getSwerveDrive());
-  private int elevatorLevel = 1;
+  // private int elevatorLevel = 1;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -213,6 +214,7 @@ public class RobotContainer {
       // }));
       driverXbox.back().whileTrue(output.gripCoralCommand());
       driverXbox.start().whileTrue(output.ejectCoralCommand());
+      driverXbox.leftBumper().whileTrue(output.runOutputMotor());
     }
     if (true)
 
@@ -226,10 +228,10 @@ public class RobotContainer {
 
     {
       opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
-      opXbox.povDown().onTrue(elevator.elevatorLevel1Command());
-      opXbox.povRight().onTrue(elevator.elevatorLevel2Command());
-      opXbox.povUp().onTrue(elevator.elevatorLevel3Command());
-      opXbox.povLeft().onTrue(elevator.elevatorLevel4Command());
+      opXbox.povDown().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(1)));
+      opXbox.povRight().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(2)));
+      opXbox.povUp().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(3)));
+      opXbox.povLeft().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(4)));
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
       // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
