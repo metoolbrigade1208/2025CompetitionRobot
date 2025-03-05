@@ -30,5 +30,7 @@
   "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
   "java.test.defaultConfig": "WPIlibUnitTests",
   "editor.formatOnSave": true,
-  "editor.formatOnType": true
+  "editor.formatOnType": true,
+  "githubIssues.issueBranchTitle": "${user}/${issueNumber}-${sanitizedIssueTitle}",
+  "githubIssues.workingIssueFormatScm": "${issueTitle} \nFixes ${issueNumber}"
 }
