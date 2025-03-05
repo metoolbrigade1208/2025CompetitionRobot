@@ -7,57 +7,51 @@ package frc.robot.commands.swervedrive.drivebase;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
-import java.lang.module.ModuleDescriptor.Requires;
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import swervelib.SwerveController;
 import swervelib.math.SwerveMath;
-import swervelib.parser.SwerveDriveConfiguration;
 
 
 /**
  * An example command that uses an example subsystem.
+ * 
  * @param <Drivetrain>
  */
-public class AbsoluteDrive extends Command
-{
+public class AbsoluteDrive extends Command {
 
   private final SwerveSubsystem swerve;
-  private final DoubleSupplier  vX, vY;
+  private final DoubleSupplier vX, vY;
   private final DoubleSupplier headingHorizontal, headingVertical;
   private boolean initRotation = false;
 
   /**
-   * Used to drive a swerve robot in full field-centric mode.  vX and vY supply translation inputs, where x is
-   * torwards/away from alliance wall and y is left/right. headingHorzontal and headingVertical are the Cartesian
-   * coordinates from which the robot's angle will be derived— they will be converted to a polar angle, which the robot
-   * will rotate to.
+   * Used to drive a swerve robot in full field-centric mode. vX and vY supply translation inputs,
+   * where x is torwards/away from alliance wall and y is left/right. headingHorzontal and
+   * headingVertical are the Cartesian coordinates from which the robot's angle will be derived—
+   * they will be converted to a polar angle, which the robot will rotate to.
    *
-   * @param swerve            The swerve drivebase subsystem.
-   * @param vX                DoubleSupplier that supplies the x-translation joystick input.  Should be in the range -1
-   *                          to 1 with deadband already accounted for.  Positive X is away from the alliance wall.
-   * @param vY                DoubleSupplier that supplies the y-translation joystick input.  Should be in the range -1
-   *                          to 1 with deadband already accounted for.  Positive Y is towards the left wall when
-   *                          looking through the driver station glass.
-   * @param headingHorizontal DoubleSupplier that supplies the horizontal component of the robot's heading angle. In the
-   *                          robot coordinate system, this is along the same axis as vY. Should range from -1 to 1 with
-   *                          no deadband.  Positive is towards the left wall when looking through the driver station
-   *                          glass.
-   * @param headingVertical   DoubleSupplier that supplies the vertical component of the robot's heading angle.  In the
-   *                          robot coordinate system, this is along the same axis as vX.  Should range from -1 to 1
-   *                          with no deadband. Positive is away from the alliance wall.
+   * @param swerve The swerve drivebase subsystem.
+   * @param vX DoubleSupplier that supplies the x-translation joystick input. Should be in the range
+   *        -1 to 1 with deadband already accounted for. Positive X is away from the alliance wall.
+   * @param vY DoubleSupplier that supplies the y-translation joystick input. Should be in the range
+   *        -1 to 1 with deadband already accounted for. Positive Y is towards the left wall when
+   *        looking through the driver station glass.
+   * @param headingHorizontal DoubleSupplier that supplies the horizontal component of the robot's
+   *        heading angle. In the robot coordinate system, this is along the same axis as vY. Should
+   *        range from -1 to 1 with no deadband. Positive is towards the left wall when looking
+   *        through the driver station glass.
+   * @param headingVertical DoubleSupplier that supplies the vertical component of the robot's
+   *        heading angle. In the robot coordinate system, this is along the same axis as vX. Should
+   *        range from -1 to 1 with no deadband. Positive is away from the alliance wall.
    */
-  public AbsoluteDrive(SwerveSubsystem swerve, DoubleSupplier vX, DoubleSupplier vY, DoubleSupplier headingHorizontal,
-                       DoubleSupplier headingVertical)
-  {
+  public AbsoluteDrive(SwerveSubsystem swerve, DoubleSupplier vX, DoubleSupplier vY,
+      DoubleSupplier headingHorizontal, DoubleSupplier headingVertical) {
     this.swerve = swerve;
     this.vX = vX;
     this.vY = vY;
@@ -69,50 +63,46 @@ public class AbsoluteDrive extends Command
 
 
   public double getAverageDistance() {
-      // Implement the logic to calculate the average distance
-      return 0.0; // Replace with actual calculation
+    // Implement the logic to calculate the average distance
+    return 0.0; // Replace with actual calculation
   }
 
   public void resetEncoders() {
-      // Implement the logic to reset encoders
+    // Implement the logic to reset encoders
   }
 
   @Override
-  public void initialize()
-  {
+  public void initialize() {
     initRotation = true;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute()
-  {
+  public void execute() {
 
     // Get the desired chassis speeds based on a 2 joystick module.
     ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(),
-                                                         headingHorizontal.getAsDouble(),
-                                                         headingVertical.getAsDouble());
+        headingHorizontal.getAsDouble(), headingVertical.getAsDouble());
 
     // Prevent Movement After Auto
-    if (initRotation)
-    {
-      if (headingHorizontal.getAsDouble() == 0 && headingVertical.getAsDouble() == 0)
-      {
+    if (initRotation) {
+      if (headingHorizontal.getAsDouble() == 0 && headingVertical.getAsDouble() == 0) {
         // Get the curretHeading
         Rotation2d firstLoopHeading = swerve.getHeading();
 
         // Set the Current Heading to the desired Heading
-        desiredSpeeds = swerve.getTargetSpeeds(0, 0, firstLoopHeading.getSin(), firstLoopHeading.getCos());
+        desiredSpeeds =
+            swerve.getTargetSpeeds(0, 0, firstLoopHeading.getSin(), firstLoopHeading.getCos());
       }
-      //Dont Init Rotation Again
+      // Dont Init Rotation Again
       initRotation = false;
     }
 
     // Limit velocity to prevent tippy
     Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
     translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
-                                           Constants.LOOP_TIME, Constants.ROBOT_MASS, List.of(Constants.CHASSIS),
-                                           swerve.getSwerveDriveConfiguration());
+        Constants.LOOP_TIME, Constants.ROBOT_MASS, List.of(Constants.CHASSIS),
+        swerve.getSwerveDriveConfiguration());
     SmartDashboard.putNumber("LimitedTranslation", translation.getX());
     SmartDashboard.putString("Translation", translation.toString());
 
@@ -120,66 +110,19 @@ public class AbsoluteDrive extends Command
     swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
 
   }
-    //command for aligning robot to coral
-    public class DriveToPosition extends Command {
-      private final SwerveSubsystem drivetrain;
-      private final double targetDistance;
-      private final double speed;
 
-      public DriveToPosition(SwerveSubsystem drivetrain, double distance, double speed) {
-        this.drivetrain = drivetrain;
-        this.targetDistance = distance;
-        this.speed = speed;
-        AbsoluteDrive.this.addRequirements(getRequirements());
-        
-        resetEncoders();
-        }
-        @Override
-        public void initialize() {
-        AbsoluteDrive.this.resetEncoders();
-         }
-       @Override
-         public void execute() {
-        swerve.drive(new Translation2d(speed, 0), 0, true);
-    }
-  
-  
-    public class RobotContainer {
-      private final SwerveSubsystem drivetrain = new SwerveSubsystem(null, 5.0, 0,5); // Initialize SwerveSubsystem
-      private final Command driveToPositionCommand = new DriveToPosition(drivetrain, 5.0, 0.5); // Drive 5 meters at 50% speed
-  
-      public RobotContainer() {
-          configureButtonBindings();
-      }
-  
-      private void configureButtonBindings() {
-          // Configure your button bindings here
-      }
-  
-      public Command getAutonomousCommand() {
-          return driveToPositionCommand;
-      }
-  }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted)
-  {
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished()
 
   {
-return Math.abs(AbsoluteDrive.this.getAverageDistance()) >= targetDistance;
-//return false;
+    return false;
+  }
 }
-}
-}
-
-
-
-
 
 

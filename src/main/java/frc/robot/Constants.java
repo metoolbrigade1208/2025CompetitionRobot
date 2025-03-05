@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.units.measure.Distance;
+import static edu.wpi.first.units.Units.Inches;
 import swervelib.math.Matter;
 
 /**
@@ -42,7 +44,10 @@ public final class Constants {
   public static final Matter CHASSIS =
       new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
-  public static final double MAX_SPEED = 1.5;
+  public static final double MAX_SPEED = 4.8;
+  public static final double MAX_ACCELERATION = 5.0;
+  public static final Distance kRobotLength = Inches.of(41);
+  public static final Distance kRobotWidth = Inches.of(30);
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
   // public static final class AutonConstants
@@ -117,7 +122,7 @@ public final class Constants {
 
   }
   public static class elevator {
-    public static final double kElevatorKp = 1;
+    public static final double kElevatorKp = 10;
     public static final double kElevatorKi = 0;
     public static final double kElevatorKd = 0;
 
@@ -127,6 +132,7 @@ public final class Constants {
     public static final double kElevatorkA = 0;
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
+    public static int kLimitSwitchPort = 1;
 
     public static final double kElevatorGearing = 9.0;
     public static final double kCarriageMass = 10.0;
@@ -134,9 +140,9 @@ public final class Constants {
                                                                                    // number 25
                                                                                    // chain (quater
                                                                                    // inch)
-    public static final double kElevatorDrumRadius = kElevatorDrumCirc / 2 * Math.PI;
-    public static final double kMinElevatorHeightMeters = 0.0;
-    public static final double kMaxElevatorHeightMeters = 2.5;
+    public static final double kElevatorDrumRadius = kElevatorDrumCirc / (2 * Math.PI);
+    public static final double kMinElevatorHeightMeters = LEVEL_1;
+    public static final double kMaxElevatorHeightMeters = LEVEL_4;
     // Position is rotation to meter
     public static final double kPositionConversionFactor =
         (kElevatorDrumCirc / kElevatorGearing) * 2;
@@ -155,4 +161,20 @@ public final class Constants {
       return Optional.empty();
     }
   }
+
+  public static class OutputConstants {
+    public static final int kOutputMotorPort = 53; // SparkMax moter for output
+    public static final int kOutputGearbox = 1; // Gearbox for output
+    public static final int kIRsensorport = 2; // IR sensor for output
+
+    public static final double kOutputKp = 0;
+    public static final double kOutputKi = 0;
+    public static final double kOutputKd = 0;
+    public static final double kOutputKv = 473;
+    public static final double kOutputMaxSpeed = 0.5;
+    public static final double kOutputMaxAcceleration = 0.5;
+    public static final double kOutputMaxError = 0.5;
+    public static final double kOutputRunSpeed = 1.0;
+  }
+
 }
