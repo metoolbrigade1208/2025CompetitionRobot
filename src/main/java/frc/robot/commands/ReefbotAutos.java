@@ -20,10 +20,8 @@ public class ReefbotAutos {
          * for half a second lower elevator to lvl1 when clearOutput
          */
 
-        // TODO: change this to go to the commanded level
-        NetworkTableInstance inst = NetworkTableInstance.getDefault();
-        NetworkTable table = inst.getTable("elevatorAtlevelcommand");
-        Command elevatorCommand = elevator.elevatorLevel2Command();
+
+        Command elevatorCommand = elevator.elevatorleveldataCommand();
 
         return new WaitUntilCommand(locationService.nearAutoPose()).andThen(elevatorCommand)
                 .andThen(new WaitUntilCommand(locationService.atAutoPose()))

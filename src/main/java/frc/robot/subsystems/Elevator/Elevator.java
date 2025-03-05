@@ -6,6 +6,10 @@ package frc.robot.subsystems.Elevator;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.IntegerTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
@@ -35,6 +39,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
+
 
   // Singleton stuff
   private static Elevator instance;
@@ -82,7 +87,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   DigitalInput input = new DigitalInput(Constants.elevator.kLimitSwitchPort);
 
   public Elevator() {
-
+    ElevatorLevelSub = ElevatorLevelTopic.subscribe(1);
     // Publish Mechanism2d to SmartDashboard
     // To view the Elevator visualization, select Network Tables -> SmartDashboard
     // -> Elevator Sim
@@ -225,7 +230,27 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public BooleanSupplier elevatorAtLevel = (() -> java.lang.Math.abs(m_encoder.getPosition()
       - currentGoalRotations) < Constants.elevator.kElevatorPositionTolerance);
 
+  NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  NetworkTable table = inst.getTable("SmartDashboard");
 
+  IntegerTopic ElevatorLevelTopic = table.getIntegerTopic("ElevatorLevel");
+  IntegerSubscriber ElevatorLevelSub;
+
+  public Command elevatorleveldataCommand() {
+    int ElevatorLevelNum = (int) ElevatorLevelSub.get();
+    switch (ElevatorLevelNum) {
+      case 1:
+        return elevatorLevel1Command();
+      case 2:
+        return elevatorLevel2Command();
+      case 3:
+        return elevatorLevel3Command();
+      case 4:
+        return elevatorLevel4Command();
+      default:
+        return elevatorLevel1Command();
+    }
+  }
 
   @Override
   public void close() {
