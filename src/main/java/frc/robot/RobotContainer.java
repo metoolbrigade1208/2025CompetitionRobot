@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -79,7 +80,7 @@ public class RobotContainer {
   IntegerTopic ElevatorLevelTopic = SmartDashboardTable.getIntegerTopic("ElevatorLevel");
   IntegerPublisher ElevatorLevelPub = ElevatorLevelTopic.publish();
 
-  // private int elevatorLevel = 1;
+  private int elevatorLevel = 1;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -203,17 +204,13 @@ public class RobotContainer {
       driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
-      driverXbox.povLeft()
-          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.LEFT.getVal())));
-      driverXbox.povRight()
-          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.RIGHT.getVal())));
-      driverXbox.povCenter()
-          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.CENTER.getVal())));
+      driverXbox.povLeft().whileTrue(offsetPubCommand(LocationService.Offset.LEFT));
+      driverXbox.povRight().whileTrue(offsetPubCommand(LocationService.Offset.RIGHT));
+      driverXbox.povCenter().whileTrue(offsetPubCommand(LocationService.Offset.CENTER));
       driverXbox.rightStick().onTrue(Commands.runOnce(() -> poseable = true))
           .onFalse(Commands.runOnce(() -> poseable = false));
-      // driverXbox.povUp().onTrue(Command.runOnce(() -> {
-      // elevatorLevel = java.Math.max(elevatorLevel + 1, 4);
-      // }));
+      driverXbox.povUp().onTrue(elevatorUpCommand());
+      driverXbox.povDown().onTrue(elevatorDownCommand());
       driverXbox.back().whileTrue(output.gripCoralCommand());
       driverXbox.start().whileTrue(output.ejectCoralCommand());
       driverXbox.leftBumper().whileTrue(output.runOutputMotor());
@@ -230,16 +227,39 @@ public class RobotContainer {
 
     {
       opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
-      opXbox.povDown().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(1)));
-      opXbox.povRight().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(2)));
-      opXbox.povUp().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(3)));
-      opXbox.povLeft().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(4)));
+      opXbox.povDown().onTrue(elevatorLevelPubCommand(1));
+      opXbox.povRight().onTrue(elevatorLevelPubCommand(2));
+      opXbox.povUp().onTrue(elevatorLevelPubCommand(3));
+      opXbox.povLeft().onTrue(elevatorLevelPubCommand(4));
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
-      // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
 
     }
 
+  }
+
+  private Command offsetPubCommand(LocationService.Offset offset) {
+    return Commands.runOnce(() -> offsetPub.set(offset.getVal()));
+  }
+
+  private Command elevatorLevelPubCommand(int level) {
+    return Commands.runOnce(() -> ElevatorLevelPub.set(level));
+  }
+
+  private void elevatorUp() {
+    elevatorLevel = java.lang.Math.min(elevatorLevel + 1, 4);
+  }
+
+  private void elevatorDown() {
+    elevatorLevel = java.lang.Math.max(elevatorLevel - 1, 4);
+  }
+
+  private Command elevatorUpCommand() {
+    return Commands.runOnce(this::elevatorUp);
+  }
+
+  private Command elevatorDownCommand() {
+    return Commands.runOnce(this::elevatorDown);
   }
 
   /**
