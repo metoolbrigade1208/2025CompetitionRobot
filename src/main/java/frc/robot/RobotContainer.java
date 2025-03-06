@@ -232,6 +232,7 @@ public class RobotContainer {
       opXbox.povRight().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(2)));
       opXbox.povUp().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(3)));
       opXbox.povLeft().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(4)));
+      opXbox.b().onTrue(elevator.elevatorleveldataCommand());
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
       // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
