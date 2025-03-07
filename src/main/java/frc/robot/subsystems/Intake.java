@@ -31,8 +31,9 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import static edu.wpi.first.units.Units.Inches;
-
+import java.util.Optional;
 import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -49,15 +50,18 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private double m_armSetpointDegrees = Constants.IntakeConstants.kDefaultArmSetpointDegrees;
 
   // The arm gearbox represents a gearbox containing two Neo motors.
-  private final DCMotor m_armGearbox = DCMotor.getNEO(2); 
+  private final DCMotor m_armGearbox = DCMotor.getNEO(2);
 
   // Motor and encoder for deploying arm.
-  private final SparkMax m_armMotor = new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
+  private final SparkMax m_armMotor =
+      new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
   // Standard classes for controlling our arm
   private final SparkClosedLoopController m_controller = m_armMotor.getClosedLoopController();
   // Motor and IR sensor for intake.
-  private final SparkMax m_intakeMotor = new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
-  private final DigitalInput m_coraldetect = new DigitalInput(Constants.IntakeConstants.kIRsensorport);
+  private final SparkMax m_intakeMotor =
+      new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
+  private final DigitalInput m_coraldetect =
+      new DigitalInput(Constants.IntakeConstants.kIRsensorport);
 
   private IntakeSimulation m_IntakeSim;
 
@@ -65,19 +69,16 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // This arm sim represents an arm that can travel from -75 degrees (rotated down
   // front)
   // to 255 degrees (rotated down in the back).
-  private final SingleJointedArmSim m_armSim = new SingleJointedArmSim(
-      m_armGearbox,
-      Constants.IntakeConstants.kArmReduction,
-      SingleJointedArmSim.estimateMOI(Constants.IntakeConstants.kArmLength, Constants.IntakeConstants.kArmMass),
-      Constants.IntakeConstants.kArmLength,
-      Constants.IntakeConstants.kMinAngleRads,
-      Constants.IntakeConstants.kMaxAngleRads,
-      true,
-      Units.degreesToRadians(0),
-      Constants.IntakeConstants.kArmEncoderDistPerPulse,
-      0.0 // Add noise with a std-dev of 1 tick
-  );
-  
+  private final SingleJointedArmSim m_armSim =
+      new SingleJointedArmSim(m_armGearbox, Constants.IntakeConstants.kArmReduction,
+          SingleJointedArmSim.estimateMOI(Constants.IntakeConstants.kArmLength,
+              Constants.IntakeConstants.kArmMass),
+          Constants.IntakeConstants.kArmLength, Constants.IntakeConstants.kMinAngleRads,
+          Constants.IntakeConstants.kMaxAngleRads, true, Units.degreesToRadians(0),
+          Constants.IntakeConstants.kArmEncoderDistPerPulse, 0.0 // Add noise with a std-dev of 1
+                                                                 // tick
+      );
+
 
   private final SparkAbsoluteEncoderSim m_encoderSim = new SparkAbsoluteEncoderSim(m_armMotor);
   private final SparkMaxSim m_armMotorSim = new SparkMaxSim(m_armMotor, m_armGearbox);
@@ -86,33 +87,30 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
   private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-  private final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", .1, -90));
-  private final MechanismLigament2d m_arm = m_armPivot.append(
-      new MechanismLigament2d(
-          "Arm",
-          Constants.IntakeConstants.kArmLength*3,
-          Units.radiansToDegrees(m_armSim.getAngleRads()),
-          6,
-          new Color8Bit(Color.kYellow)));
+  private final MechanismLigament2d m_armTower =
+      m_armPivot.append(new MechanismLigament2d("ArmTower", .1, -90));
+  private final MechanismLigament2d m_arm =
+      m_armPivot.append(new MechanismLigament2d("Arm", Constants.IntakeConstants.kArmLength * 3,
+          Units.radiansToDegrees(m_armSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
   /** Subsystem constructor. */
   public Intake(SwerveDrive drivetrain) {
     // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
-    m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", drivetrain.getMapleSimDrive().get(), Inches.of(28),
-        Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
+    Optional<SwerveDriveSimulation> mapleSimDrive = drivetrain.getMapleSimDrive();
+    if (mapleSimDrive.isEmpty()) {
+      m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", mapleSimDrive.get(),
+          Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
+    }
     // Put Mechanism 2d to SmartDashboard
     SmartDashboard.putData("Arm Sim", m_mech2d);
     m_armTower.setColor(new Color8Bit(Color.kBlue));
 
     // Configure the arm motor
     SparkMaxConfig armMotorConfig = new SparkMaxConfig();
-    armMotorConfig
-        .smartCurrentLimit(50)
-        .idleMode(IdleMode.kBrake);
+    armMotorConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
 
     armMotorConfig.closedLoop
-        .pid(Constants.IntakeConstants.kArmKp,
-            Constants.IntakeConstants.kArmKi,
+        .pid(Constants.IntakeConstants.kArmKp, Constants.IntakeConstants.kArmKi,
             Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     armMotorConfig.closedLoop.maxMotion
@@ -120,18 +118,17 @@ public class Intake extends SubsystemBase implements AutoCloseable {
         .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
         .allowedClosedLoopError(Constants.IntakeConstants.kArmMaxError);
 
-    //armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
-    m_armMotor.configure(armMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
+    m_armMotor.configure(armMotorConfig, ResetMode.kNoResetSafeParameters,
+        PersistMode.kNoPersistParameters);
 
     // Configure the intake motor
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
-    intakeMotorConfig
-        .smartCurrentLimit(50)
-        .idleMode(IdleMode.kBrake);
+    intakeMotorConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
 
-        intakeMotorConfig.closedLoop
-            .pidf(Constants.IntakeConstants.kIntakeKp,
-            Constants.IntakeConstants.kIntakeKi, Constants.IntakeConstants.kIntakeKd, 1.0/Constants.IntakeConstants.kIntakeKv, ClosedLoopSlot.kSlot0);
+    intakeMotorConfig.closedLoop.pidf(Constants.IntakeConstants.kIntakeKp,
+        Constants.IntakeConstants.kIntakeKi, Constants.IntakeConstants.kIntakeKd,
+        1.0 / Constants.IntakeConstants.kIntakeKv, ClosedLoopSlot.kSlot0);
 
     // Set the Arm position setpoint and P constant to Preferences if the keys don't
     // already exist
@@ -140,15 +137,18 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   }
 
   public void periodic() {
-    SmartDashboard.putNumber("armSimPosition",Units.radiansToDegrees(m_armSim.getAngleRads()));
+    SmartDashboard.putNumber("armSimPosition", Units.radiansToDegrees(m_armSim.getAngleRads()));
   }
+
   /** Update the simulation model. */
   public void simulationPeriodic() {
     // In this method, we update our simulation of what our arm is doing
     // First, we set our "inputs" (voltages)
     m_armSim.setInput(m_armMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-    m_armMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_armSim.getVelocityRadPerSec()),RoboRioSim.getVInVoltage(), 0.020);
+    m_armMotorSim.iterate(
+        Units.radiansPerSecondToRotationsPerMinute(m_armSim.getVelocityRadPerSec()),
+        RoboRioSim.getVInVoltage(), 0.020);
     // Next, we update it. The standard loop time is 20ms.
     m_armSim.update(0.020);
 
@@ -166,7 +166,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   /** Load setpoint and kP from preferences. */
   public void loadPreferences() {
     // Read Preferences for Arm setpoint and kP on entering Teleop
-    m_armSetpointDegrees = Preferences.getDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
+    m_armSetpointDegrees =
+        Preferences.getDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
   }
 
   /**
@@ -183,13 +184,18 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // sets intake speed
   public void setintakespeed(Double speed) {
     m_intakeMotor.set(speed);
-    m_IntakeSim.startIntake();
+    if (Robot.isSimulation()) {
+      m_IntakeSim.startIntake();
+    }
   }
 
   // stops intake
   public void stopintake() {
     m_intakeMotor.set(0.0);
-    m_IntakeSim.stopIntake();
+
+    if (Robot.isSimulation()) {
+      m_IntakeSim.stopIntake();
+    }
   }
 
   // gets IR sensor output as a boolean
