@@ -38,10 +38,6 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
 
-  private final ProfiledPIDController drivePoseTranslationPID = new ProfiledPIDController(10.0, 0.0,
-      0.1, new Constraints(Constants.MAX_SPEED, Constants.MAX_ACCELERATION));
-  private final ProfiledPIDController drivePoseAnglePIDController =
-      new ProfiledPIDController(10.0, 0.0, 0.1, new Constraints(1000, 10000));
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
   final CommandXboxController opXbox = new CommandXboxController(1);
@@ -49,8 +45,7 @@ public class RobotContainer {
 
   private static final boolean useDrivebase = true;
   private final SwerveSubsystem drivebase =
-      useDrivebase ? new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"))
-          : null;
+      new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   private final SwerveDrive swerveDrive = useDrivebase ? drivebase.getSwerveDrive() : null;
 
 
@@ -74,6 +69,11 @@ public class RobotContainer {
 
   private final LocationService locate = new LocationService(drivebase.getSwerveDrive());
   private int elevatorLevel = 1;
+
+  private final ProfiledPIDController drivePoseTranslationPID = new ProfiledPIDController(10.0, 0.0,
+      0.1, new Constraints(Constants.MAX_SPEED, Constants.MAX_ACCELERATION));
+  private final ProfiledPIDController drivePoseAnglePIDController =
+      new ProfiledPIDController(10.0, 0.0, 0.1, new Constraints(1000, 10000));
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
