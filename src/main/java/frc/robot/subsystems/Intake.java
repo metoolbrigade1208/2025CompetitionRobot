@@ -97,7 +97,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   public Intake(SwerveDrive drivetrain) {
     // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
     Optional<SwerveDriveSimulation> mapleSimDrive = drivetrain.getMapleSimDrive();
-    if (mapleSimDrive.isEmpty()) {
+    if (!mapleSimDrive.isEmpty()) {
       m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", mapleSimDrive.get(),
           Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
     }
