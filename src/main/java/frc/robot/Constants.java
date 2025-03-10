@@ -72,8 +72,8 @@ public final class Constants {
     public static final double TURN_CONSTANT = 6;
   }
   public static class IntakeConstants {
-    public static final int kArmMotorPort = 61;
-    public static final int kArmMotor2Port = 62;
+    public static final int kArmMotorPort = 62;
+    public static final int kArmMotor2Port = 61;
     public static final int kIntakeMotorPort = 60;
     public static final int kIRsensorport = 1;
     public static final int kEncoderAChannel = 0;
