@@ -27,6 +27,7 @@ import frc.robot.commands.ReefbotAutos;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
+import frc.robot.subsystems.LocationService.Offset;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -142,7 +143,23 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+
+    // commands used in PathPlanner
     NamedCommands.registerCommand("AutoScore", ReefbotAutos.AutoOutput());
+    // will automaticall raise elevator to set level and output coral
+    NamedCommands.registerCommand("OutputLeft", offsetPubCommand(Offset.LEFT));
+    // only for levels > 1
+    NamedCommands.registerCommand("OutputRight", offsetPubCommand(Offset.RIGHT));
+    // only for levels > 1
+    NamedCommands.registerCommand("SetElevatorLevel4", elevatorLevelPubCommand(4));
+    NamedCommands.registerCommand("SetElevatorLevel1", elevatorLevelPubCommand(1));
+    // default level
+    NamedCommands.registerCommand("GrabCoral", output.gripCoralCommand());
+    // from source
+    NamedCommands.registerCommand("OutputCoral", output.ejectCoralCommand());
+    // may not be used
+
+
     drivePoseAnglePIDController.enableContinuousInput(0, Math.PI * 2);
   }
 
