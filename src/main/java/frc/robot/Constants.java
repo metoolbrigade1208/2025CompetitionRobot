@@ -76,6 +76,7 @@ public final class Constants {
     public static final int kArmMotor2Port = 62;
     public static final int kIntakeMotorPort = 60;
     public static final int kIRsensorport = 1;
+    public static final int kArmLimitSwitchPort = 4;
     public static final int kEncoderAChannel = 0;
     public static final int kEncoderBChannel = 1;
     public static final int kJoystickPort = 0;
