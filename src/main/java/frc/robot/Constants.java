@@ -77,7 +77,6 @@ public final class Constants {
     public static final int kIntakeMotorPort = 60;
     public static final int kIRsensorport = 1;
     public static final int kArmUpLimitPort = 2;
-    public static final int kArmDownLimitPort = 3;
 
     public static final String kArmPositionKey = "ArmPosition";
     public static final String kArmPKey = "ArmP";
@@ -90,7 +89,7 @@ public final class Constants {
     // = (2 * PI rads) / (4096 pulses)
     public static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
 
-    public static final double kArmReduction = 65.0;
+    public static final double kArmReduction = 64.0;
     public static final double kArmEncoderGearing = 4.0 / 3.0; // ratio of encoder position to arm
                                                                // position
     public static final double kArmMass = 8.0; // Kilograms

@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -77,6 +78,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private final DigitalInput m_coraldetect =
       new DigitalInput(Constants.IntakeConstants.kIRsensorport);
 
+  private final DigitalInput armLimit = new DigitalInput(Constants.IntakeConstants.kArmUpLimitPort);
+
   private IntakeSimulation m_IntakeSim;
 
   // Simulation classes help us simulate what's going on, including gravity.
@@ -93,7 +96,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
                                                                  // tick
       );
 
-
+  private final SparkAbsoluteEncoder m_encoder = m_armMotorLeader.getAbsoluteEncoder();
   private final SparkAbsoluteEncoderSim m_encoderSim =
       new SparkAbsoluteEncoderSim(m_armMotorLeader);
   private final SparkMaxSim m_armMotorSim = new SparkMaxSim(m_armMotorLeader, m_armGearbox);
@@ -165,7 +168,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   }
 
   public void periodic() {
-    SmartDashboard.putNumber("armSimPosition", Units.radiansToDegrees(m_armSim.getAngleRads()));
+    SmartDashboard.putNumber("armPosition", Units.rotationsToDegrees(m_encoder.getPosition()));
+    if (isAtUpPosition()) {
+      m_armMotorLeader.set(0);
+    }
   }
 
   /** Update the simulation model. */
@@ -231,6 +237,11 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     return m_coraldetect.get();
   }
 
+  // Check for being at the limit.
+  public boolean isAtUpPosition() {
+    return armLimit.get();
+  }
+
   // Commands for arm
   public Command armDownCommand() {
     return runOnce(() -> this.reachSetpoint(Constants.IntakeConstants.kArmDownPosition));
@@ -251,10 +262,9 @@ public class Intake extends SubsystemBase implements AutoCloseable {
         this);
   }
 
-  // @Override
+  @Override
   public void close() {
     m_armMotorLeader.close();
-    // m_encoder.close();
     m_mech2d.close();
     m_armPivot.close();
     m_arm.close();
