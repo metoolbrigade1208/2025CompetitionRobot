@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -64,9 +63,6 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // The arm gearbox represents a gearbox containing two Neo motors.
   private final DCMotor m_armGearbox = DCMotor.getNEO(2);
 
-  private final DigitalInput input =
-      new DigitalInput(Constants.IntakeConstants.kArmLimitSwitchPort);
-
   // Motor and encoder for deploying arm.
   private final SparkMax m_armMotorLeader =
       new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
@@ -116,8 +112,6 @@ public class Intake extends SubsystemBase implements AutoCloseable {
       m_armPivot.append(new MechanismLigament2d("Arm", Constants.IntakeConstants.kArmLength * 3,
           Units.radiansToDegrees(m_armSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
-  private final RelativeEncoder m_encoder = m_armMotor.getEncoder();
-  private final RelativeEncoder m_encoder2 = m_armMotor2.getEncoder();
 
   /** Subsystem constructor. */
   public Intake() {
@@ -207,10 +201,6 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     // Update the Mechanism Arm angle based on the simulated arm angle
     m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
 
-    if (isAtUpPosition()) {
-      m_encoder.setPosition(Constants.IntakeConstants.kArmUpPosition);
-      m_encoder2.setPosition(Constants.IntakeConstants.kArmUpPosition);
-    }
   }
 
   /** Load setpoint and kP from preferences. */
