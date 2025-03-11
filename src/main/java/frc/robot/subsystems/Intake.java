@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -32,8 +33,9 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import static edu.wpi.first.units.Units.Inches;
-
+import java.util.Optional;
 import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -61,6 +63,9 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   // The arm gearbox represents a gearbox containing two Neo motors.
   private final DCMotor m_armGearbox = DCMotor.getNEO(2);
+
+  private final DigitalInput input =
+      new DigitalInput(Constants.IntakeConstants.kArmLimitSwitchPort);
 
   // Motor and encoder for deploying arm.
   private final SparkMax m_armMotorLeader =
@@ -111,13 +116,19 @@ public class Intake extends SubsystemBase implements AutoCloseable {
       m_armPivot.append(new MechanismLigament2d("Arm", Constants.IntakeConstants.kArmLength * 3,
           Units.radiansToDegrees(m_armSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
+  private final RelativeEncoder m_encoder = m_armMotor.getEncoder();
+  private final RelativeEncoder m_encoder2 = m_armMotor2.getEncoder();
+
   /** Subsystem constructor. */
   public Intake() {
     SwerveSubsystem driveSubsystem = SwerveSubsystem.getInstance();
     SwerveDrive drivetrain = driveSubsystem.getSwerveDrive();
     // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
-    m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", drivetrain.getMapleSimDrive().get(),
-        Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
+    Optional<SwerveDriveSimulation> mapleSimDrive = drivetrain.getMapleSimDrive();
+    if (!mapleSimDrive.isEmpty()) {
+      m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", mapleSimDrive.get(),
+          Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
+    }
     // Put Mechanism 2d to SmartDashboard
     SmartDashboard.putData("Arm Sim", m_mech2d);
     m_armTower.setColor(new Color8Bit(Color.kBlue));
@@ -195,6 +206,11 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
     // Update the Mechanism Arm angle based on the simulated arm angle
     m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
+
+    if (isAtUpPosition()) {
+      m_encoder.setPosition(Constants.IntakeConstants.kArmUpPosition);
+      m_encoder2.setPosition(Constants.IntakeConstants.kArmUpPosition);
+    }
   }
 
   /** Load setpoint and kP from preferences. */
@@ -220,13 +236,17 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // sets intake speed
   public void setintakespeed(Double speed) {
     m_intakeMotor.set(speed);
-    m_IntakeSim.startIntake();
+    if (Robot.isSimulation()) {
+      m_IntakeSim.startIntake();
+    }
   }
 
   // stops intake
   public void stopintake() {
     m_intakeMotor.set(0.0);
-    m_IntakeSim.stopIntake();
+    if (Robot.isSimulation()) {
+      m_IntakeSim.stopIntake();
+    }
   }
 
   // gets IR sensor output as a boolean

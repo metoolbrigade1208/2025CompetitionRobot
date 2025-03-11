@@ -76,7 +76,7 @@ public final class Constants {
     public static final int kArmMotor2Port = 62;
     public static final int kIntakeMotorPort = 60;
     public static final int kIRsensorport = 1;
-    public static final int kArmUpLimitPort = 2;
+    public static final int kArmUpLimitPort = 4;
 
     public static final String kArmPositionKey = "ArmPosition";
     public static final String kArmPKey = "ArmP";
