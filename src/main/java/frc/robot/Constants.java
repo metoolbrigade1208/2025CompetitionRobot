@@ -133,7 +133,7 @@ public final class Constants {
     public static final double kElevatorkA = 0;
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
-    public static int kLimitSwitchPort = 0;
+    public static int kLimitSwitchPort = 6;
 
     public static final double kElevatorGearing = 9.0;
     public static final double kCarriageMass = 10.0;
@@ -165,7 +165,7 @@ public final class Constants {
   }
 
   public static class OutputConstants {
-    public static final int kOutputMotorPort = 53; // SparkMax moter for output
+    public static final int kOutputMotorPort = 55; // SparkMax moter for output
     public static final int kOutputGearbox = 1; // Gearbox for output
     public static final int kIRsensorport = 2; // IR sensor for output
 
