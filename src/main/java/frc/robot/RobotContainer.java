@@ -225,11 +225,13 @@ public class RobotContainer {
     // Dpad Left = go to elevator level 4
 
     {
-      opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
-      opXbox.povDown().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(1)));
-      opXbox.povRight().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(2)));
-      opXbox.povUp().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(3)));
-      opXbox.povLeft().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(4)));
+      if (elevator != null) {
+        opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
+        opXbox.povDown().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(1)));
+        opXbox.povRight().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(2)));
+        opXbox.povUp().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(3)));
+        opXbox.povLeft().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(4)));
+      }
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
       // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
