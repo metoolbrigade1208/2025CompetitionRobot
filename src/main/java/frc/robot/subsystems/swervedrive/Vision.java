@@ -169,11 +169,17 @@ public class Vision {
     return poseEst;
   }
 
-   * Get distance of the robot from the AprilTag pose.
+  /**
    *
-   * @param id AprilTag ID
-   * @return Distance
+   * 
+   * Get distance
+   * of the
+   * robot from
+   * the AprilTag pose.**
+   * 
+   * @param id AprilTag ID*@return Distance
    */
+
   public double getDistanceFromAprilTag(int id) {
     Optional<Pose3d> tag = fieldLayout.getTagPose(id);
     return tag.map(pose3d -> PhotonUtils.getDistanceToPose(currentPose.get(), pose3d.toPose2d()))
