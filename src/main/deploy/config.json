@@ -1,0 +1,22 @@
+{
+    "inIntake": 37.5,
+    "inL1": 12,
+    "inL2": 24,
+    "inL3": 36,
+    "inL4": 48,
+    "armKp": 1.0,
+    "armKi": 0.0,
+    "armKd": 0.01,
+    "intakeKp": 1.0,
+    "intakeKi": 0.0,
+    "intakeKd": 0.01,
+    "intakeMaxSpeed": 0.5,
+    "intakeMaxAcceleration": 0.5,
+    "intakeMaxError": 0.5,
+    "elevatorKp": 5.0,
+    "elevatorKi": 0.0,
+    "elevatorKd": 0.01,
+    "outputKp": 1.0,
+    "outputKi": 0.0,
+    "outputKd": 0.01
+}

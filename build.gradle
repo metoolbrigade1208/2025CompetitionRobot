@@ -33,7 +33,7 @@ deploy {
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
-                    deleteOldFiles = false // Change to true to delete files on roboRIO that no
+                    deleteOldFiles = true // Change to true to delete files on roboRIO that no
                     // longer exist in deploy directory of this project
                 }
             }
@@ -70,7 +70,6 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
     implementation 'edu.wpi.first.wpilibj:wpilibj-java:2025.1.1'
-    implementation 'com.revrobotics.frc:SparkMax-java:1.5.2'
 
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
