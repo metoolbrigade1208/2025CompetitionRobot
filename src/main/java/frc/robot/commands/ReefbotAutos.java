@@ -8,7 +8,7 @@ import frc.robot.subsystems.Output;
 import frc.robot.subsystems.Elevator.Elevator;
 
 public class ReefbotAutos {
-    public Command AutoOutput() {
+    public static Command AutoOutput() {
         LocationService locationService = LocationService.getInstance();
         Output output = Output.getInstance();
         Elevator elevator = Elevator.getInstance();
