@@ -132,11 +132,13 @@ public class Output extends SubsystemBase implements AutoCloseable {
     if (Robot.isSimulation()) {
       m_OutputSim.periodic();
     }
+    System.out.print("output status: ");
+    System.out.println(IsDetected());
   }
 
   // runs motor
   public void runmotor() {
-    m_OutputMotor.set(1.0);
+    m_OutputMotor.set(-.1);
   }
 
   // stops motor

@@ -31,6 +31,7 @@ import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.LocationService.Offset;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.Set;
 import swervelib.SwerveInputStream;
 import frc.robot.subsystems.Output;
 
@@ -244,11 +245,16 @@ public class RobotContainer {
     // Dpad Left = go to elevator level 4
 
     {
-      opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
-      opXbox.povDown().onTrue(elevatorLevelPubCommand(1));
-      opXbox.povRight().onTrue(elevatorLevelPubCommand(2));
-      opXbox.povUp().onTrue(elevatorLevelPubCommand(3));
-      opXbox.povLeft().onTrue(elevatorLevelPubCommand(4));
+      if (elevator != null) {
+        // opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
+        opXbox.povDown().onTrue(elevatorLevelPubCommand(1));
+        opXbox.povRight().onTrue(elevatorLevelPubCommand(2));
+        opXbox.povUp().onTrue(elevatorLevelPubCommand(3));
+        opXbox.povLeft().onTrue(elevatorLevelPubCommand(4));
+        opXbox.b().onTrue(Commands.defer(elevator::elevatorleveldataCommand, Set.of(elevator)));
+        opXbox.a().whileTrue(elevator.elevatorDown());
+        opXbox.y().whileTrue(elevator.elevatorUp());
+      }
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
 

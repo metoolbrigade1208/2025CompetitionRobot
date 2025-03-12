@@ -125,6 +125,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
       throw new IllegalStateException("Cannot create new instance of singleton class");
     }
     instance = this;
+    // this.setDefaultCommand(elevatorStop());
   }
 
   /** Advance the simulation. */
@@ -158,7 +159,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public void periodic() {
     // This method will be called once per scheduler run
     updateTelemetry();
-    if (isAtBottom()) {
+    if (isAtBottom() && false) {
       m_encoder.setPosition(0);
       m_encoder2.setPosition(0);
     }
@@ -175,6 +176,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
     goalMeters = goalMeters - Constants.LEVEL_1;
     currentGoalRotations = goalMeters / Constants.elevator.kPositionConversionFactor;
+    System.out.print("goal Rot: ");
+    System.out.println(currentGoalRotations);
     m_controller.setReference(currentGoalRotations, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     m_controller2.setReference(currentGoalRotations, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     // With the setpoint value we run PID control like normal
@@ -187,8 +190,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   /** Stop the control loop and motor output. */
   public void stop() {
-    m_controller.setReference(0.0, ControlType.kVoltage);
-    m_controller2.setReference(0.0, ControlType.kVoltage);
+    // m_controller.setReference(0.0, ControlType.kVoltage);
+    // m_controller2.setReference(0.0, ControlType.kVoltage);
     m_motor.set(0.0);
     m_motor2.set(0.0);
   }
@@ -249,6 +252,29 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         return elevatorLevel1Command();
     }
   }
+
+  public Command elevatorUp() {
+    return runOnce(() -> {
+      m_motor.set(.1);
+      m_motor2.set(.1);
+    });
+  }
+
+  public Command elevatorDown() {
+    return runOnce(() -> {
+      m_motor.set(-.1);
+      m_motor2.set(-.1);
+    });
+  }
+
+
+  public Command elevatorStop() {
+    return runOnce(() -> {
+      stop();
+    });
+  }
+
+
 
   @Override
   public void close() {

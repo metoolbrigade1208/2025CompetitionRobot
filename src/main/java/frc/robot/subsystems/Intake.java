@@ -71,8 +71,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
       new SparkMax(Constants.IntakeConstants.kArmMotor2Port, MotorType.kBrushless);
   // Standard classes for controlling our arm
   private final SparkClosedLoopController m_controller = m_armMotorLeader.getClosedLoopController();
-  private final SparkClosedLoopController m_controller2 =
-      m_armMotorFollower.getClosedLoopController();
+
   // Motor and IR sensor for intake.
   private final SparkMax m_intakeMotor =
       new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
@@ -174,7 +173,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   public void periodic() {
     SmartDashboard.putNumber("armPosition", Units.rotationsToDegrees(m_encoder.getPosition()));
-    if (isAtUpPosition()) {
+    if (isAtUpPosition() && m_armMotorLeader.get() < 0) {
+      System.out.println("hit stop");
       m_armMotorLeader.set(0);
     }
   }
@@ -214,8 +214,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
    * Run the control loop to reach and maintain the setpoint from the preferences.
    */
   public void reachSetpoint(Double setPoint) {
+    System.out.print("Setting arm position: ");
+    System.out.println(setPoint);
     m_controller.setReference(setPoint, ControlType.kPosition);
-    m_controller2.setReference(setPoint, ControlType.kPosition);
+    // m_controller2.setReference(setPoint, ControlType.kPosition);
   }
 
   public void stoparm() {
@@ -225,7 +227,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   // sets intake speed
   public void setintakespeed(Double speed) {
-    m_intakeMotor.set(speed);
+    m_intakeMotor.set(-speed);
+    System.out.println("intake speed set 1");
     if (Robot.isSimulation()) {
       m_IntakeSim.startIntake();
     }
@@ -234,6 +237,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // stops intake
   public void stopintake() {
     m_intakeMotor.set(0.0);
+    System.out.println("intake speed set 0");
     if (Robot.isSimulation()) {
       m_IntakeSim.stopIntake();
     }
@@ -244,7 +248,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     if (Robot.isSimulation()) {
       return m_IntakeSim.getGamePiecesAmount() > 0;
     }
-    return m_coraldetect.get();
+    return !m_coraldetect.get();
   }
 
   // Check for being at the limit.
