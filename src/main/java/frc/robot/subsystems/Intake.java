@@ -227,7 +227,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   // sets intake speed
   public void setintakespeed(Double speed) {
-    m_intakeMotor.set(speed);
+    m_intakeMotor.set(-speed);
     System.out.println("intake speed set 1");
     if (Robot.isSimulation()) {
       m_IntakeSim.startIntake();
@@ -248,7 +248,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     if (Robot.isSimulation()) {
       return m_IntakeSim.getGamePiecesAmount() > 0;
     }
-    return m_coraldetect.get();
+    return !m_coraldetect.get();
   }
 
   // Check for being at the limit.

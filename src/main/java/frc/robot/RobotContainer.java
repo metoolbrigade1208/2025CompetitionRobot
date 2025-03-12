@@ -27,6 +27,7 @@ import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.Set;
 import swervelib.SwerveInputStream;
 import frc.robot.subsystems.Output;
 
@@ -226,15 +227,18 @@ public class RobotContainer {
 
     {
       if (elevator != null) {
-        opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
+        // opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
         opXbox.povDown().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(1)));
         opXbox.povRight().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(2)));
         opXbox.povUp().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(3)));
         opXbox.povLeft().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(4)));
-        opXbox.b().onTrue(elevator.elevatorleveldataCommand());
+        opXbox.b().onTrue(Commands.defer(elevator::elevatorleveldataCommand, Set.of(elevator)));
+        opXbox.a().whileTrue(elevator.elevatorDown());
+        opXbox.y().whileTrue(elevator.elevatorUp());
       }
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
+
       // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
 
     }

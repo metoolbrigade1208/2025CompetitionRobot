@@ -13,7 +13,7 @@
     "intakeMaxSpeed": 0.5,
     "intakeMaxAcceleration": 0.5,
     "intakeMaxError": 0.5,
-    "elevatorKp": 10.0,
+    "elevatorKp": 5.0,
     "elevatorKi": 0.0,
     "elevatorKd": 0.01,
     "outputKp": 1.0,
