@@ -140,7 +140,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
      * is running the
      * absolute encoder
      */
-    armMotorFollowerConfig.follow(m_armMotorLeader, false);
+    armMotorFollowerConfig.follow(m_armMotorLeader, true);
 
     // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotorLeader.configure(armMotorLeaderConfig, ResetMode.kNoResetSafeParameters,
@@ -164,7 +164,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
       throw new IllegalStateException("Cannot create new instance of singleton class");
     }
     instance = this;
-    this.setDefaultCommand(armUpCommand());
+    // this.setDefaultCommand(armUpCommand());
   }
 
   public void periodic() {
