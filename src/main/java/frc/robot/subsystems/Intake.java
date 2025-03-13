@@ -33,9 +33,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import static edu.wpi.first.units.Units.Inches;
 import java.util.Optional;
-import java.util.Optional;
 import org.ironmaple.simulation.IntakeSimulation;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -112,11 +110,6 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     SwerveSubsystem driveSubsystem = SwerveSubsystem.getInstance();
     SwerveDrive drivetrain = driveSubsystem.getSwerveDrive();
     // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
-    Optional<SwerveDriveSimulation> mapleSimDrive = drivetrain.getMapleSimDrive();
-    if (!mapleSimDrive.isEmpty()) {
-      m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", mapleSimDrive.get(),
-          Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
-    }
     Optional<SwerveDriveSimulation> mapleSimDrive = drivetrain.getMapleSimDrive();
     if (!mapleSimDrive.isEmpty()) {
       m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", mapleSimDrive.get(),
