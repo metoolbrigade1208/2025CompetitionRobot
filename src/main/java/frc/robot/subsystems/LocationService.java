@@ -16,6 +16,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.BooleanTopic;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
@@ -39,8 +42,7 @@ public class LocationService extends SubsystemBase {
     return instance;
   }
 
-  private static final AprilTagFieldLayout field =
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+  private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
   /** Creates a new LocationService. */
   public LocationService() {
@@ -64,8 +66,6 @@ public class LocationService extends SubsystemBase {
     public int getVal() {
       return val;
     }
-
-
 
   }
 
@@ -91,8 +91,7 @@ public class LocationService extends SubsystemBase {
     double closestDistance = Double.MAX_VALUE;
     while (iter.hasNext()) {
       AprilTag tag = iter.next();
-      double distance =
-          robot.getTranslation().getDistance(tag.pose.getTranslation().toTranslation2d());
+      double distance = robot.getTranslation().getDistance(tag.pose.getTranslation().toTranslation2d());
       if (distance < closestDistance) {
         closestDistance = distance;
         closestTagId = tag.ID;
@@ -154,7 +153,7 @@ public class LocationService extends SubsystemBase {
    * 
    * OFFSET is whether to be offset to the left or right of the tag
    * 
-   * @param TagID - the tag ID to generate the pose from
+   * @param TagID  - the tag ID to generate the pose from
    * @param offset - if null, it will return as if used CENTER
    * @return Pose2d - the pose of the robot lined up on the tag.
    */
@@ -198,8 +197,7 @@ public class LocationService extends SubsystemBase {
 
   public Pose2d genPoseForProcessorFromTag(int TagID) {
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
-    Transform2d poseOffset =
-        new Transform2d(Constants.kRobotWidth.div(2), Inches.of(0.0), Rotation2d.fromDegrees(0));
+    Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(0.0), Rotation2d.fromDegrees(0));
     return tagPose.transformBy(poseOffset);
   }
 
@@ -241,10 +239,96 @@ public class LocationService extends SubsystemBase {
     return autoPoseBool(Units.inchesToMeters(36));
   }
 
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    NetworkTable reefTagTable = inst.getTable("SmartDashboard");
+
+    BooleanTopic reefTag1Topic = reefTagTable.getBooleanTopic("reefTag1");
+    BooleanPublisher reefTag1Pub = reefTag1Topic.publish();
+
+    BooleanTopic reefTag2Topic = reefTagTable.getBooleanTopic("reefTag2");
+    BooleanPublisher reefTag2Pub = reefTag2Topic.publish();
+
+    BooleanTopic reefTag3Topic = reefTagTable.getBooleanTopic("reefTag3");
+    BooleanPublisher reefTag3Pub = reefTag3Topic.publish();
+
+    BooleanTopic reefTag4Topic = reefTagTable.getBooleanTopic("reefTag4");
+    BooleanPublisher reefTag4Pub = reefTag4Topic.publish();
+
+    BooleanTopic reefTag5Topic = reefTagTable.getBooleanTopic("reefTag5");
+    BooleanPublisher reefTag5Pub = reefTag5Topic.publish();
+
+    BooleanTopic reefTag6Topic = reefTagTable.getBooleanTopic("reefTag6");
+    BooleanPublisher reefTag6Pub = reefTag6Topic.publish();
+
+    int tagID = closestTagId();
+    switch (tagID) {
+      case 6:
+      case 17:
+        reefTag1Pub.set(true);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+
+        break;
+      case 7:
+      case 18:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(true);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+      case 8:
+      case 19:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(true);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+      case 9:
+      case 20:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(true);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+      case 10:
+      case 21:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(true);
+        reefTag6Pub.set(false);
+        break;
+      case 11:
+      case 22:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(true);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(true);
+        break;
+
+      default:
+        reefTag1Pub.set(false);
+        reefTag2Pub.set(false);
+        reefTag3Pub.set(false);
+        reefTag4Pub.set(false);
+        reefTag5Pub.set(false);
+        reefTag6Pub.set(false);
+        break;
+    }
+
   }
 }
-
