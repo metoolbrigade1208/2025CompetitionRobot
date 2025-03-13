@@ -170,11 +170,16 @@ public class Vision {
   }
 
   /**
-   * Get distance of the robot from the AprilTag pose.
    *
-   * @param id AprilTag ID
-   * @return Distance
+   * 
+   * Get distance
+   * of the
+   * robot from
+   * the AprilTag pose.**
+   * 
+   * @param id AprilTag ID*@return Distance
    */
+
   public double getDistanceFromAprilTag(int id) {
     Optional<Pose3d> tag = fieldLayout.getTagPose(id);
     return tag.map(pose3d -> PhotonUtils.getDistanceToPose(currentPose.get(), pose3d.toPose2d()))
@@ -263,24 +268,25 @@ public class Vision {
   enum Cameras {
     /**
      * Left Camera
-     */
-    LEFT_CAM("left", new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)),
-        new Translation3d(Units.inchesToMeters(12.056), Units.inchesToMeters(10.981),
-            Units.inchesToMeters(8.44)),
-        VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-    /**
+     * 
+     * LEFT_CAM("left", new Rotation3d(0, Math.toRadians(-24.094),
+     * Math.toRadians(30)), new
+     * Translation3d(Units.inchesToMeters(12.056), Units.inchesToMeters(10.981),
+     * Units.inchesToMeters(8.44)), VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5,
+     * 0.5, 1)),
+     * 
      * Right Camera
      */
-    RIGHT_CAM("right", new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
-        new Translation3d(Units.inchesToMeters(12.056), Units.inchesToMeters(-10.981),
-            Units.inchesToMeters(8.44)),
+    RIGHT_CAM("sourceside", new Rotation3d(0, Math.toRadians(270), Math.toRadians(-90)),
+        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(9.5),
+            Units.inchesToMeters(29.5)),
         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-    /**
+    /*
      * Center Camera
      */
-    CENTER_CAM("tagCam", new Rotation3d(0, Units.degreesToRadians(18), 0),
-        new Translation3d(Units.inchesToMeters(-4.628), Units.inchesToMeters(-10.687),
-            Units.inchesToMeters(16.129)),
+    CENTER_CAM("scoreside", new Rotation3d(0, Units.degreesToRadians(90), 0),
+        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-9.5),
+            Units.inchesToMeters(12.5)),
         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
     /**

@@ -270,6 +270,11 @@ public class Intake extends SubsystemBase implements AutoCloseable {
         this);
   }
 
+  public Command spitIntakeCommand() {
+    return startEnd(() -> this.setintakespeed(-Constants.IntakeConstants.kIntakeRunSpeed),
+        this::stopintake).withTimeout(1);
+  }
+
   @Override
   public void close() {
     m_armMotorLeader.close();

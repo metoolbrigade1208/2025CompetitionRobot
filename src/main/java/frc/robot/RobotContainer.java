@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,10 +18,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -85,6 +85,8 @@ public class RobotContainer {
   IntegerPublisher ElevatorLevelPub = ElevatorLevelTopic.publish();
 
   private int elevatorLevel = 1;
+
+  private final SendableChooser<Command> autoChooser;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -163,6 +165,7 @@ public class RobotContainer {
     // from source
     NamedCommands.registerCommand("OutputCoral", output.ejectCoralCommand());
     // may not be used
+    autoChooser = AutoBuilder.buildAutoChooser("Center Auto Score");
 
     drivePoseAnglePIDController.enableContinuousInput(0, Math.PI * 2);
   }
@@ -222,7 +225,7 @@ public class RobotContainer {
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverXbox.rightBumper().onTrue(Commands.none());
+      driverXbox.rightBumper().onTrue(intake.spitIntakeCommand());
       driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
@@ -251,10 +254,10 @@ public class RobotContainer {
     {
       if (elevator != null) {
         // opXbox.rightTrigger().onTrue(elevator.elevatorLevelIntakeCommand());
-        opXbox.povDown().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(1)));
-        opXbox.povRight().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(2)));
-        opXbox.povUp().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(3)));
-        opXbox.povLeft().onTrue(Commands.runOnce(() -> ElevatorLevelPub.set(4)));
+        opXbox.povDown().onTrue(elevatorLevelPubCommand(1));
+        opXbox.povRight().onTrue(elevatorLevelPubCommand(2));
+        opXbox.povUp().onTrue(elevatorLevelPubCommand(3));
+        opXbox.povLeft().onTrue(elevatorLevelPubCommand(4));
         opXbox.b().onTrue(Commands.defer(elevator::elevatorleveldataCommand, Set.of(elevator)));
         opXbox.a().whileTrue(elevator.elevatorDown());
         opXbox.y().whileTrue(elevator.elevatorUp());
@@ -297,7 +300,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("MiddleScoreOnBottom");
+    return autoChooser.getSelected();
   }
 
   public void setMotorBrake(boolean brake) {
