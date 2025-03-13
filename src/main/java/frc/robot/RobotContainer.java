@@ -19,12 +19,15 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ReefbotAutos;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
+import frc.robot.subsystems.LocationService.Offset;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.util.Set;
@@ -80,7 +83,7 @@ public class RobotContainer {
   IntegerTopic ElevatorLevelTopic = SmartDashboardTable.getIntegerTopic("ElevatorLevel");
   IntegerPublisher ElevatorLevelPub = ElevatorLevelTopic.publish();
 
-  // private int elevatorLevel = 1;
+  private int elevatorLevel = 1;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -144,6 +147,22 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+
+    // commands used in PathPlanner
+    NamedCommands.registerCommand("AutoScore", ReefbotAutos.AutoOutput());
+    // will automaticall raise elevator to set level and output coral
+    NamedCommands.registerCommand("OutputLeft", offsetPubCommand(Offset.LEFT));
+    // only for levels > 1
+    NamedCommands.registerCommand("OutputRight", offsetPubCommand(Offset.RIGHT));
+    // only for levels > 1
+    NamedCommands.registerCommand("SetElevatorLevel4", elevatorLevelPubCommand(4));
+    NamedCommands.registerCommand("SetElevatorLevel1", elevatorLevelPubCommand(1));
+    // default level
+    NamedCommands.registerCommand("GrabCoral", output.gripCoralCommand());
+    // from source
+    NamedCommands.registerCommand("OutputCoral", output.ejectCoralCommand());
+    // may not be used
+
     drivePoseAnglePIDController.enableContinuousInput(0, Math.PI * 2);
   }
 
@@ -206,17 +225,13 @@ public class RobotContainer {
       driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
-      driverXbox.povLeft()
-          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.LEFT.getVal())));
-      driverXbox.povRight()
-          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.RIGHT.getVal())));
-      driverXbox.povCenter()
-          .whileTrue(Commands.runOnce(() -> offsetPub.set(LocationService.Offset.CENTER.getVal())));
+      driverXbox.povLeft().whileTrue(offsetPubCommand(LocationService.Offset.LEFT));
+      driverXbox.povRight().whileTrue(offsetPubCommand(LocationService.Offset.RIGHT));
+      driverXbox.povCenter().whileTrue(offsetPubCommand(LocationService.Offset.CENTER));
       driverXbox.rightStick().onTrue(Commands.runOnce(() -> poseable = true))
           .onFalse(Commands.runOnce(() -> poseable = false));
-      // driverXbox.povUp().onTrue(Command.runOnce(() -> {
-      // elevatorLevel = java.Math.max(elevatorLevel + 1, 4);
-      // }));
+      driverXbox.povUp().onTrue(elevatorUpCommand());
+      driverXbox.povDown().onTrue(elevatorDownCommand());
       driverXbox.back().whileTrue(output.gripCoralCommand());
       driverXbox.start().whileTrue(output.ejectCoralCommand());
       driverXbox.leftBumper().whileTrue(output.runOutputMotor());
@@ -246,10 +261,32 @@ public class RobotContainer {
       opXbox.leftBumper().whileTrue(output.gripCoralCommand());
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
 
-      // opXbox.leftTrigger().whileTrue(elevator.elevatorManualOverideCommand(opXbox.getHID()));
-
     }
 
+  }
+
+  private Command offsetPubCommand(LocationService.Offset offset) {
+    return Commands.runOnce(() -> offsetPub.set(offset.getVal()));
+  }
+
+  private Command elevatorLevelPubCommand(int level) {
+    return Commands.runOnce(() -> ElevatorLevelPub.set(level));
+  }
+
+  private void elevatorUp() {
+    elevatorLevel = java.lang.Math.min(elevatorLevel + 1, 4);
+  }
+
+  private void elevatorDown() {
+    elevatorLevel = java.lang.Math.max(elevatorLevel - 1, 4);
+  }
+
+  private Command elevatorUpCommand() {
+    return Commands.runOnce(this::elevatorUp);
+  }
+
+  private Command elevatorDownCommand() {
+    return Commands.runOnce(this::elevatorDown);
   }
 
   /**

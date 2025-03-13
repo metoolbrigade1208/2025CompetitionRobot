@@ -33,7 +33,9 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import static edu.wpi.first.units.Units.Inches;
 import java.util.Optional;
+import java.util.Optional;
 import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -64,19 +66,16 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private final DCMotor m_armGearbox = DCMotor.getNEO(2);
 
   // Motor and encoder for deploying arm.
-  private final SparkMax m_armMotorLeader =
-      new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
+  private final SparkMax m_armMotorLeader = new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
 
-  private final SparkMax m_armMotorFollower =
-      new SparkMax(Constants.IntakeConstants.kArmMotor2Port, MotorType.kBrushless);
+  private final SparkMax m_armMotorFollower = new SparkMax(Constants.IntakeConstants.kArmMotor2Port,
+      MotorType.kBrushless);
   // Standard classes for controlling our arm
   private final SparkClosedLoopController m_controller = m_armMotorLeader.getClosedLoopController();
 
   // Motor and IR sensor for intake.
-  private final SparkMax m_intakeMotor =
-      new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
-  private final DigitalInput m_coraldetect =
-      new DigitalInput(Constants.IntakeConstants.kIRsensorport);
+  private final SparkMax m_intakeMotor = new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
+  private final DigitalInput m_coraldetect = new DigitalInput(Constants.IntakeConstants.kIRsensorport);
 
   private final DigitalInput armLimit = new DigitalInput(Constants.IntakeConstants.kArmUpLimitPort);
 
@@ -86,37 +85,38 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // This arm sim represents an arm that can travel from -75 degrees (rotated down
   // front)
   // to 255 degrees (rotated down in the back).
-  private final SingleJointedArmSim m_armSim =
-      new SingleJointedArmSim(m_armGearbox, Constants.IntakeConstants.kArmReduction,
-          SingleJointedArmSim.estimateMOI(Constants.IntakeConstants.kArmLength,
-              Constants.IntakeConstants.kArmMass),
-          Constants.IntakeConstants.kArmLength, Constants.IntakeConstants.kMinAngleRads,
-          Constants.IntakeConstants.kMaxAngleRads, true, Units.degreesToRadians(90),
-          Constants.IntakeConstants.kArmEncoderDistPerPulse, 0.0 // Add noise with a std-dev of 1
-                                                                 // tick
-      );
+  private final SingleJointedArmSim m_armSim = new SingleJointedArmSim(m_armGearbox,
+      Constants.IntakeConstants.kArmReduction,
+      SingleJointedArmSim.estimateMOI(Constants.IntakeConstants.kArmLength,
+          Constants.IntakeConstants.kArmMass),
+      Constants.IntakeConstants.kArmLength, Constants.IntakeConstants.kMinAngleRads,
+      Constants.IntakeConstants.kMaxAngleRads, true, Units.degreesToRadians(90),
+      Constants.IntakeConstants.kArmEncoderDistPerPulse, 0.0 // Add noise with a std-dev of 1
+                                                             // tick
+  );
 
   private final SparkAbsoluteEncoder m_encoder = m_armMotorLeader.getAbsoluteEncoder();
-  private final SparkAbsoluteEncoderSim m_encoderSim =
-      new SparkAbsoluteEncoderSim(m_armMotorLeader);
+  private final SparkAbsoluteEncoderSim m_encoderSim = new SparkAbsoluteEncoderSim(m_armMotorLeader);
   private final SparkMaxSim m_armMotorSim = new SparkMaxSim(m_armMotorLeader, m_armGearbox);
-
 
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
   private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-  private final MechanismLigament2d m_armTower =
-      m_armPivot.append(new MechanismLigament2d("ArmTower", .1, -90));
-  private final MechanismLigament2d m_arm =
-      m_armPivot.append(new MechanismLigament2d("Arm", Constants.IntakeConstants.kArmLength * 3,
+  private final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", .1, -90));
+  private final MechanismLigament2d m_arm = m_armPivot
+      .append(new MechanismLigament2d("Arm", Constants.IntakeConstants.kArmLength * 3,
           Units.radiansToDegrees(m_armSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
-
 
   /** Subsystem constructor. */
   public Intake() {
     SwerveSubsystem driveSubsystem = SwerveSubsystem.getInstance();
     SwerveDrive drivetrain = driveSubsystem.getSwerveDrive();
     // m_encoder.setDistancePerPulse(Constants.IntakeConstants.kArmEncoderDistPerPulse);
+    Optional<SwerveDriveSimulation> mapleSimDrive = drivetrain.getMapleSimDrive();
+    if (!mapleSimDrive.isEmpty()) {
+      m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", mapleSimDrive.get(),
+          Inches.of(28), Inches.of(8), IntakeSimulation.IntakeSide.FRONT, 1);
+    }
     Optional<SwerveDriveSimulation> mapleSimDrive = drivetrain.getMapleSimDrive();
     if (!mapleSimDrive.isEmpty()) {
       m_IntakeSim = IntakeSimulation.OverTheBumperIntake("Coral", mapleSimDrive.get(),
@@ -141,8 +141,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
         .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
         .allowedClosedLoopError(Constants.IntakeConstants.kArmMaxError);
     /*
-     * prefer to have to separate PIDs to avoid the weird drift seen on the elevator, but this has
-     * pulleys to help absorb the drift, maybe? And can't do that if only one motor is running the
+     * prefer to have to separate PIDs to avoid the weird drift seen on the
+     * elevator, but this has
+     * pulleys to help absorb the drift, maybe? And can't do that if only one motor
+     * is running the
      * absolute encoder
      */
     armMotorFollowerConfig.follow(m_armMotorLeader, true);
@@ -206,8 +208,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   /** Load setpoint and kP from preferences. */
   public void loadPreferences() {
     // Read Preferences for Arm setpoint and kP on entering Teleop
-    m_armSetpointDegrees =
-        Preferences.getDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
+    m_armSetpointDegrees = Preferences.getDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
   }
 
   /**
