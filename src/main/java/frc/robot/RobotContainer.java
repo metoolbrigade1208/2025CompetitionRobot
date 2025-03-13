@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,6 +31,8 @@ import frc.robot.subsystems.LocationService;
 import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.LocationService.Offset;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.Vision;
+
 import java.io.File;
 import java.util.Set;
 import swervelib.SwerveInputStream;
@@ -166,6 +169,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("OutputCoral", output.ejectCoralCommand());
     // may not be used
     autoChooser = AutoBuilder.buildAutoChooser("Center Auto Score");
+    SmartDashboard.putData("Autonomous/Select Autonomous Path", autoChooser);
 
     drivePoseAnglePIDController.enableContinuousInput(0, Math.PI * 2);
   }

@@ -122,7 +122,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     // Configure the arm motor
     SparkMaxConfig armMotorLeaderConfig = new SparkMaxConfig();
     SparkMaxConfig armMotorFollowerConfig = new SparkMaxConfig();
-    armMotorLeaderConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+    armMotorLeaderConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake).inverted(true);
     armMotorLeaderConfig.absoluteEncoder
         .positionConversionFactor(Constants.IntakeConstants.kArmEncoderGearing);
     armMotorLeaderConfig.closedLoop
@@ -140,7 +140,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
      * is running the
      * absolute encoder
      */
-    armMotorFollowerConfig.follow(m_armMotorLeader, true);
+    armMotorFollowerConfig.follow(m_armMotorLeader, false);
 
     // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotorLeader.configure(armMotorLeaderConfig, ResetMode.kNoResetSafeParameters,
@@ -164,6 +164,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
       throw new IllegalStateException("Cannot create new instance of singleton class");
     }
     instance = this;
+    this.setDefaultCommand(armUpCommand());
   }
 
   public void periodic() {
@@ -242,7 +243,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     if (Robot.isSimulation()) {
       return m_IntakeSim.getGamePiecesAmount() > 0;
     }
-    return !m_coraldetect.get();
+    return m_coraldetect.get();
   }
 
   // Check for being at the limit.

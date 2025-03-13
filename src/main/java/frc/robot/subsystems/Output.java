@@ -30,8 +30,6 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-
-
 public class Output extends SubsystemBase implements AutoCloseable {
   // singleton instance
   private static Output instance;
@@ -47,21 +45,19 @@ public class Output extends SubsystemBase implements AutoCloseable {
   private LocationService m_LocationService;
   private SwerveDrive m_Drive;
   // declares the motor on the output device
-  private final SparkMax m_OutputMotor =
-      new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
+  private final SparkMax m_OutputMotor = new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
 
   // declares the moter gearbox
   private DCMotor m_OutputGearbox = DCMotor.getNEO(1);
 
   // declares IR Sensor
-  private final DigitalInput m_coraldetect =
-      new DigitalInput(Constants.OutputConstants.kIRsensorport);
-
+  private final DigitalInput m_coraldetect = new DigitalInput(Constants.OutputConstants.kIRsensorport);
 
   // declares the controller for the output motor
   // private final SparkClosedLoopController m_Outputcontroller =
   // m_OutputMotor.getClosedLoopController();
-  // private final RelativeEncoder m_OutputEncoder = m_OutputMotor.getAlternateEncoder();
+  // private final RelativeEncoder m_OutputEncoder =
+  // m_OutputMotor.getAlternateEncoder();
   public Output() {
 
     // Configure the output motor
@@ -132,13 +128,11 @@ public class Output extends SubsystemBase implements AutoCloseable {
     if (Robot.isSimulation()) {
       m_OutputSim.periodic();
     }
-    System.out.print("output status: ");
-    System.out.println(IsDetected());
   }
 
   // runs motor
   public void runmotor() {
-    m_OutputMotor.set(-.1);
+    m_OutputMotor.set(-.3);
   }
 
   // stops motor
@@ -151,7 +145,6 @@ public class Output extends SubsystemBase implements AutoCloseable {
     SparkClosedLoopController outputController = m_OutputMotor.getClosedLoopController();
     outputController.setReference(2, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
-
 
   // runs motor again to grip coral
   public Command gripCoralCommand() {
@@ -182,11 +175,9 @@ public class Output extends SubsystemBase implements AutoCloseable {
     return m_coraldetect.get();
   }
 
-
   @Override
   public void close() {
     m_OutputMotor.close();
     // m_encoder.close();
   }
 }
-
