@@ -83,6 +83,26 @@ public class LocationService extends SubsystemBase {
   IntegerTopic OffsetTopic = table.getIntegerTopic("Offset");
   IntegerSubscriber offsetSub;
 
+  NetworkTable reefTagTable = inst.getTable("SmartDashboard");
+
+  BooleanTopic reefTag1Topic = reefTagTable.getBooleanTopic("reefTag1");
+  BooleanPublisher reefTag1Pub = reefTag1Topic.publish();
+
+  BooleanTopic reefTag2Topic = reefTagTable.getBooleanTopic("reefTag2");
+  BooleanPublisher reefTag2Pub = reefTag2Topic.publish();
+
+  BooleanTopic reefTag3Topic = reefTagTable.getBooleanTopic("reefTag3");
+  BooleanPublisher reefTag3Pub = reefTag3Topic.publish();
+
+  BooleanTopic reefTag4Topic = reefTagTable.getBooleanTopic("reefTag4");
+  BooleanPublisher reefTag4Pub = reefTag4Topic.publish();
+
+  BooleanTopic reefTag5Topic = reefTagTable.getBooleanTopic("reefTag5");
+  BooleanPublisher reefTag5Pub = reefTag5Topic.publish();
+
+  BooleanTopic reefTag6Topic = reefTagTable.getBooleanTopic("reefTag6");
+  BooleanPublisher reefTag6Pub = reefTag6Topic.publish();
+
   // Returns the closest tag ID to the robot
   public int closestTagId() {
     Pose2d robot = m_drive.getPose();
@@ -242,25 +262,6 @@ public class LocationService extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    NetworkTable reefTagTable = inst.getTable("SmartDashboard");
-
-    BooleanTopic reefTag1Topic = reefTagTable.getBooleanTopic("reefTag1");
-    BooleanPublisher reefTag1Pub = reefTag1Topic.publish();
-
-    BooleanTopic reefTag2Topic = reefTagTable.getBooleanTopic("reefTag2");
-    BooleanPublisher reefTag2Pub = reefTag2Topic.publish();
-
-    BooleanTopic reefTag3Topic = reefTagTable.getBooleanTopic("reefTag3");
-    BooleanPublisher reefTag3Pub = reefTag3Topic.publish();
-
-    BooleanTopic reefTag4Topic = reefTagTable.getBooleanTopic("reefTag4");
-    BooleanPublisher reefTag4Pub = reefTag4Topic.publish();
-
-    BooleanTopic reefTag5Topic = reefTagTable.getBooleanTopic("reefTag5");
-    BooleanPublisher reefTag5Pub = reefTag5Topic.publish();
-
-    BooleanTopic reefTag6Topic = reefTagTable.getBooleanTopic("reefTag6");
-    BooleanPublisher reefTag6Pub = reefTag6Topic.publish();
 
     int tagID = closestTagId();
     switch (tagID) {
