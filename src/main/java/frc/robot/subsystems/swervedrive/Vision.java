@@ -166,6 +166,9 @@ public class Vision {
             debugField.getObject("VisionEstimation").setPoses();
           });
     }
+    if (poseEst == null) {
+      return Optional.empty();
+    }
     return poseEst;
   }
 
@@ -277,17 +280,17 @@ public class Vision {
      * 
      * Right Camera
      */
-    RIGHT_CAM("sourceside", new Rotation3d(0, Math.toRadians(270), Math.toRadians(-90)),
+    RIGHT_CAM("Source", new Rotation3d(Math.toRadians(180), Math.toRadians(45), Math.toRadians(270)),
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(9.5),
             Units.inchesToMeters(29.5)),
-        VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1)),
     /*
      * Center Camera
      */
-    CENTER_CAM("scoreside", new Rotation3d(0, Units.degreesToRadians(90), 0),
+    CENTER_CAM("Score", new Rotation3d(0, Units.degreesToRadians(0), Math.toRadians(90)),
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-9.5),
             Units.inchesToMeters(12.5)),
-        VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+        VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1));
 
     /**
      * Latency alert to use when high latency is detected.
@@ -460,18 +463,17 @@ public class Vision {
       for (PhotonPipelineResult result : resultsList) {
         mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
       }
-      if ((resultsList.isEmpty() || (currentTimestamp - mostRecentTimestamp >= debounceTime))
-          && (currentTimestamp - lastReadTimestamp) >= debounceTime) {
-        resultsList = Robot.isReal() ? camera.getAllUnreadResults()
-            : cameraSim.getCamera().getAllUnreadResults();
-        lastReadTimestamp = currentTimestamp;
-        resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
-          return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
-        });
-        if (!resultsList.isEmpty()) {
-          updateEstimatedGlobalPose();
-        }
+      // if (resultsList.isEmpty()) {
+      resultsList = Robot.isReal() ? camera.getAllUnreadResults()
+          : cameraSim.getCamera().getAllUnreadResults();
+      lastReadTimestamp = currentTimestamp;
+      resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
+        return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
+      });
+      if (!resultsList.isEmpty()) {
+        updateEstimatedGlobalPose();
       }
+      // }
     }
 
     /**

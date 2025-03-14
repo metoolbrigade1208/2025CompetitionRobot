@@ -38,7 +38,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
 
-
   // Singleton stuff
   private static Elevator instance;
 
@@ -54,10 +53,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   // Standard classes for controlling our elevator
 
-  private final SparkMax m_motor =
-      new SparkMax(Constants.elevator.kMotorPort, MotorType.kBrushless);
-  private final SparkMax m_motor2 =
-      new SparkMax(Constants.elevator.kMotorPort2, MotorType.kBrushless);
+  private final SparkMax m_motor = new SparkMax(Constants.elevator.kMotorPort, MotorType.kBrushless);
+  private final SparkMax m_motor2 = new SparkMax(Constants.elevator.kMotorPort2, MotorType.kBrushless);
   private final SparkClosedLoopController m_controller = m_motor.getClosedLoopController();
   private final SparkClosedLoopController m_controller2 = m_motor2.getClosedLoopController();
 
@@ -65,11 +62,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private final RelativeEncoder m_encoder2 = m_motor2.getEncoder();
 
   // Simulation classes help us simulate what's going on, including gravity.
-  private final ElevatorSim m_elevatorSim =
-      new ElevatorSim(m_elevatorGearbox, Constants.elevator.kElevatorGearing,
-          Constants.elevator.kCarriageMass, Constants.elevator.kElevatorDrumRadius,
-          Constants.elevator.kMinElevatorHeightMeters, Constants.elevator.kMaxElevatorHeightMeters,
-          true, Constants.elevator.kMinElevatorHeightMeters, 0.01, 0.0);
+  private final ElevatorSim m_elevatorSim = new ElevatorSim(m_elevatorGearbox, Constants.elevator.kElevatorGearing,
+      Constants.elevator.kCarriageMass, Constants.elevator.kElevatorDrumRadius,
+      Constants.elevator.kMinElevatorHeightMeters, Constants.elevator.kMaxElevatorHeightMeters,
+      true, Constants.elevator.kMinElevatorHeightMeters, 0.01, 0.0);
 
   private final SparkRelativeEncoderSim m_encoderSim = new SparkRelativeEncoderSim(m_motor);
   private final SparkRelativeEncoderSim m_encoderSim2 = new SparkRelativeEncoderSim(m_motor2);
@@ -92,24 +88,24 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     SmartDashboard.putData("Elevator Sim", m_mech2d);
     SparkMaxConfig motor1config = new SparkMaxConfig();
     motor1config.idleMode(IdleMode.kBrake).smartCurrentLimit(40).disableFollowerMode();
-    double limitDistInRot =
-        Units.inchesToMeters(28.5 * 2) / Constants.elevator.kPositionConversionFactor;
+    double limitDistInRot = Units.inchesToMeters(28.5 * 2) / Constants.elevator.kPositionConversionFactor;
     motor1config.softLimit.forwardSoftLimit(limitDistInRot).reverseSoftLimit(0.0)
         .forwardSoftLimitEnabled(true).reverseSoftLimitEnabled(true);
     motor1config.closedLoop
         .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
             Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot0)
         .outputRange(-1, 1, ClosedLoopSlot.kSlot0).maxMotion
-            .maxVelocity(2500, ClosedLoopSlot.kSlot0).maxAcceleration(5000, ClosedLoopSlot.kSlot0);
+        .maxVelocity(5000, ClosedLoopSlot.kSlot0).maxAcceleration(8000, ClosedLoopSlot.kSlot0);
     motor1config.closedLoop
         .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
             Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot1)
         .velocityFF(1 / Constants.elevator.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
-            .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in
-                                                           // velocity control mode for this,
+        .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in
+                                                       // velocity control mode for this,
     // not position control
     /*
-     * motor1config.limitSwitch.setSparkMaxDataPortConfig() .forwardLimitSwitchEnabled(true)
+     * motor1config.limitSwitch.setSparkMaxDataPortConfig()
+     * .forwardLimitSwitchEnabled(true)
      * .forwardLimitSwitchType(Type.kNormallyOpen) .reverseLimitSwitchEnabled(true)
      * .reverseLimitSwitchType(Type.kNormallyOpen);
      */
@@ -178,8 +174,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     currentGoalRotations = goalMeters / Constants.elevator.kPositionConversionFactor;
     System.out.print("goal Rot: ");
     System.out.println(currentGoalRotations);
-    m_controller.setReference(currentGoalRotations, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-    m_controller2.setReference(currentGoalRotations, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    m_controller.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+    m_controller2.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
     // With the setpoint value we run PID control like normal
   }
 
@@ -267,14 +263,11 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     });
   }
 
-
   public Command elevatorStop() {
     return runOnce(() -> {
       stop();
     });
   }
-
-
 
   @Override
   public void close() {
