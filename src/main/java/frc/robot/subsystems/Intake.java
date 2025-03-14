@@ -169,8 +169,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   public void periodic() {
     SmartDashboard.putNumber("armPosition", Units.rotationsToDegrees(m_encoder.getPosition()));
-    if (isAtUpPosition() && m_armMotorLeader.get() < 0) {
-      System.out.println("hit stop");
+    if (false && isAtUpPosition() && m_armMotorLeader.get() < 0) {
+      // System.out.println("hit stop");
       m_armMotorLeader.set(0);
     }
   }

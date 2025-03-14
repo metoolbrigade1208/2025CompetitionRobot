@@ -166,6 +166,9 @@ public class Vision {
             debugField.getObject("VisionEstimation").setPoses();
           });
     }
+    if (poseEst == null) {
+      return Optional.empty();
+    }
     return poseEst;
   }
 
@@ -277,14 +280,14 @@ public class Vision {
      * 
      * Right Camera
      */
-    RIGHT_CAM("sourceside", new Rotation3d(Math.toRadians(180), Math.toRadians(45), Math.toRadians(-90)),
+    RIGHT_CAM("Source", new Rotation3d(Math.toRadians(180), Math.toRadians(45), Math.toRadians(270)),
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(9.5),
             Units.inchesToMeters(29.5)),
         VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1)),
     /*
      * Center Camera
      */
-    CENTER_CAM("photonvision_0", new Rotation3d(0, Units.degreesToRadians(0), Math.toRadians(90)),
+    CENTER_CAM("Score", new Rotation3d(0, Units.degreesToRadians(0), Math.toRadians(90)),
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-9.5),
             Units.inchesToMeters(12.5)),
         VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1));
