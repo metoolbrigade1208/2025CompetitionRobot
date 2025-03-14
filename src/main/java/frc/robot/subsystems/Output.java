@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+@Logged
 public class Output extends SubsystemBase implements AutoCloseable {
   // singleton instance
   private static Output instance;
@@ -45,13 +47,15 @@ public class Output extends SubsystemBase implements AutoCloseable {
   private LocationService m_LocationService;
   private SwerveDrive m_Drive;
   // declares the motor on the output device
-  private final SparkMax m_OutputMotor = new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
+  private final SparkMax m_OutputMotor =
+      new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
 
   // declares the moter gearbox
   private DCMotor m_OutputGearbox = DCMotor.getNEO(1);
 
   // declares IR Sensor
-  private final DigitalInput m_coraldetect = new DigitalInput(Constants.OutputConstants.kIRsensorport);
+  private final DigitalInput m_coraldetect =
+      new DigitalInput(Constants.OutputConstants.kIRsensorport);
 
   // declares the controller for the output motor
   // private final SparkClosedLoopController m_Outputcontroller =
