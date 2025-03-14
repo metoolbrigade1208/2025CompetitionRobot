@@ -144,7 +144,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
      * pulleys to help absorb the drift, maybe? And can't do that if only one motor is running the
      * absolute encoder
      */
-    armMotorFollowerConfig.follow(m_armMotorLeader, true);
+    // armMotorFollowerConfig.follow(m_armMotorLeader, true);
+    armMotorFollowerConfig.idleMode(IdleMode.kCoast);
 
     // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotorLeader.configure(armMotorLeaderConfig, ResetMode.kNoResetSafeParameters,
@@ -222,7 +223,6 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   public void stoparm() {
     m_armMotorLeader.set(0.0);
-    m_armMotorFollower.set(0.0);
   }
 
   // sets intake speed
