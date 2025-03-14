@@ -98,19 +98,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
             Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot0)
         .outputRange(-1, 1, ClosedLoopSlot.kSlot0).maxMotion
         .maxVelocity(5000, ClosedLoopSlot.kSlot0).maxAcceleration(8000, ClosedLoopSlot.kSlot0);
-    motor1config.closedLoop
-        .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
-            Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot1)
-        .velocityFF(1 / Constants.elevator.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
-        .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in
-                                                       // velocity control mode for this,
-    // not position control
-    /*
-     * motor1config.limitSwitch.setSparkMaxDataPortConfig()
-     * .forwardLimitSwitchEnabled(true)
-     * .forwardLimitSwitchType(Type.kNormallyOpen) .reverseLimitSwitchEnabled(true)
-     * .reverseLimitSwitchType(Type.kNormallyOpen);
-     */
 
     m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);

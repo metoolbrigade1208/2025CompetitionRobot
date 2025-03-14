@@ -166,7 +166,7 @@ public class RobotContainer {
     // from source
     NamedCommands.registerCommand("OutputCoral", output.ejectCoralCommand());
 
-    NamedCommands.registerCommand("OuttakeCoral", intake.spitIntakeCommand());
+    NamedCommands.registerCommand("OuttakeCommand", intake.spitIntakeCommand());
     // may not be used
     autoChooser = AutoBuilder.buildAutoChooser("Center Auto Score");
     SmartDashboard.putData("Autonomous/Select Autonomous Path", autoChooser);
@@ -230,8 +230,8 @@ public class RobotContainer {
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(intake.spitIntakeCommand());
-      driverXbox.rightTrigger(0.2).onTrue(intake.armUpCommand());
-      driverXbox.rightTrigger(0.1).onFalse(intake.armDownCommand());
+      driverXbox.rightTrigger(0.2).onTrue(intake.armDownCommand());
+      driverXbox.rightTrigger(0.1).onFalse(intake.armUpCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
       driverXbox.povLeft().whileTrue(offsetPubCommand(LocationService.Offset.LEFT));
       driverXbox.povRight().whileTrue(offsetPubCommand(LocationService.Offset.RIGHT));

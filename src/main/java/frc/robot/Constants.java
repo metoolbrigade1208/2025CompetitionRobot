@@ -112,7 +112,7 @@ public final class Constants {
     public static final double kArmMaxAcceleration = 1500;
     public static final double kArmMaxError = Units.degreesToRotations(1);
 
-    public static final double kIntakeRunSpeed = 1.0;
+    public static final double kIntakeRunSpeed = .6;
 
     public static final double kIntakeKp = getConfigValue(c -> c.intakeKp, 0);
     public static final double kIntakeKi = getConfigValue(c -> c.intakeKi, 0);
