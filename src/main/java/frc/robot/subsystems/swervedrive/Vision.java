@@ -19,11 +19,14 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
+import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
 import java.awt.Desktop;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +68,8 @@ public class Vision {
    * Field from {@link swervelib.SwerveDrive#field}
    */
   private Field2d field2d;
+
+  private DataLog log = DataLogManager.getLog();
 
   /**
    * Constructor for the Vision class.
@@ -283,14 +288,14 @@ public class Vision {
     RIGHT_CAM("Source", new Rotation3d(Math.toRadians(180), Math.toRadians(45), Math.toRadians(270)),
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(9.5),
             Units.inchesToMeters(29.5)),
-        VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1)),
+        VecBuilder.fill(1, 1, 2), VecBuilder.fill(0.5, 0.5, 1)),
     /*
      * Center Camera
      */
     CENTER_CAM("Score", new Rotation3d(0, Units.degreesToRadians(0), Math.toRadians(90)),
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-9.5),
             Units.inchesToMeters(12.5)),
-        VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1));
+        VecBuilder.fill(1, 1, 2), VecBuilder.fill(0.5, 0.5, 1));
 
     /**
      * Latency alert to use when high latency is detected.
@@ -497,6 +502,7 @@ public class Vision {
         updateEstimationStdDevs(visionEst, change.getTargets());
       }
       estimatedRobotPose = visionEst;
+
     }
 
     /**

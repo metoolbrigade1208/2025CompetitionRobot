@@ -167,6 +167,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("GrabCoral", output.gripCoralCommand());
     // from source
     NamedCommands.registerCommand("OutputCoral", output.ejectCoralCommand());
+
+    NamedCommands.registerCommand("OuttakeCoral", intake.spitIntakeCommand());
     // may not be used
     autoChooser = AutoBuilder.buildAutoChooser("Center Auto Score");
     SmartDashboard.putData("Autonomous/Select Autonomous Path", autoChooser);
