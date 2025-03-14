@@ -163,6 +163,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     if (isAtBottom()) {
       m_encoder.setPosition(0);
       m_encoder2.setPosition(0);
+      if (currentGoalRotations == 0) {
+        m_motor.set(0);
+        m_motor2.set(0);
+      }
     }
   }
 
