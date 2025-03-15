@@ -72,6 +72,7 @@
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/Arm Sim": "Mechanism2d",
+      "/SmartDashboard/Autonomous/Select Autonomous Path": "String Chooser",
       "/SmartDashboard/Elevator Sim": "Mechanism2d",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",

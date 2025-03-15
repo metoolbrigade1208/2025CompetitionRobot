@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -97,11 +98,16 @@ public class RobotContainer {
    * velocity.
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream
+      .of(drivebase.getSwerveDrive(), () -> driverXbox.getLeftY() * -1,
+          () -> driverXbox.getLeftX() * -1)
+      .withControllerRotationAxis(driverXbox::getRightX).deadband(OperatorConstants.DEADBAND)
+      .scaleTranslation(0.8).allianceRelativeControl(true);
+
+  SwerveInputStream driveAngularVelocityRed = SwerveInputStream
       .of(drivebase.getSwerveDrive(), () -> driverXbox.getLeftY(),
           () -> driverXbox.getLeftX())
       .withControllerRotationAxis(driverXbox::getRightX).deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.8).allianceRelativeControl(true);
-
   /**
    * Clone's the angular velocity input stream and converts it to a fieldRelative
    * input stream.
@@ -119,6 +125,10 @@ public class RobotContainer {
       .of(drivebase.getSwerveDrive(), () -> -driverXbox.getLeftY(), () -> -driverXbox.getLeftX())
       .withControllerRotationAxis(() -> driverXbox.getRawAxis(4))
       .deadband(OperatorConstants.DEADBAND).scaleTranslation(0.8).allianceRelativeControl(true);
+  SwerveInputStream driveAngularVelocityKeyboardRed = SwerveInputStream
+      .of(drivebase.getSwerveDrive(), () -> driverXbox.getLeftY(), () -> driverXbox.getLeftX())
+      .withControllerRotationAxis(() -> driverXbox.getRawAxis(4))
+      .deadband(OperatorConstants.DEADBAND).scaleTranslation(0.8).allianceRelativeControl(true);
 
   private Pose2d autoPose() {
 
@@ -131,6 +141,8 @@ public class RobotContainer {
   }
 
   private boolean poseable = false;
+
+  Command driveFieldOrientedAnglularVelocityKeyboardRed = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
 
   private boolean autoPoseEnable() {
     return poseable;
@@ -196,6 +208,7 @@ public class RobotContainer {
     drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
     drivebase.driveFieldOriented(driveDirectAngleKeyboard);
     Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+
     drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleKeyboard);
 
     if (RobotBase.isSimulation()) {
@@ -271,6 +284,12 @@ public class RobotContainer {
 
     }
 
+  }
+
+  public void autonomousInit() {
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboardRed);
+    }
   }
 
   private Command offsetPubCommand(LocationService.Offset offset) {

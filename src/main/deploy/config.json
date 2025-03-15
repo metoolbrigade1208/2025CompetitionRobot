@@ -4,7 +4,7 @@
     "inL2": 22,
     "inL3": 36,
     "inL4": 63,
-    "armKp": 1.0,
+    "armKp": 2.5,
     "armKi": 0.0,
     "armKd": 0.01,
     "intakeKp": 1.0,
