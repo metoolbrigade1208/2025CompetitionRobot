@@ -17,7 +17,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+@Logged
 public class Intake extends SubsystemBase implements AutoCloseable {
   // singleton Stuff
   private static Intake instance;
@@ -97,6 +98,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private final SparkAbsoluteEncoderSim m_encoderSim = new SparkAbsoluteEncoderSim(m_armMotorLeader);
   private final SparkMaxSim m_armMotorSim = new SparkMaxSim(m_armMotorLeader, m_armGearbox);
 
+  private double armUpPositionLimit = m_encoder.getPosition();
+  
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
   private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
@@ -128,7 +131,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     armMotorLeaderConfig.closedLoop
         .pid(Constants.IntakeConstants.kArmKp, Constants.IntakeConstants.kArmKi,
             Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true);
     armMotorLeaderConfig.closedLoop.maxMotion
         .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)
         .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
@@ -141,6 +144,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
      * absolute encoder
      */
     armMotorFollowerConfig.follow(m_armMotorLeader, true);
+    // armMotorFollowerConfig.idleMode(IdleMode.kCoast);
 
     // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotorLeader.configure(armMotorLeaderConfig, ResetMode.kNoResetSafeParameters,
@@ -167,11 +171,15 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     // this.setDefaultCommand(armUpCommand());
   }
 
+  private double motorOutput = 0;
+
   public void periodic() {
     SmartDashboard.putNumber("armPosition", Units.rotationsToDegrees(m_encoder.getPosition()));
-    if (false && isAtUpPosition() && m_armMotorLeader.get() < 0) {
-      // System.out.println("hit stop");
+    motorOutput = m_armMotorLeader.getAppliedOutput();
+    if (isAtUpPosition() && m_armMotorLeader.get() < 0) {
+      System.out.println("hit stop");
       m_armMotorLeader.set(0);
+      armUpPositionLimit = m_encoder.getPosition();
     }
   }
 
@@ -209,6 +217,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
    * Run the control loop to reach and maintain the setpoint from the preferences.
    */
   public void reachSetpoint(Double setPoint) {
+    setPoint += armUpPositionLimit;
     System.out.print("Setting arm position: ");
     System.out.println(setPoint);
     m_controller.setReference(setPoint, ControlType.kPosition);
@@ -217,7 +226,6 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   public void stoparm() {
     m_armMotorLeader.set(0.0);
-    m_armMotorFollower.set(0.0);
   }
 
   // sets intake speed

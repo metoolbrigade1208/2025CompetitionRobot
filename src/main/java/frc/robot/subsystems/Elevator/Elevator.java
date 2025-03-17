@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.Elevator;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.IntegerSubscriber;
@@ -36,6 +37,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+@Logged
 public class Elevator extends SubsystemBase implements AutoCloseable {
 
   // Singleton stuff
@@ -96,19 +98,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
             Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot0)
         .outputRange(-1, 1, ClosedLoopSlot.kSlot0).maxMotion
         .maxVelocity(5000, ClosedLoopSlot.kSlot0).maxAcceleration(8000, ClosedLoopSlot.kSlot0);
-    motor1config.closedLoop
-        .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
-            Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot1)
-        .velocityFF(1 / Constants.elevator.kElevatorkV, ClosedLoopSlot.kSlot1).maxMotion
-        .maxAcceleration(5000, ClosedLoopSlot.kSlot1); // no max velocity, because it's in
-                                                       // velocity control mode for this,
-    // not position control
-    /*
-     * motor1config.limitSwitch.setSparkMaxDataPortConfig()
-     * .forwardLimitSwitchEnabled(true)
-     * .forwardLimitSwitchType(Type.kNormallyOpen) .reverseLimitSwitchEnabled(true)
-     * .reverseLimitSwitchType(Type.kNormallyOpen);
-     */
 
     m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
@@ -155,9 +144,13 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public void periodic() {
     // This method will be called once per scheduler run
     updateTelemetry();
-    if (isAtBottom() && false) {
+    if (isAtBottom()) {
       m_encoder.setPosition(0);
       m_encoder2.setPosition(0);
+      if (currentGoalRotations == 0) {
+        m_motor.set(0);
+        m_motor2.set(0);
+      }
     }
   }
 
@@ -174,8 +167,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     currentGoalRotations = goalMeters / Constants.elevator.kPositionConversionFactor;
     System.out.print("goal Rot: ");
     System.out.println(currentGoalRotations);
-    m_controller.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
-    m_controller2.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+    m_controller.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl,
+        ClosedLoopSlot.kSlot0);
+    m_controller2.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl,
+        ClosedLoopSlot.kSlot0);
     // With the setpoint value we run PID control like normal
   }
 

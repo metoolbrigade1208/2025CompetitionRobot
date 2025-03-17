@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,11 +20,14 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
+import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
 import java.awt.Desktop;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +50,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
  * from
  * https://gitlab.com/ironclad_code/ironclad-2024/-/blob/master/src/main/java/frc/robot/vision/Vision.java?ref_type=heads
  */
+@Logged
 public class Vision {
 
   /**
@@ -65,6 +70,8 @@ public class Vision {
    * Field from {@link swervelib.SwerveDrive#field}
    */
   private Field2d field2d;
+
+  private DataLog log = DataLogManager.getLog();
 
   /**
    * Constructor for the Vision class.
@@ -175,10 +182,7 @@ public class Vision {
   /**
    *
    * 
-   * Get distance
-   * of the
-   * robot from
-   * the AprilTag pose.**
+   * Get distance of the robot from the AprilTag pose.**
    * 
    * @param id AprilTag ID*@return Distance
    */
@@ -280,17 +284,18 @@ public class Vision {
      * 
      * Right Camera
      */
-    RIGHT_CAM("Source", new Rotation3d(Math.toRadians(180), Math.toRadians(45), Math.toRadians(270)),
-        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(9.5),
+    RIGHT_CAM("Source",
+        new Rotation3d(Math.toRadians(180), Math.toRadians(45), Math.toRadians(270)),
+        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-9.5),
             Units.inchesToMeters(29.5)),
-        VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1)),
+        VecBuilder.fill(2, 2, 4), VecBuilder.fill(0.5, 0.5, 1)),
     /*
      * Center Camera
      */
     CENTER_CAM("Score", new Rotation3d(0, Units.degreesToRadians(0), Math.toRadians(90)),
-        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-9.5),
+        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(9.5),
             Units.inchesToMeters(12.5)),
-        VecBuilder.fill(0.5, 0.5, 1), VecBuilder.fill(0.5, 0.5, 1));
+        VecBuilder.fill(2, 2, 4), VecBuilder.fill(0.5, 0.5, 1));
 
     /**
      * Latency alert to use when high latency is detected.
@@ -463,15 +468,16 @@ public class Vision {
       for (PhotonPipelineResult result : resultsList) {
         mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
       }
-      // if (resultsList.isEmpty()) {
-      resultsList = Robot.isReal() ? camera.getAllUnreadResults()
-          : cameraSim.getCamera().getAllUnreadResults();
-      lastReadTimestamp = currentTimestamp;
-      resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
-        return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
-      });
-      if (!resultsList.isEmpty()) {
-        updateEstimatedGlobalPose();
+      if (resultsList.isEmpty() || (currentTimestamp - lastReadTimestamp) >= debounceTime) {
+        resultsList = Robot.isReal() ? camera.getAllUnreadResults()
+            : cameraSim.getCamera().getAllUnreadResults();
+        lastReadTimestamp = currentTimestamp;
+        resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
+          return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
+        });
+        if (!resultsList.isEmpty()) {
+          updateEstimatedGlobalPose();
+        }
       }
       // }
     }
@@ -497,6 +503,7 @@ public class Vision {
         updateEstimationStdDevs(visionEst, change.getTargets());
       }
       estimatedRobotPose = visionEst;
+
     }
 
     /**

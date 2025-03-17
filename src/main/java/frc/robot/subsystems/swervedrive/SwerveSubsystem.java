@@ -5,7 +5,6 @@
 package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -33,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +52,7 @@ import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
+
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -119,6 +120,7 @@ public class SwerveSubsystem extends SubsystemBase {
       // Stop the odometry thread if we are using vision that way we can synchronize
       // updates better.
       swerveDrive.stopOdometryThread();
+      Robot.getInstance().addPeriodic(() -> vision.updatePoseEstimation(swerveDrive), .02);
     }
     setupPathPlanner();
     if (instance != null) {
@@ -151,8 +153,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest) {
       swerveDrive.updateOdometry();
-      vision.updatePoseEstimation(swerveDrive);
-
     }
   }
 
@@ -704,5 +704,17 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
+  }
+
+  public Command driveToPose(Supplier<Pose2d> pose) {
+    double tooCloseMeters = 0.5; // If the bot is too close by this much it needs to drive back a
+                                 // little bit.
+
+    System.out.println("drivetoPose");
+    return defer(() -> driveToPose(pose.get()));
+  }
+
+  public Command printCurrentPose() {
+    return Commands.deferredProxy(() -> Commands.print("Current Pose: " + getPose().toString()));
   }
 }

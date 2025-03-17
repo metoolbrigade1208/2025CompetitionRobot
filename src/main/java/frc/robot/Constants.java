@@ -93,8 +93,8 @@ public final class Constants {
     public static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
 
     public static final double kArmReduction = 64.0;
-    public static final double kArmEncoderGearing = 4.0 / 3.0; // ratio of encoder position to arm
-                                                               // position
+    public static final double kArmEncoderGearing = (4.0 / 1.5) / 3.0; // ratio of encoder position to arm
+    // position
     public static final double kArmMass = 8.0; // Kilograms
     public static final double kArmLength = Units.inchesToMeters(30);
     public static final double kMinAngleRads = Units.degreesToRadians(-15);
@@ -106,13 +106,13 @@ public final class Constants {
     public static final double kArmKg = 0;
     public static final double kArmKv = 0;
     public static final double kArmKa = 0;
-    public static final double kArmDownPosition = Units.degreesToRotations(90);
+    public static final double kArmDownPosition = Units.degreesToRotations(95);
     public static final double kArmUpPosition = 0;
-    public static final double kArmMaxSpeed = 1000;
+    public static final double kArmMaxSpeed = 200;
     public static final double kArmMaxAcceleration = 1500;
     public static final double kArmMaxError = Units.degreesToRotations(1);
 
-    public static final double kIntakeRunSpeed = 1.0;
+    public static final double kIntakeRunSpeed = .6;
 
     public static final double kIntakeKp = getConfigValue(c -> c.intakeKp, 0);
     public static final double kIntakeKi = getConfigValue(c -> c.intakeKi, 0);
