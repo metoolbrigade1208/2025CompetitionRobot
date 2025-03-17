@@ -12,14 +12,12 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanTopic;
-import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
@@ -32,7 +30,6 @@ import swervelib.SwerveDrive;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
-
 public class LocationService extends SubsystemBase {
   // singleton instance
   private static LocationService instance;
@@ -44,8 +41,7 @@ public class LocationService extends SubsystemBase {
     return instance;
   }
 
-  private static final AprilTagFieldLayout field =
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+  private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
   /** Creates a new LocationService. */
   public LocationService() {
@@ -114,8 +110,7 @@ public class LocationService extends SubsystemBase {
     double closestDistance = Double.MAX_VALUE;
     while (iter.hasNext()) {
       AprilTag tag = iter.next();
-      double distance =
-          robot.getTranslation().getDistance(tag.pose.getTranslation().toTranslation2d());
+      double distance = robot.getTranslation().getDistance(tag.pose.getTranslation().toTranslation2d());
       if (distance < closestDistance) {
         closestDistance = distance;
         closestTagId = tag.ID;
@@ -177,7 +172,7 @@ public class LocationService extends SubsystemBase {
    * 
    * OFFSET is whether to be offset to the left or right of the tag
    * 
-   * @param TagID - the tag ID to generate the pose from
+   * @param TagID  - the tag ID to generate the pose from
    * @param offset - if null, it will return as if used CENTER
    * @return Pose2d - the pose of the robot lined up on the tag.
    */
@@ -221,8 +216,7 @@ public class LocationService extends SubsystemBase {
 
   public Pose2d genPoseForProcessorFromTag(int TagID) {
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
-    Transform2d poseOffset =
-        new Transform2d(Constants.kRobotWidth.div(2), Inches.of(0.0), Rotation2d.fromDegrees(0));
+    Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(0.0), Rotation2d.fromDegrees(0));
     return tagPose.transformBy(poseOffset);
   }
 

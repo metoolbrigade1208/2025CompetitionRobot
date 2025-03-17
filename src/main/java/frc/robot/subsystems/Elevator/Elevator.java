@@ -58,6 +58,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private final SparkMax m_motor = new SparkMax(Constants.elevator.kMotorPort, MotorType.kBrushless);
   private final SparkMax m_motor2 = new SparkMax(Constants.elevator.kMotorPort2, MotorType.kBrushless);
   private final SparkClosedLoopController m_controller = m_motor.getClosedLoopController();
+  @SuppressWarnings("unused")
   private final SparkClosedLoopController m_controller2 = m_motor2.getClosedLoopController();
 
   private final RelativeEncoder m_encoder = m_motor.getEncoder();
@@ -101,9 +102,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
     m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
-    SparkMaxConfig motor2config = new SparkMaxConfig().apply(motor1config);
-    motor2config.inverted(false);
-    // motor2config.follow(m_motor, true);
+    SparkMaxConfig motor2config = new SparkMaxConfig();
+    // motor2config.apply(motor1config);
+    // motor2config.inverted(false);
+    motor2config.follow(m_motor, true);
     m_motor2.configure(motor2config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
     if (instance != null) {
@@ -149,7 +151,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
       m_encoder2.setPosition(0);
       if (currentGoalRotations == 0) {
         m_motor.set(0);
-        m_motor2.set(0);
+        // m_motor2.set(0);
       }
     }
   }
@@ -169,14 +171,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     System.out.println(currentGoalRotations);
     m_controller.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl,
         ClosedLoopSlot.kSlot0);
-    m_controller2.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl,
-        ClosedLoopSlot.kSlot0);
+    // m_controller2.setReference(currentGoalRotations,
+    // ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
     // With the setpoint value we run PID control like normal
   }
 
   public void setVelocity(double velocity) {
     m_controller.setReference(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-    m_controller2.setReference(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+    // m_controller2.setReference(velocity, ControlType.kVelocity,
+    // ClosedLoopSlot.kSlot1);
   }
 
   /** Stop the control loop and motor output. */
@@ -184,7 +187,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     // m_controller.setReference(0.0, ControlType.kVoltage);
     // m_controller2.setReference(0.0, ControlType.kVoltage);
     m_motor.set(0.0);
-    m_motor2.set(0.0);
+    // m_motor2.set(0.0);
   }
 
   public boolean isAtBottom() {
@@ -247,14 +250,14 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public Command elevatorUp() {
     return runOnce(() -> {
       m_motor.set(.1);
-      m_motor2.set(.1);
+      // m_motor2.set(.1);
     });
   }
 
   public Command elevatorDown() {
     return runOnce(() -> {
       m_motor.set(-.1);
-      m_motor2.set(-.1);
+      // m_motor2.set(-.1);
     });
   }
 

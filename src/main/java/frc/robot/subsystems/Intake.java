@@ -131,7 +131,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     armMotorLeaderConfig.closedLoop
         .pid(Constants.IntakeConstants.kArmKp, Constants.IntakeConstants.kArmKi,
             Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true);
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true)
+        .positionWrappingInputRange(0, 1);
     armMotorLeaderConfig.closedLoop.maxMotion
         .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)
         .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
@@ -171,6 +172,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     // this.setDefaultCommand(armUpCommand());
   }
 
+  @SuppressWarnings("unused")
   private double motorOutput = 0;
 
   public void periodic() {
