@@ -76,7 +76,7 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static final int kArmMotorPort = 62;
-    public static final int kArmMotor2Port = 61;
+    // public static final int kArmMotor2Port = 61;
     public static final int kIntakeMotorPort = 60;
     public static final int kIRsensorport = 3;
     public static final int kArmUpLimitPort = 4;
@@ -109,7 +109,7 @@ public final class Constants {
     public static final double kArmDownPosition = Units.degreesToRotations(90);
     public static final double kArmUpPosition = 0;
     public static final double kArmMaxSpeed = 200;
-    public static final double kArmMaxAcceleration = 300;
+    public static final double kArmMaxAcceleration = 150;
     public static final double kArmMaxError = Units.degreesToRotations(1);
 
     public static final double kIntakeRunSpeed = .6;
