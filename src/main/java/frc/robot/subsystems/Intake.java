@@ -99,7 +99,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private final SparkMaxSim m_armMotorSim = new SparkMaxSim(m_armMotorLeader, m_armGearbox);
 
   private double armUpPositionLimit = m_encoder.getPosition();
-
+  
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
   private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
