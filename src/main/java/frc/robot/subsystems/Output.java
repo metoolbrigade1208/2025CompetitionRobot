@@ -47,8 +47,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
   private LocationService m_LocationService;
   private SwerveDrive m_Drive;
   // declares the motor on the output device
-  private final SparkMax m_OutputMotor =
-      new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
+  private final SparkMax m_OutputMotor = new SparkMax(Constants.OutputConstants.kOutputMotorPort, MotorType.kBrushless);
 
   // declares the moter gearbox
   private DCMotor m_OutputGearbox = DCMotor.getNEO(1);

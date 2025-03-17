@@ -479,6 +479,7 @@ public class Vision {
           updateEstimatedGlobalPose();
         }
       }
+      // }
     }
 
     /**
