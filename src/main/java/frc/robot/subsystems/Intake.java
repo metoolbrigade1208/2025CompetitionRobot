@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -15,7 +16,6 @@ import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -65,7 +65,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private final DCMotor m_armGearbox = DCMotor.getNEO(2);
 
   // Motor and encoder for deploying arm.
-  private final SparkMax m_armMotorLeader = new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
+  private final SparkMax m_armMotorLeader =
+      new SparkMax(Constants.IntakeConstants.kArmMotorPort, MotorType.kBrushless);
 
   // private final SparkMax m_armMotorFollower = new
   // SparkMax(Constants.IntakeConstants.kArmMotor2Port,
@@ -74,8 +75,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   private final SparkClosedLoopController m_controller = m_armMotorLeader.getClosedLoopController();
 
   // Motor and IR sensor for intake.
-  private final SparkMax m_intakeMotor = new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
-  private final DigitalInput m_coraldetect = new DigitalInput(Constants.IntakeConstants.kIRsensorport);
+  private final SparkMax m_intakeMotor =
+      new SparkMax(Constants.IntakeConstants.kIntakeMotorPort, MotorType.kBrushless);
+  private final DigitalInput m_coraldetect =
+      new DigitalInput(Constants.IntakeConstants.kIRsensorport);
 
   private final DigitalInput armLimit = new DigitalInput(Constants.IntakeConstants.kArmUpLimitPort);
 
@@ -85,18 +88,20 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // This arm sim represents an arm that can travel from -75 degrees (rotated down
   // front)
   // to 255 degrees (rotated down in the back).
-  private final SingleJointedArmSim m_armSim = new SingleJointedArmSim(m_armGearbox,
-      Constants.IntakeConstants.kArmReduction,
-      SingleJointedArmSim.estimateMOI(Constants.IntakeConstants.kArmLength,
-          Constants.IntakeConstants.kArmMass),
-      Constants.IntakeConstants.kArmLength, Constants.IntakeConstants.kMinAngleRads,
-      Constants.IntakeConstants.kMaxAngleRads, true, Units.degreesToRadians(90),
-      Constants.IntakeConstants.kArmEncoderDistPerPulse, 0.0 // Add noise with a std-dev of 1
-                                                             // tick
-  );
+  private final SingleJointedArmSim m_armSim =
+      new SingleJointedArmSim(m_armGearbox, Constants.IntakeConstants.kArmReduction,
+          SingleJointedArmSim.estimateMOI(Constants.IntakeConstants.kArmLength,
+              Constants.IntakeConstants.kArmMass),
+          Constants.IntakeConstants.kArmLength, Constants.IntakeConstants.kMinAngleRads,
+          Constants.IntakeConstants.kMaxAngleRads, true, Units.degreesToRadians(90),
+          Constants.IntakeConstants.kArmEncoderDistPerPulse, 0.0 // Add noise with a std-dev of 1
+                                                                 // tick
+      );
 
   private final SparkAbsoluteEncoder m_encoder = m_armMotorLeader.getAbsoluteEncoder();
-  private final SparkAbsoluteEncoderSim m_encoderSim = new SparkAbsoluteEncoderSim(m_armMotorLeader);
+  private final RelativeEncoder m_internaRelativeEncoder = m_armMotorLeader.getEncoder();
+  private final SparkAbsoluteEncoderSim m_encoderSim =
+      new SparkAbsoluteEncoderSim(m_armMotorLeader);
   private final SparkMaxSim m_armMotorSim = new SparkMaxSim(m_armMotorLeader, m_armGearbox);
 
   private double armUpPositionLimit = m_encoder.getPosition();
@@ -104,9 +109,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
   private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-  private final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", .1, -90));
-  private final MechanismLigament2d m_arm = m_armPivot
-      .append(new MechanismLigament2d("Arm", Constants.IntakeConstants.kArmLength * 3,
+  private final MechanismLigament2d m_armTower =
+      m_armPivot.append(new MechanismLigament2d("ArmTower", .1, -90));
+  private final MechanismLigament2d m_arm =
+      m_armPivot.append(new MechanismLigament2d("Arm", Constants.IntakeConstants.kArmLength * 3,
           Units.radiansToDegrees(m_armSim.getAngleRads()), 6, new Color8Bit(Color.kYellow)));
 
   /** Subsystem constructor. */
@@ -127,28 +133,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     SparkMaxConfig armMotorLeaderConfig = new SparkMaxConfig();
     SparkMaxConfig armMotorFollowerConfig = new SparkMaxConfig();
     armMotorLeaderConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake).inverted(true);
-    armMotorLeaderConfig.absoluteEncoder
-        .positionConversionFactor(Constants.IntakeConstants.kArmEncoderGearing);
-    armMotorLeaderConfig.closedLoop
-        .pid(Constants.IntakeConstants.kArmKp, Constants.IntakeConstants.kArmKi,
-            Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true)
-        .positionWrappingInputRange(0, 1);
-    armMotorLeaderConfig.closedLoop.maxMotion
-        .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)
-        .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
-        .allowedClosedLoopError(Constants.IntakeConstants.kArmMaxError);
-    /*
-     * prefer to have to separate PIDs to avoid the weird drift seen on the
-     * elevator, but this has
-     * pulleys to help absorb the drift, maybe? And can't do that if only one motor
-     * is running the
-     * absolute encoder
-     */
-    // armMotorFollowerConfig.follow(m_armMotorLeader, true);
     armMotorFollowerConfig.idleMode(IdleMode.kCoast);
-
-    // armMotorConfig.encoder.positionConversionFactor(360.0); // degrees
     m_armMotorLeader.configure(armMotorLeaderConfig, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
     // m_armMotorFollower.configure(armMotorFollowerConfig,
@@ -172,6 +157,11 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     }
     instance = this;
     // this.setDefaultCommand(armUpCommand());
+    zeroInternalEncoder();
+  }
+
+  private void zeroInternalEncoder() {
+    m_internaRelativeEncoder.setPosition(0);
   }
 
   @SuppressWarnings("unused")
@@ -184,6 +174,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
       System.out.println("hit stop");
       m_armMotorLeader.set(0);
       armUpPositionLimit = m_encoder.getPosition();
+      zeroInternalEncoder();
     }
   }
 
@@ -214,7 +205,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   /** Load setpoint and kP from preferences. */
   public void loadPreferences() {
     // Read Preferences for Arm setpoint and kP on entering Teleop
-    m_armSetpointDegrees = Preferences.getDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
+    m_armSetpointDegrees =
+        Preferences.getDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
   }
 
   /**
@@ -226,6 +218,12 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     System.out.println(setPoint);
     m_controller.setReference(setPoint, ControlType.kPosition);
     // m_controller2.setReference(setPoint, ControlType.kPosition);
+  }
+
+  public void moveArm(Boolean out) {
+    double speed = 0.1;
+    speed *= out ? 1 : -1;
+    m_armMotorLeader.set(speed);
   }
 
   public void stoparm() {
@@ -263,13 +261,18 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     return armLimit.get();
   }
 
+  public boolean isAtDownPosition() {
+    return Math.abs(m_internaRelativeEncoder.getPosition()
+        - Constants.IntakeConstants.kArmOutPosition) < Constants.IntakeConstants.kArmPositionTolerance;
+  }
+
   // Commands for arm
   public Command armDownCommand() {
-    return runOnce(() -> this.reachSetpoint(Constants.IntakeConstants.kArmDownPosition));
+    return startEnd(() -> moveArm(true), () -> stoparm()).until(this::isAtDownPosition);
   }
 
   public Command armUpCommand() {
-    return runOnce(() -> this.reachSetpoint(Constants.IntakeConstants.kArmUpPosition));
+    return startEnd(() -> moveArm(false), () -> stoparm()).until(this::isAtUpPosition);
   }
 
   // Commands for Intake
