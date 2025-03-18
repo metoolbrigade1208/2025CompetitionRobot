@@ -12,14 +12,12 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanTopic;
-import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
@@ -31,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import swervelib.SwerveDrive;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-
 
 public class LocationService extends SubsystemBase {
   // singleton instance

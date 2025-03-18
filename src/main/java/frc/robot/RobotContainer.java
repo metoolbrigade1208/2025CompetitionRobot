@@ -52,8 +52,6 @@ import frc.robot.subsystems.Output;
 @Logged
 public class RobotContainer {
 
-  private final ProfiledPIDController drivePoseTranslationPID = new ProfiledPIDController(10.0, 0.0,
-      0.1, new Constraints(Constants.MAX_SPEED, Constants.MAX_ACCELERATION));
   private final ProfiledPIDController drivePoseAnglePIDController = new ProfiledPIDController(10.0, 0.0, 0.1,
       new Constraints(1000, 10000));
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -136,19 +134,12 @@ public class RobotContainer {
 
     Pose2d tagAutoPose2d = locate.getTagAutoPose2d();
     if (tagAutoPose2d == null) {
-      poseable = false;
       return new Pose2d();
     }
     return tagAutoPose2d;
   }
 
-  private boolean poseable = false;
-
-  Command driveFieldOrientedAnglularVelocityKeyboardRed = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-
-  private boolean autoPoseEnable() {
-    return poseable;
-  }
+  Command driveFieldOrientedAnglularVelocityKeyboardRed = drivebase.driveFieldOriented(driveAngularVelocityKeyboardRed);
 
   // Derive the heading axis with math!p\
   SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()

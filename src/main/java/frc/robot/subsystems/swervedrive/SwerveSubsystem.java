@@ -53,7 +53,6 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-
 public class SwerveSubsystem extends SubsystemBase {
 
   // Singleton stuff
@@ -707,9 +706,6 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command driveToPose(Supplier<Pose2d> pose) {
-    double tooCloseMeters = 0.5; // If the bot is too close by this much it needs to drive back a
-                                 // little bit.
-
     System.out.println("drivetoPose");
     return defer(() -> driveToPose(pose.get()));
   }
