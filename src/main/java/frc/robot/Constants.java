@@ -108,7 +108,7 @@ public final class Constants {
     public static final double kArmKa = 0;
     public static final double kArmDownPosition = Units.degreesToRotations(90);
     public static final double kArmUpPosition = 0;
-    public static final double kArmMaxSpeed = 200;
+    public static final double kArmMaxSpeed = 100;
     public static final double kArmMaxAcceleration = 150;
     public static final double kArmMaxError = Units.degreesToRotations(1);
 

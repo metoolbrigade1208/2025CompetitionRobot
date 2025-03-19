@@ -133,7 +133,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
         .pid(Constants.IntakeConstants.kArmKp, Constants.IntakeConstants.kArmKi,
             Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true)
-        .positionWrappingInputRange(0, 1);
+        .positionWrappingInputRange(0, .8888);
     armMotorLeaderConfig.closedLoop.maxMotion
         .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)
         .maxVelocity(Constants.IntakeConstants.kArmMaxSpeed)
