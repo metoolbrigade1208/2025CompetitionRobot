@@ -227,8 +227,8 @@ public class RobotContainer {
     } else {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      driverXbox.b().whileTrue(
-          drivebase.driveToPose(new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
+      // driverXbox.b().whileTrue(Commands.runOnce(intake.setintakespeed(.7))
+      // intake.setintakespeed(.7));
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
@@ -239,7 +239,7 @@ public class RobotContainer {
       driverXbox.povLeft().whileTrue(offsetPubCommand(LocationService.Offset.LEFT));
       driverXbox.povRight().whileTrue(offsetPubCommand(LocationService.Offset.RIGHT));
       driverXbox.povCenter().whileTrue(offsetPubCommand(LocationService.Offset.CENTER));
-      driverXbox.rightStick().onTrue(drivebase.driveToPose(this::autoPose)
+      driverXbox.rightStick().onTrue(drivebase.driveToPose(this::autoPose).alongWith(ReefbotAutos.AutoOutput())
           .until(driverXbox.getHID()::getRightStickButtonReleased));
       driverXbox.povUp().onTrue(elevatorUpCommand());
       driverXbox.povDown().onTrue(elevatorDownCommand());
@@ -277,9 +277,9 @@ public class RobotContainer {
   }
 
   public void autonomousInit() {
-    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboardRed);
-    }
+    // if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+    // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboardRed);
+    // }
   }
 
   private Command offsetPubCommand(LocationService.Offset offset) {

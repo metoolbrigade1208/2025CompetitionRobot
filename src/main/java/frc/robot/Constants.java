@@ -112,7 +112,7 @@ public final class Constants {
     public static final double kArmMaxAcceleration = 150;
     public static final double kArmMaxError = Units.degreesToRotations(1);
 
-    public static final double kIntakeRunSpeed = .6;
+    public static final double kIntakeRunSpeed = .7;
 
     public static final double kIntakeKp = getConfigValue(c -> c.intakeKp, 0);
     public static final double kIntakeKi = getConfigValue(c -> c.intakeKi, 0);
@@ -127,14 +127,14 @@ public final class Constants {
   }
 
   public static class elevator {
-    public static final double kElevatorKp = 0.2;
+    public static final double kElevatorKp = 0.03; // 0.2
     public static final double kElevatorKi = 0;
-    public static final double kElevatorKd = 5;
+    public static final double kElevatorKd = 0.1; // 5
 
     public static final double kElevatorkS = 0;
-    public static final double kElevatorkG = 0;
-    public static final double kElevatorkV = 473; // for NEO V1.1
-    public static final double kElevatorkA = 0;
+    public static final double kElevatorkG = 0.46; // 0
+    public static final double kElevatorkV = 6.91; // for NEO V1.1, 473
+    public static final double kElevatorkA = 0.05; // 0
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
     public static int kLimitSwitchPort = 6;

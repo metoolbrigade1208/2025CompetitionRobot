@@ -191,7 +191,7 @@ public class LocationService extends SubsystemBase {
     }
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
     Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(inOffset),
-        Rotation2d.fromDegrees(90));
+        Rotation2d.fromDegrees(-90));
     return tagPose.transformBy(poseOffset);
   }
 
@@ -242,7 +242,8 @@ public class LocationService extends SubsystemBase {
     if (inProcessorRegion()) {
       return genPoseForProcessorFromTag(closestTagId());
     }
-    return null;
+    return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red ? field.getTagPose(21).get().toPose2d()
+        : field.getTagPose(10).get().toPose2d();
   }
 
   public BooleanSupplier autoPoseBool(double maxPoseDistance) {

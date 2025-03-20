@@ -13,18 +13,19 @@ public class ReefbotAutos {
         Output output = Output.getInstance();
         Elevator elevator = Elevator.getInstance();
         /*
-         * Assume driving automatedly, then within 3ft, raise elevator to selected level once
-         * elevator reaches its set position and within 2in of tagpose, run ejectCoralCommand wait
+         * Assume driving automatedly, then within 3ft, raise elevator to selected level
+         * once
+         * elevator reaches its set position and within 2in of tagpose, run
+         * ejectCoralCommand wait
          * for half a second lower elevator to lvl1 when clearOutput
          */
-
 
         Command elevatorCommand = elevator.elevatorleveldataCommand();
 
         return new WaitUntilCommand(locationService.nearAutoPose()).andThen(elevatorCommand)
                 .andThen(new WaitUntilCommand(locationService.atAutoPose()))
                 .andThen(new WaitUntilCommand(elevator.elevatorAtLevel))
-                .andThen(output.ejectCoralCommand())
+                .andThen(output.runOutputMotor())
                 .andThen(new WaitUntilCommand(() -> !output.IsDetected()))
                 .andThen(new WaitCommand(0.5)).andThen(elevator::elevatorLevel1Command);
     }

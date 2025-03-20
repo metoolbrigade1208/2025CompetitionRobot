@@ -181,7 +181,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     SmartDashboard.putNumber("armPosition", Units.rotationsToDegrees(m_encoder.getPosition()));
     motorOutput = m_armMotorLeader.getAppliedOutput();
     if (isAtUpPosition() && m_armMotorLeader.get() < 0) {
-      System.out.println("hit stop");
+      // System.out.println("hit stop");
       m_armMotorLeader.set(0);
       armUpPositionLimit = m_encoder.getPosition();
     }
@@ -222,8 +222,8 @@ public class Intake extends SubsystemBase implements AutoCloseable {
    */
   public void reachSetpoint(Double setPoint) {
     // setPoint += armUpPositionLimit;
-    System.out.print("Setting arm position: ");
-    System.out.println(setPoint);
+    // System.out.print("Setting arm position: ");
+    // System.out.println(setPoint);
     m_controller.setReference(setPoint, ControlType.kPosition);
     // m_controller2.setReference(setPoint, ControlType.kPosition);
   }
@@ -235,7 +235,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // sets intake speed
   public void setintakespeed(Double speed) {
     m_intakeMotor.set(-speed);
-    System.out.println("intake speed set 1");
+    // System.out.println("intake speed set 1");
     if (Robot.isSimulation()) {
       m_IntakeSim.startIntake();
     }
@@ -244,7 +244,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // stops intake
   public void stopintake() {
     m_intakeMotor.set(0.0);
-    System.out.println("intake speed set 0");
+    // System.out.println("intake speed set 0");
     if (Robot.isSimulation()) {
       m_IntakeSim.stopIntake();
     }
