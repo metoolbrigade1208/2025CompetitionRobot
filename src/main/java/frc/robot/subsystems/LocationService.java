@@ -41,7 +41,8 @@ public class LocationService extends SubsystemBase {
     return instance;
   }
 
-  private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+  private static final AprilTagFieldLayout field =
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
   /** Creates a new LocationService. */
   public LocationService() {
@@ -110,7 +111,8 @@ public class LocationService extends SubsystemBase {
     double closestDistance = Double.MAX_VALUE;
     while (iter.hasNext()) {
       AprilTag tag = iter.next();
-      double distance = robot.getTranslation().getDistance(tag.pose.getTranslation().toTranslation2d());
+      double distance =
+          robot.getTranslation().getDistance(tag.pose.getTranslation().toTranslation2d());
       if (distance < closestDistance) {
         closestDistance = distance;
         closestTagId = tag.ID;
@@ -172,7 +174,7 @@ public class LocationService extends SubsystemBase {
    * 
    * OFFSET is whether to be offset to the left or right of the tag
    * 
-   * @param TagID  - the tag ID to generate the pose from
+   * @param TagID - the tag ID to generate the pose from
    * @param offset - if null, it will return as if used CENTER
    * @return Pose2d - the pose of the robot lined up on the tag.
    */
@@ -216,7 +218,8 @@ public class LocationService extends SubsystemBase {
 
   public Pose2d genPoseForProcessorFromTag(int TagID) {
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
-    Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(0.0), Rotation2d.fromDegrees(0));
+    Transform2d poseOffset =
+        new Transform2d(Constants.kRobotWidth.div(2), Inches.of(0.0), Rotation2d.fromDegrees(0));
     return tagPose.transformBy(poseOffset);
   }
 
@@ -242,7 +245,9 @@ public class LocationService extends SubsystemBase {
     if (inProcessorRegion()) {
       return genPoseForProcessorFromTag(closestTagId());
     }
-    return null;
+    return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+        ? field.getTagPose(21).get().toPose2d()
+        : field.getTagPose(10).get().toPose2d();
   }
 
   public BooleanSupplier autoPoseBool(double maxPoseDistance) {
