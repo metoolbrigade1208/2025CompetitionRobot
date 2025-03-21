@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -157,12 +158,13 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
     // Configure the intake motor
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
-    intakeMotorConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+    intakeMotorConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake);
 
     intakeMotorConfig.closedLoop.pidf(Constants.IntakeConstants.kIntakeKp,
         Constants.IntakeConstants.kIntakeKi, Constants.IntakeConstants.kIntakeKd,
         1.0 / Constants.IntakeConstants.kIntakeKv, ClosedLoopSlot.kSlot0);
 
+    m_intakeMotor.configure(intakeMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // Set the Arm position setpoint and P constant to Preferences if the keys don't
     // already exist
     Preferences.initDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
@@ -286,6 +288,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   public Command spitIntakeCommand() {
     return startEnd(() -> this.setintakespeed(-Constants.IntakeConstants.kIntakeRunSpeed),
         this::stopintake).withTimeout(1);
+  }
+
+  public Command runIntakeCommand() {
+    return Commands.runOnce(() -> this.setintakespeed(0.7));
   }
 
   @Override

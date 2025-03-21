@@ -10,7 +10,6 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.IntegerTopic;
@@ -19,14 +18,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ReefbotAutoForAutonomous;
 import frc.robot.commands.ReefbotAutos;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LocationService;
@@ -155,7 +155,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
     // commands used in PathPlanner
-    NamedCommands.registerCommand("AutoScore", ReefbotAutos.AutoOutput());
+    NamedCommands.registerCommand("AutoScore", ReefbotAutoForAutonomous.AutoOutput());
     // will automaticall raise elevator to set level and output coral
     NamedCommands.registerCommand("OutputLeft", offsetPubCommand(Offset.LEFT));
     // only for levels > 1
@@ -227,8 +227,7 @@ public class RobotContainer {
     } else {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      // driverXbox.b().whileTrue(Commands.runOnce(intake.setintakespeed(.7))
-      // intake.setintakespeed(.7));
+      driverXbox.b().whileTrue(intake.runIntakeCommand());
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
@@ -243,7 +242,8 @@ public class RobotContainer {
           .until(driverXbox.getHID()::getRightStickButtonReleased));
       driverXbox.povUp().onTrue(elevatorUpCommand());
       driverXbox.povDown().onTrue(elevatorDownCommand());
-      driverXbox.back().whileTrue(output.gripCoralCommand());
+      driverXbox.back()
+          .whileTrue(Commands.runOnce(output::runOutputMotor).andThen(new WaitCommand(0.1)).andThen(output::stopmotor));
       driverXbox.start().whileTrue(output.ejectCoralCommand());
       driverXbox.leftBumper().whileTrue(output.runOutputMotor());
     }
@@ -269,7 +269,7 @@ public class RobotContainer {
         opXbox.a().whileTrue(elevator.elevatorDown());
         opXbox.y().whileTrue(elevator.elevatorUp());
       }
-      opXbox.leftBumper().whileTrue(output.gripCoralCommand());
+      opXbox.leftBumper().whileTrue(Commands.race(Commands.runOnce(() -> output.runmotor()), new WaitCommand(0.1)));
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
 
     }

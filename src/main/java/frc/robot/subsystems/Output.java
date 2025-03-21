@@ -53,8 +53,7 @@ public class Output extends SubsystemBase implements AutoCloseable {
   private DCMotor m_OutputGearbox = DCMotor.getNEO(1);
 
   // declares IR Sensor
-  private final DigitalInput m_coraldetect =
-      new DigitalInput(Constants.OutputConstants.kIRsensorport);
+  private final DigitalInput m_coraldetect = new DigitalInput(Constants.OutputConstants.kIRsensorport);
 
   // declares the controller for the output motor
   // private final SparkClosedLoopController m_Outputcontroller =

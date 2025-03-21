@@ -13,12 +13,6 @@
         {
           "type": "named",
           "data": {
-            "name": "OutputLeft"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "SetElevatorLevel4"
           }
         },

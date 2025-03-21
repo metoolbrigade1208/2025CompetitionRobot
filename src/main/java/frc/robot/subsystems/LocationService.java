@@ -190,7 +190,7 @@ public class LocationService extends SubsystemBase {
         break;
     }
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
-    Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(inOffset),
+    Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(inOffset - 6),
         Rotation2d.fromDegrees(-90));
     return tagPose.transformBy(poseOffset);
   }
@@ -210,7 +210,7 @@ public class LocationService extends SubsystemBase {
     }
     Pose2d tagPose = field.getTagPose(TagID).orElse(new Pose3d()).toPose2d();
     Transform2d poseOffset = new Transform2d(Constants.kRobotWidth.div(2), Inches.of(inOffset),
-        Rotation2d.fromDegrees(270));
+        Rotation2d.fromDegrees(90));
     return tagPose.transformBy(poseOffset);
   }
 
@@ -256,7 +256,7 @@ public class LocationService extends SubsystemBase {
   }
 
   public BooleanSupplier nearAutoPose() {
-    return autoPoseBool(Units.inchesToMeters(36));
+    return autoPoseBool(Units.inchesToMeters(10));
   }
 
   @Override
