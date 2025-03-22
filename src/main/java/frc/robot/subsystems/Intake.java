@@ -225,7 +225,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   public void reachSetpoint(Double setPoint) {
     // setPoint += armUpPositionLimit;
     // System.out.print("Setting arm position: ");
-    // System.out.println(setPoint);
+    System.out.println(setPoint);
     m_controller.setReference(setPoint, ControlType.kPosition);
     // m_controller2.setReference(setPoint, ControlType.kPosition);
   }
@@ -272,6 +272,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
   public Command armUpCommand() {
     return runOnce(() -> this.reachSetpoint(Constants.IntakeConstants.kArmUpPosition));
+  }
+
+  public Command armOuttakeCommand() {
+    return runOnce(() -> this.reachSetpoint(0.05));
   }
 
   // Commands for Intake

@@ -21,11 +21,17 @@
           "data": {
             "name": "AutoScore"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Reef to Source"
+          }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

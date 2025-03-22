@@ -112,7 +112,7 @@ public final class Constants {
     public static final double kArmMaxAcceleration = 150;
     public static final double kArmMaxError = Units.degreesToRotations(1);
 
-    public static final double kIntakeRunSpeed = .7;
+    public static final double kIntakeRunSpeed = .5;
 
     public static final double kIntakeKp = getConfigValue(c -> c.intakeKp, 0);
     public static final double kIntakeKi = getConfigValue(c -> c.intakeKi, 0);
@@ -154,7 +154,7 @@ public final class Constants {
     public static final double kVelocityConversionFactor = kPositionConversionFactor / 60;
 
     public static final double kVelocityMultiplier = 5.0;
-    public static final double kElevatorPositionTolerance = 0.25 / kPositionConversionFactor;
+    public static final double kElevatorPositionTolerance = 0.05 / kPositionConversionFactor;
   }
 
   static Optional<RobotConfig> loadConfig(String path) {

@@ -21,6 +21,12 @@
           "data": {
             "name": "AutoScore"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Reef to Source"
+          }
         }
       ]
     }

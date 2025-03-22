@@ -231,7 +231,8 @@ public class RobotContainer {
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverXbox.rightBumper().onTrue(intake.spitIntakeCommand());
+      driverXbox.rightBumper().onTrue(intake.armOuttakeCommand()
+          .alongWith(new WaitCommand(0.5)).andThen(intake.spitIntakeCommand()));
       driverXbox.rightTrigger(0.2).onTrue(intake.armDownCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armUpCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
@@ -243,7 +244,7 @@ public class RobotContainer {
       driverXbox.povUp().onTrue(elevatorUpCommand());
       driverXbox.povDown().onTrue(elevatorDownCommand());
       driverXbox.back()
-          .whileTrue(Commands.runOnce(output::runOutputMotor).andThen(new WaitCommand(0.1)).andThen(output::stopmotor));
+          .onTrue(Commands.runOnce(output::runmotor).alongWith(new WaitCommand(0.025)).andThen(output::stopmotor));
       driverXbox.start().whileTrue(output.ejectCoralCommand());
       driverXbox.leftBumper().whileTrue(output.runOutputMotor());
     }

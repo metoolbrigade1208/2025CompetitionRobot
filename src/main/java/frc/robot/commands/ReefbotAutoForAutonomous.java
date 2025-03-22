@@ -31,8 +31,7 @@ public class ReefbotAutoForAutonomous {
         return new SequentialCommandGroup(elevatorCommand)
                 .andThen(new WaitCommand(2))
                 .andThen(output.runOutputMotor())
-                .andThen(new WaitCommand(1)).andThen(output::stopmotor)
-                .andThen(new WaitCommand(0.5)).andThen(elevator::elevatorLevel2Command).andThen(elevatorCommand)
-                .andThen(new WaitCommand(1)).andThen(elevator::elevatorLevel1Command).andThen(elevatorCommand);
+                .alongWith(new WaitCommand(1)).andThen(output::stopmotor)
+                .andThen(new WaitCommand(1)).andThen(elevator::elevatorLevel1Command);
     }
 }

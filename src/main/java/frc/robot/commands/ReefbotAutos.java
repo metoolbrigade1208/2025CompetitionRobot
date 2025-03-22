@@ -28,9 +28,8 @@ public class ReefbotAutos {
         return new WaitUntilCommand(locationService.nearAutoPose()).andThen(elevatorCommand)
                 .andThen(new WaitUntilCommand(locationService.atAutoPose()))
                 .andThen(new WaitUntilCommand(elevator.elevatorAtLevel))
-                .andThen(output.runOutputMotor())
-                .andThen(new WaitCommand(1)).andThen(output::stopmotor)
-                .andThen(new WaitCommand(0.5)).andThen(elevator::elevatorLevel2Command).andThen(elevatorCommand)
-                .andThen(new WaitCommand(1)).andThen(elevator::elevatorLevel1Command).andThen(elevatorCommand);
+                .andThen(new WaitCommand(0.25)).andThen(output.runOutputMotor())
+                .alongWith(new WaitCommand(1)).andThen(output::stopmotor)
+                .andThen(new WaitCommand(1)).andThen(elevator::elevatorLevel1Command);
     }
 }

@@ -13,12 +13,6 @@
         {
           "type": "named",
           "data": {
-            "name": "OutputLeft"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "SetElevatorLevel4"
           }
         },
@@ -26,6 +20,12 @@
           "type": "named",
           "data": {
             "name": "AutoScore"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Reef to Source"
           }
         }
       ]
