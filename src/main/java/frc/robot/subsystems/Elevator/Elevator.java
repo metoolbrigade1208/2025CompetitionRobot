@@ -162,6 +162,14 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
    * @param goalMeters the position to maintain
    */
   private double currentGoalRotations;
+  
+  public double getCurrentPosition() {
+    return m_encoder.getPosition();
+  }
+  
+  public boolean isAtGoal() {
+    return Math.abs(getCurrentPosition() - currentGoalRotations) < Constants.elevator.kElevatorPositionTolerance;
+  }
 
   public void reachGoal(double goalMeters) {
 
