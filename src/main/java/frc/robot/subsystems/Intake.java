@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -157,12 +158,13 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
     // Configure the intake motor
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
-    intakeMotorConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+    intakeMotorConfig.smartCurrentLimit(45).idleMode(IdleMode.kBrake);
 
     intakeMotorConfig.closedLoop.pidf(Constants.IntakeConstants.kIntakeKp,
         Constants.IntakeConstants.kIntakeKi, Constants.IntakeConstants.kIntakeKd,
         1.0 / Constants.IntakeConstants.kIntakeKv, ClosedLoopSlot.kSlot0);
 
+    m_intakeMotor.configure(intakeMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // Set the Arm position setpoint and P constant to Preferences if the keys don't
     // already exist
     Preferences.initDouble(Constants.IntakeConstants.kArmPositionKey, m_armSetpointDegrees);
@@ -181,7 +183,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     SmartDashboard.putNumber("armPosition", Units.rotationsToDegrees(m_encoder.getPosition()));
     motorOutput = m_armMotorLeader.getAppliedOutput();
     if (isAtUpPosition() && m_armMotorLeader.get() < 0) {
-      System.out.println("hit stop");
+      // System.out.println("hit stop");
       m_armMotorLeader.set(0);
       armUpPositionLimit = m_encoder.getPosition();
     }
@@ -222,7 +224,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
    */
   public void reachSetpoint(Double setPoint) {
     // setPoint += armUpPositionLimit;
-    System.out.print("Setting arm position: ");
+    // System.out.print("Setting arm position: ");
     System.out.println(setPoint);
     m_controller.setReference(setPoint, ControlType.kPosition);
     // m_controller2.setReference(setPoint, ControlType.kPosition);
@@ -235,7 +237,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // sets intake speed
   public void setintakespeed(Double speed) {
     m_intakeMotor.set(-speed);
-    System.out.println("intake speed set 1");
+    // System.out.println("intake speed set 1");
     if (Robot.isSimulation()) {
       m_IntakeSim.startIntake();
     }
@@ -244,7 +246,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   // stops intake
   public void stopintake() {
     m_intakeMotor.set(0.0);
-    System.out.println("intake speed set 0");
+    // System.out.println("intake speed set 0");
     if (Robot.isSimulation()) {
       m_IntakeSim.stopIntake();
     }
@@ -272,6 +274,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     return runOnce(() -> this.reachSetpoint(Constants.IntakeConstants.kArmUpPosition));
   }
 
+  public Command armOuttakeCommand() {
+    return runOnce(() -> this.reachSetpoint(0.05));
+  }
+
   // Commands for Intake
   public Command startIntakeCommand() {
     return new FunctionalCommand(
@@ -286,6 +292,10 @@ public class Intake extends SubsystemBase implements AutoCloseable {
   public Command spitIntakeCommand() {
     return startEnd(() -> this.setintakespeed(-Constants.IntakeConstants.kIntakeRunSpeed),
         this::stopintake).withTimeout(1);
+  }
+
+  public Command runIntakeCommand() {
+    return Commands.runOnce(() -> this.setintakespeed(0.7));
   }
 
   @Override

@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Odometry Test"
+            "pathName": "Left Left Auto"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "OuttakeCommand"
+            "name": "SetElevatorLevel4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoScore"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Reef to Source"
           }
         }
       ]

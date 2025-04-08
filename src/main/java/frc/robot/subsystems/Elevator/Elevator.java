@@ -98,7 +98,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         .pid(Constants.elevator.kElevatorKp, Constants.elevator.kElevatorKi,
             Constants.elevator.kElevatorKd, ClosedLoopSlot.kSlot0)
         .outputRange(-1, 1, ClosedLoopSlot.kSlot0).maxMotion
-        .maxVelocity(5000, ClosedLoopSlot.kSlot0).maxAcceleration(8000, ClosedLoopSlot.kSlot0);
+        .maxVelocity(500, ClosedLoopSlot.kSlot0).maxAcceleration(8000, ClosedLoopSlot.kSlot0)
+        .allowedClosedLoopError(Units.inchesToMeters(1) * Constants.elevator.kPositionConversionFactor);
 
     m_motor.configure(motor1config, ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
@@ -169,7 +170,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     currentGoalRotations = goalMeters / Constants.elevator.kPositionConversionFactor;
     System.out.print("goal Rot: ");
     System.out.println(currentGoalRotations);
-    m_controller.setReference(currentGoalRotations, ControlType.kMAXMotionPositionControl,
+    m_controller.setReference(currentGoalRotations, ControlType.kPosition,
         ClosedLoopSlot.kSlot0);
     // m_controller2.setReference(currentGoalRotations,
     // ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
