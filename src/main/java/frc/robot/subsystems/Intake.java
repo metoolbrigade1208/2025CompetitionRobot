@@ -158,7 +158,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
 
     // Configure the intake motor
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
-    intakeMotorConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake);
+    intakeMotorConfig.smartCurrentLimit(45).idleMode(IdleMode.kBrake);
 
     intakeMotorConfig.closedLoop.pidf(Constants.IntakeConstants.kIntakeKp,
         Constants.IntakeConstants.kIntakeKi, Constants.IntakeConstants.kIntakeKd,
