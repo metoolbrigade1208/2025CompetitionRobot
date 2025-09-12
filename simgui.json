@@ -87,7 +87,13 @@
       "/SmartDashboard/Swerve Drive": "Alerts",
       "/SmartDashboard/VisionSystemSim-Vision/Sim Field": "Field2d",
       "/SmartDashboard/navX-Sensor[1]": "Gyro",
-      "/SmartDashboard/navX-Sensor[4]": "Gyro"
+      "/SmartDashboard/navX-Sensor[4]": "Gyro",
+      "Robot/m_robotContainer/autoChooser": "String Chooser",
+      "Robot/m_robotContainer/drivePoseAnglePIDController": "ProfiledPIDController",
+      "Robot/m_robotContainer/elevator/input": "Digital Input",
+      "Robot/m_robotContainer/intake/armLimit": "Digital Input",
+      "Robot/m_robotContainer/intake/m_coraldetect": "Digital Input",
+      "Robot/m_robotContainer/output/m_coraldetect": "Digital Input"
     },
     "windows": {
       "/FMSInfo": {
@@ -122,7 +128,6 @@
           "style": "Hidden"
         },
         "bottom": 1638,
-        "builtin": "2025 Reefscape",
         "height": 8.051901817321777,
         "left": 534,
         "right": 3466,

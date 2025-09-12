@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center Left Auto"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "OutputLeft"
+            "pathName": "Right Left Path"
           }
         },
         {
@@ -27,11 +21,17 @@
           "data": {
             "name": "AutoScore"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Reef to Source"
+          }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }
