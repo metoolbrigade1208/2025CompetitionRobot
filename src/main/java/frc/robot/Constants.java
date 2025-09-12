@@ -131,20 +131,20 @@ public final class Constants {
   }
 
   public static class elevator {
-    public static final double kElevatorKp = 0.03; // 0.2
+    public static final double kElevatorKp = 0.9; // 0.2
     public static final double kElevatorKi = 0;
-    public static final double kElevatorKd = 0.1; // 5
+    public static final double kElevatorKd = 5; // 5
 
     public static final double kElevatorkS = 0;
     public static final double kElevatorkG = 0.46; // 0
-    public static final double kElevatorkV = 6.91; // for NEO V1.1, 473
+    public static final double kElevatorkV = 473; // for NEO V1.1, 473
     public static final double kElevatorkA = 0.05; // 0
     public static final int kMotorPort = 51;
     public static int kMotorPort2 = 52;
     public static int kLimitSwitchPort = 6;
 
     public static final double kElevatorGearing = 9.0;
-    public static final Mass kCarriageMass = Pounds.of(16);
+    public static final Mass kCarriageMass = Pounds.of(4);
     public static final Distance kElevatorDrumCirc = Inches.of(.25).times(22); // 22 teeth
                                                                                // number 25
                                                                                // chain (quater

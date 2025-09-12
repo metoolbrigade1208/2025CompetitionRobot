@@ -145,7 +145,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
   private double currentGoalRotations;
 
   public Command setHeight(Distance goalMeters) {
-    System.out.print("goal Rot: ");
+    System.out.print("commanded height: ");
     System.out.println(goalMeters);
     return elevator.setHeight(goalMeters);
     // m_controller2.setReference(currentGoalRotations,
@@ -220,12 +220,16 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
     switch (ElevatorLevelNum) {
       case 1:
         ElevatorLevel = Constants.LEVEL_1;
+        break;
       case 2:
         ElevatorLevel = Constants.LEVEL_2;
+        break;
       case 3:
         ElevatorLevel = Constants.LEVEL_3;
+        break;
       case 4:
         ElevatorLevel = Constants.LEVEL_4;
+        break;
       default:
         ElevatorLevel = Constants.LEVEL_1;
     }
