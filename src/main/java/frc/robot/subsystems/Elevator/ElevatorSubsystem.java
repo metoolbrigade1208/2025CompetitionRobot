@@ -120,21 +120,16 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
 
   /** Advance the simulation. */
   public void simulationPeriodic() {
-    // In this method, we update our simulat ion of what our elevator is doing
-    // First, we set our "inputs" (voltages)
-    // Next, we update it. The standard loop time is 20ms.
 
-    // We set the simulated motor voltage and current draw
-    // Finally, we set our simulated encoder's readings and simulated battery
-    // voltage
-
-    // SimBattery estimates loaded battery voltages
+    elevator.simIterate();
 
   }
 
   public void periodic() {
     // This method will be called once per scheduler run
     updateTelemetry();
+    elevator.updateTelemetry();
+
   }
 
   /**
