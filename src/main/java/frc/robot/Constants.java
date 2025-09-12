@@ -12,38 +12,41 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.units.measure.Dimensionless;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Pounds;
 import swervelib.math.Matter;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean
- * constants. This class should not be used for any other purpose. All constants
- * should be declared
+ * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
  *
  * <p>
- * It is advised to statically import this class (or one of its inner classes)
- * wherever the
+ * It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final Optional<RobotConfig> config = loadConfig(
-      Filesystem.getDeployDirectory().toPath().resolve("config.json").toString());
+  public static final Optional<RobotConfig> config =
+      loadConfig(Filesystem.getDeployDirectory().toPath().resolve("config.json").toString());
 
   private static double getConfigValue(Function<RobotConfig, Double> mapper, double defaultValue) {
     return config.flatMap(c -> Optional.ofNullable(mapper.apply(c))).orElse(defaultValue);
   }
 
-  public static final double LEVEL_Intake = Units.inchesToMeters(getConfigValue(c -> c.inIntake, 18.0));
-  public static final double LEVEL_1 = Units.inchesToMeters(getConfigValue(c -> c.inL1, 18.0));
-  public static final double LEVEL_2 = Units.inchesToMeters(getConfigValue(c -> c.inL2, 32.0));
-  public static final double LEVEL_3 = Units.inchesToMeters(getConfigValue(c -> c.inL3, 48.0));
-  public static final double LEVEL_4 = Units.inchesToMeters(getConfigValue(c -> c.inL4, 72.0));
+  public static final Distance LEVEL_1 = Inches.of(getConfigValue(c -> c.inL1, 18.0));
+  public static final Distance LEVEL_2 = Inches.of(getConfigValue(c -> c.inL2, 32.0));
+  public static final Distance LEVEL_3 = Inches.of(getConfigValue(c -> c.inL3, 48.0));
+  public static final Distance LEVEL_4 = Inches.of(getConfigValue(c -> c.inL4, 72.0));
 
   public static final double ROBOT_MASS = Units.lbsToKilograms(148 - 20.3); // 32lbs * kg per pound
-  public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
+  public static final Matter CHASSIS =
+      new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
   public static final double MAX_SPEED = 4.8;
   public static final double MAX_ACCELERATION = 5.0;
@@ -93,7 +96,8 @@ public final class Constants {
     public static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;
 
     public static final double kArmReduction = 64.0;
-    public static final double kArmEncoderGearing = (4.0 / 1.5) / 3.0; // ratio of encoder position to arm
+    public static final double kArmEncoderGearing = (4.0 / 1.5) / 3.0; // ratio of encoder position
+                                                                       // to arm
     // position
     public static final double kArmMass = 8.0; // Kilograms
     public static final double kArmLength = Units.inchesToMeters(30);
@@ -140,21 +144,24 @@ public final class Constants {
     public static int kLimitSwitchPort = 6;
 
     public static final double kElevatorGearing = 9.0;
-    public static final double kCarriageMass = 10.0;
-    public static final double kElevatorDrumCirc = Units.inchesToMeters(.25) * 22; // 22 teeth
-                                                                                   // number 25
-                                                                                   // chain (quater
-                                                                                   // inch)
-    public static final double kElevatorDrumRadius = kElevatorDrumCirc / (2 * Math.PI);
-    public static final double kMinElevatorHeightMeters = LEVEL_1;
-    public static final double kMaxElevatorHeightMeters = LEVEL_4;
+    public static final Mass kCarriageMass = Pounds.of(16);
+    public static final Distance kElevatorDrumCirc = Inches.of(.25).times(22); // 22 teeth
+                                                                               // number 25
+                                                                               // chain (quater
+                                                                               // inch)
+    public static final Distance kElevatorDrumRadius = kElevatorDrumCirc.div(2 * Math.PI);
+    public static final Distance kMinElevatorHeightMeters = LEVEL_1;
+    public static final Distance kMaxElevatorHeightMeters = LEVEL_4;
     // Position is rotation to meter
-    public static final double kPositionConversionFactor = (kElevatorDrumCirc / kElevatorGearing) * 2;
+    public static final Distance kPositionConversionFactor =
+        kElevatorDrumCirc.div(kElevatorGearing).times(2);
     // Velocity is rpm to mps
-    public static final double kVelocityConversionFactor = kPositionConversionFactor / 60;
+    public static final LinearVelocity kVelocityConversionFactor =
+        kPositionConversionFactor.div(Minute.of(1));
 
     public static final double kVelocityMultiplier = 5.0;
-    public static final double kElevatorPositionTolerance = 0.05 / kPositionConversionFactor;
+    public static final Dimensionless kElevatorPositionTolerance =
+        (Meters.of(0.05)).div(kPositionConversionFactor);
   }
 
   static Optional<RobotConfig> loadConfig(String path) {

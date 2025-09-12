@@ -4,9 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Meters;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,7 +30,7 @@ import frc.robot.commands.ReefbotAutoForAutonomous;
 import frc.robot.commands.ReefbotAutos;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LocationService;
-import frc.robot.subsystems.Elevator.Elevator;
+import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 import frc.robot.subsystems.LocationService.Offset;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
@@ -39,28 +39,25 @@ import swervelib.SwerveInputStream;
 import frc.robot.subsystems.Output;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-@Logged
+
 public class RobotContainer {
 
-  private final ProfiledPIDController drivePoseAnglePIDController = new ProfiledPIDController(10.0, 0.0, 0.1,
-      new Constraints(1000, 10000));
+  private final ProfiledPIDController drivePoseAnglePIDController =
+      new ProfiledPIDController(10.0, 0.0, 0.1, new Constraints(1000, 10000));
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
   final CommandXboxController opXbox = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
 
   private static final boolean useDrivebase = true;
-  private final SwerveSubsystem drivebase = useDrivebase
-      ? new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"))
-      : null;
+  private final SwerveSubsystem drivebase =
+      useDrivebase ? new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"))
+          : null;
 
   // private final Intake intake = new Intake(drivebase.getSwerveDrive());
 
@@ -70,7 +67,7 @@ public class RobotContainer {
   private final Intake intake = useIntake ? new Intake() : null;
 
   private static final boolean useElevator = true;
-  private final Elevator elevator = useElevator ? new Elevator() : null;
+  private final ElevatorSubsystem elevator = useElevator ? new ElevatorSubsystem() : null;
 
   private static final boolean useOutput = true;
   private final Output output = useOutput ? new Output() : null;
@@ -91,8 +88,7 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
 
   /**
-   * Converts driver input into a field-relative ChassisSpeeds that is controlled
-   * by angular
+   * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
    * velocity.
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream
@@ -106,17 +102,16 @@ public class RobotContainer {
       .withControllerRotationAxis(driverXbox::getRightX).deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.8).allianceRelativeControl(true);
   /**
-   * Clone's the angular velocity input stream and converts it to a fieldRelative
-   * input stream.
+   * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
    */
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
       .withControllerHeadingAxis(driverXbox::getRightX, driverXbox::getRightY).headingWhile(true);
 
   /**
-   * Clone's the angular velocity input stream and converts it to a robotRelative
-   * input stream.
+   * Clone's the angular velocity input stream and converts it to a robotRelative input stream.
    */
-  SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true).allianceRelativeControl(false);
+  SwerveInputStream driveRobotOriented =
+      driveAngularVelocity.copy().robotRelative(true).allianceRelativeControl(false);
 
   SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream
       .of(drivebase.getSwerveDrive(), () -> -driverXbox.getLeftY(), () -> -driverXbox.getLeftX())
@@ -136,7 +131,8 @@ public class RobotContainer {
     return tagAutoPose2d;
   }
 
-  Command driveFieldOrientedAnglularVelocityKeyboardRed = drivebase.driveFieldOriented(driveAngularVelocityKeyboardRed);
+  Command driveFieldOrientedAnglularVelocityKeyboardRed =
+      drivebase.driveFieldOriented(driveAngularVelocityKeyboardRed);
 
   // Derive the heading axis with math!p\
   SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
@@ -174,21 +170,17 @@ public class RobotContainer {
     SmartDashboard.putData("Autonomous/Select Autonomous Path", autoChooser);
 
     drivePoseAnglePIDController.enableContinuousInput(0, Math.PI * 2);
+    elevator.setDefaultCommand(elevator.setHeight(Meters.of(0)));
   }
 
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary
+   * Use this method to define your trigger->command mappings. Triggers can be created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
    * predicate, or via the named factories in
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses
-   * for
+   * {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
    * {@link CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
+   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4} controllers or
+   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
    */
   private void configureBindings() {
 
@@ -197,7 +189,8 @@ public class RobotContainer {
     drivebase.driveFieldOriented(driveRobotOriented);
     drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
     drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+    Command driveFieldOrientedAnglularVelocityKeyboard =
+        drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
 
     drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleKeyboard);
 
@@ -231,20 +224,21 @@ public class RobotContainer {
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverXbox.rightBumper().onTrue(intake.armOuttakeCommand()
-          .alongWith(new WaitCommand(0.5)).andThen(intake.spitIntakeCommand()));
+      driverXbox.rightBumper().onTrue(intake.armOuttakeCommand().alongWith(new WaitCommand(0.5))
+          .andThen(intake.spitIntakeCommand()));
       driverXbox.rightTrigger(0.2).onTrue(intake.armDownCommand());
       driverXbox.rightTrigger(0.1).onFalse(intake.armUpCommand());
       driverXbox.rightTrigger(0.8).whileTrue(intake.startIntakeCommand());
       driverXbox.povLeft().whileTrue(offsetPubCommand(LocationService.Offset.LEFT));
       driverXbox.povRight().whileTrue(offsetPubCommand(LocationService.Offset.RIGHT));
       driverXbox.povCenter().whileTrue(offsetPubCommand(LocationService.Offset.CENTER));
-      driverXbox.rightStick().onTrue(drivebase.driveToPose(this::autoPose).alongWith(ReefbotAutos.AutoOutput())
-          .until(driverXbox.getHID()::getRightStickButtonReleased));
+      driverXbox.rightStick()
+          .onTrue(drivebase.driveToPose(this::autoPose).alongWith(ReefbotAutos.AutoOutput())
+              .until(driverXbox.getHID()::getRightStickButtonReleased));
       driverXbox.povUp().onTrue(elevatorUpCommand());
       driverXbox.povDown().onTrue(elevatorDownCommand());
-      driverXbox.back()
-          .onTrue(Commands.runOnce(output::runmotor).alongWith(new WaitCommand(0.025)).andThen(output::stopmotor));
+      driverXbox.back().onTrue(Commands.runOnce(output::runmotor).alongWith(new WaitCommand(0.025))
+          .andThen(output::stopmotor));
       driverXbox.start().whileTrue(output.ejectCoralCommand());
       driverXbox.leftBumper().whileTrue(output.runOutputMotor());
     }
@@ -270,7 +264,8 @@ public class RobotContainer {
         opXbox.a().whileTrue(elevator.elevatorDown());
         opXbox.y().whileTrue(elevator.elevatorUp());
       }
-      opXbox.leftBumper().whileTrue(Commands.race(Commands.runOnce(() -> output.runmotor()), new WaitCommand(0.1)));
+      opXbox.leftBumper().whileTrue(
+          Commands.race(Commands.runOnce(() -> output.runmotor()), new WaitCommand(0.1)));
       opXbox.rightBumper().whileTrue(output.ejectCoralCommand());
 
     }
