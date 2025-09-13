@@ -93,7 +93,8 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
 
   private ElevatorConfig elevconfig = new ElevatorConfig(sparkSmartMotorController)
       .withStartingHeight(Constants.elevator.kMinElevatorHeightMeters)
-      .withHardLimits(Meters.of(0), Meters.of(3)).withTelemetry("Elevator", TelemetryVerbosity.HIGH)
+      .withHardLimits(Constants.elevator.kMinElevatorHeightMeters, Meters.of(3))
+      .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
       .withMass(Constants.elevator.kCarriageMass);
 
   // Elevator Mechanism

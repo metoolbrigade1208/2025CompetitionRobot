@@ -263,6 +263,7 @@ public class RobotContainer {
         opXbox.b().onTrue(Commands.defer(elevator::elevatorleveldataCommand, Set.of(elevator)));
         opXbox.a().whileTrue(elevator.elevatorDown());
         opXbox.y().whileTrue(elevator.elevatorUp());
+        opXbox.x().whileTrue(elevator.sysId());
       }
       opXbox.leftBumper().whileTrue(
           Commands.race(Commands.runOnce(() -> output.runmotor()), new WaitCommand(0.1)));
