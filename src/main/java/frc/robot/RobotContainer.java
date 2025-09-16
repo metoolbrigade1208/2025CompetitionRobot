@@ -260,7 +260,7 @@ public class RobotContainer {
         opXbox.povRight().onTrue(elevatorLevelPubCommand(2));
         opXbox.povUp().onTrue(elevatorLevelPubCommand(3));
         opXbox.povLeft().onTrue(elevatorLevelPubCommand(4));
-        opXbox.b().onTrue(Commands.defer(elevator::elevatorleveldataCommand, Set.of(elevator)));
+        opXbox.b().onTrue(elevator.deferedElevatorDataCommand());
         opXbox.a().whileTrue(elevator.elevatorDown());
         opXbox.y().whileTrue(elevator.elevatorUp());
         opXbox.x().whileTrue(elevator.sysId());

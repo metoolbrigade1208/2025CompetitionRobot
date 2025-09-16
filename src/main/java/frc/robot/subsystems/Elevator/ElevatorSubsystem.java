@@ -34,8 +34,10 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.spark.SparkMax;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -210,7 +212,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
   IntegerTopic ElevatorLevelTopic = table.getIntegerTopic("ElevatorLevel");
   IntegerSubscriber ElevatorLevelSub;
 
-  public Command elevatorleveldataCommand() {
+  public Command elevatorLevelDataCommand() {
     int ElevatorLevelNum = (int) ElevatorLevelSub.get();
     Distance ElevatorLevel = Constants.LEVEL_1;
     switch (ElevatorLevelNum) {
@@ -229,7 +231,12 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
       default:
         ElevatorLevel = Constants.LEVEL_1;
     }
-    return setHeight(ElevatorLevel);
+    return setHeight(ElevatorLevel).withTimeout(0.1);
+  }
+
+  public Command deferedElevatorDataCommand() {
+    return Commands.parallel(Commands.print("hit B\n"),
+        Commands.defer(this::elevatorLevelDataCommand, Set.of()));
   }
 
   public Command elevatorUp() {

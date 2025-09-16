@@ -22,7 +22,7 @@ public class ReefbotAutos {
          */
 
         Command elevatorCommand =
-                Commands.defer(elevator::elevatorleveldataCommand, Set.of(elevator));
+                Commands.defer(elevator::elevatorLevelDataCommand, Set.of(elevator));
 
         return new WaitUntilCommand(locationService.nearAutoPose()).andThen(elevatorCommand)
                 .andThen(new WaitUntilCommand(locationService.atAutoPose()))

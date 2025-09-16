@@ -20,7 +20,7 @@ public class ReefbotAutoForAutonomous {
          */
 
         Command elevatorCommand =
-                Commands.defer(elevator::elevatorleveldataCommand, Set.of(elevator));
+                Commands.defer(elevator::elevatorLevelDataCommand, Set.of(elevator));
 
         return new SequentialCommandGroup(elevatorCommand).andThen(new WaitCommand(2))
                 .andThen(output.runOutputMotor()).alongWith(new WaitCommand(1))
