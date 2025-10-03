@@ -170,7 +170,7 @@ public class RobotContainer {
     SmartDashboard.putData("Autonomous/Select Autonomous Path", autoChooser);
 
     drivePoseAnglePIDController.enableContinuousInput(0, Math.PI * 2);
-    elevator.setDefaultCommand(elevator.setHeight(Meters.of(0)));
+    // elevator.setDefaultCommand(elevator.setHeight(Constants.LEVEL_1));
   }
 
   /**
@@ -260,7 +260,7 @@ public class RobotContainer {
         opXbox.povRight().onTrue(elevatorLevelPubCommand(2));
         opXbox.povUp().onTrue(elevatorLevelPubCommand(3));
         opXbox.povLeft().onTrue(elevatorLevelPubCommand(4));
-        opXbox.b().onTrue(elevator.deferedElevatorDataCommand());
+        opXbox.b().whileTrue(elevator.deferedElevatorDataCommand());
         opXbox.a().whileTrue(elevator.elevatorDown());
         opXbox.y().whileTrue(elevator.elevatorUp());
         opXbox.x().whileTrue(elevator.sysId());

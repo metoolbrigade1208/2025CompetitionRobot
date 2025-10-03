@@ -146,9 +146,6 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
     System.out.print("commanded height: ");
     System.out.println(goalMeters);
     return elevator.setHeight(goalMeters);
-    // m_controller2.setReference(currentGoalRotations,
-    // ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
-    // With the setpoint value we run PID control like normal
   }
 
   /**
@@ -231,7 +228,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
       default:
         ElevatorLevel = Constants.LEVEL_1;
     }
-    return setHeight(ElevatorLevel).withTimeout(0.1);
+    return setHeight(ElevatorLevel);
   }
 
   public Command deferedElevatorDataCommand() {
