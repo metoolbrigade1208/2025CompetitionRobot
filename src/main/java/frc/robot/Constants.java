@@ -136,7 +136,7 @@ public final class Constants {
     public static final double kElevatorKd = 0; // 5
 
     public static final double kElevatorkS = 0;
-    public static final double kElevatorkG = 0.22; // 0
+    public static final double kElevatorkG = 0.10; // 0
     public static final double kElevatorkV = 15.78; // for NEO V1.1, 473
     public static final double kElevatorkA = 0.02; // 0
     public static final int kMotorPort = 51;
@@ -150,8 +150,8 @@ public final class Constants {
                                                                                // chain (quater
                                                                                // inch)
     public static final Distance kElevatorDrumRadius = kElevatorDrumCirc.div(2 * Math.PI);
-    public static final Distance kMinElevatorHeightMeters = LEVEL_1;
-    public static final Distance kMaxElevatorHeightMeters = LEVEL_4;
+    public static final Distance kMinElevatorHeightMeters = Meters.of(0);
+    public static final Distance kMaxElevatorHeightMeters = LEVEL_4.minus(LEVEL_1);
     // Position is rotation to meter
     public static final Distance kPositionConversionFactor =
         kElevatorDrumCirc.div(kElevatorGearing).times(2);

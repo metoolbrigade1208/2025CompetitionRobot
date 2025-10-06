@@ -85,7 +85,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
       // gearbox attached to your motor.
       .withGearing(SmartMechanism.gearing(SmartMechanism.gearbox(3, 3).div(2)))
       // Motor properties to prevent over currenting.
-      .withMotorInverted(false).withIdleMode(MotorMode.BRAKE).withStatorCurrentLimit(Amps.of(40))
+      .withMotorInverted(true).withIdleMode(MotorMode.BRAKE).withStatorCurrentLimit(Amps.of(40))
       .withClosedLoopRampRate(Seconds.of(0.25)).withOpenLoopRampRate(Seconds.of(0.25))
       .withFollowers(Pair.of(m_motorFollower, true));
 
@@ -93,11 +93,11 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
   private SmartMotorController sparkSmartMotorController =
       new SparkWrapper(m_motorLeader, DCMotor.getNEO(1), smcConfig);
 
-  private ElevatorConfig elevconfig = new ElevatorConfig(sparkSmartMotorController)
-      .withStartingHeight(Constants.elevator.kMinElevatorHeightMeters)
-      .withHardLimits(Constants.elevator.kMinElevatorHeightMeters, Meters.of(3))
-      .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
-      .withMass(Constants.elevator.kCarriageMass);
+  private ElevatorConfig elevconfig =
+      new ElevatorConfig(sparkSmartMotorController).withStartingHeight(Meters.of(0))
+          .withHardLimits(Meters.of(0), Constants.elevator.kMaxElevatorHeightMeters)
+          .withTelemetry("Elevator", TelemetryVerbosity.HIGH)
+          .withMass(Constants.elevator.kCarriageMass);
 
   // Elevator Mechanism
   private Elevator elevator = new Elevator(elevconfig);
@@ -142,10 +142,10 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
    */
   private double currentGoalRotations;
 
-  public Command setHeight(Distance goalMeters) {
+  public Command setHeight(Distance goal) {
     System.out.print("commanded height: ");
-    System.out.println(goalMeters);
-    return elevator.setHeight(goalMeters);
+    System.out.println(goal);
+    return elevator.setHeight(goal.minus(Constants.LEVEL_1));
   }
 
   /**
