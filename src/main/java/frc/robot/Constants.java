@@ -128,7 +128,7 @@ public final class Constants {
 
 
   public static class elevator {
-    public static final double kElevatorKp = 0.03; // 0.2
+    public static final double kElevatorKp = 0.08; // 0.2
     public static final double kElevatorKi = 0;
     public static final double kElevatorKd = 0.1; // 5
 
