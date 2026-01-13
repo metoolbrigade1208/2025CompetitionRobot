@@ -49,7 +49,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
  */
 @Logged
 public class Vision {
-
+  
   /**
    * April Tag Field Layout of the year.
    */
