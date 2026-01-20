@@ -59,6 +59,7 @@ Matrix<N3, N1> QUESTNAV_STD_DEVS =
 
 @Override
 public void periodic() {
+    QuestNav questNav = new QuestNav();
     // Get the latest pose data frames from the Quest
     PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
