@@ -15,7 +15,6 @@ import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -27,14 +26,14 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveDrive;
+import swervelib.simulation.ironmaple.simulation.IntakeSimulation;
+import swervelib.simulation.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import static edu.wpi.first.units.Units.Inches;
 import java.util.Optional;
-import org.ironmaple.simulation.IntakeSimulation;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -133,7 +132,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     armMotorLeaderConfig.closedLoop
         .pid(Constants.IntakeConstants.kArmKp, Constants.IntakeConstants.kArmKi,
             Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true)
+        .feedbackSensor(com.revrobotics.spark.FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true)
         .positionWrappingInputRange(0, .8888);
     armMotorLeaderConfig.closedLoop.maxMotion
         .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)
