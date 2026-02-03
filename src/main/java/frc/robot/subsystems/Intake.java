@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -15,6 +16,7 @@ import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -34,6 +36,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import static edu.wpi.first.units.Units.Inches;
 import java.util.Optional;
+
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -132,7 +135,7 @@ public class Intake extends SubsystemBase implements AutoCloseable {
     armMotorLeaderConfig.closedLoop
         .pid(Constants.IntakeConstants.kArmKp, Constants.IntakeConstants.kArmKi,
             Constants.IntakeConstants.kArmKd, ClosedLoopSlot.kSlot0)
-        .feedbackSensor(com.revrobotics.spark.FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true)
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder).positionWrappingEnabled(true)
         .positionWrappingInputRange(0, .8888);
     armMotorLeaderConfig.closedLoop.maxMotion
         .maxAcceleration(Constants.IntakeConstants.kArmMaxAcceleration)

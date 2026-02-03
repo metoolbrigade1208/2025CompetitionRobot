@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     instance = this;
-    Epilogue.bind(this);
+   Epilogue.bind(this);
   }
 
   public static Robot getInstance() {
