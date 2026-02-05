@@ -1,7 +1,11 @@
+
+package frc.robot.subsystems.swervedrive;
+
 import static edu.wpi.first.units.Units.Microseconds;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
+import frc.robot.Constants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.epilogue.Logged;
@@ -21,7 +25,11 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import gg.questnav.questnav.PoseFrame;
+import gg.questnav.questnav.QuestNav;
+
 import java.awt.Desktop;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +47,9 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import swervelib.SwerveDrive;
 import swervelib.telemetry.SwerveDriveTelemetry;
-public class QuestNav {
+public class QuestNavSubsystem extends SubsystemBase {
     QuestNav questNav = new QuestNav();
-SwerveDriveSubsystem swerveDriveSubsystem = new SwerveDriveSubsystem();
+SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
 Matrix<N3, N1> QUESTNAV_STD_DEVS =
     VecBuilder.fill(
         0.02, // Trust down to 2cm in X direction
@@ -51,6 +59,7 @@ Matrix<N3, N1> QUESTNAV_STD_DEVS =
 
 @Override
 public void periodic() {
+    QuestNav questNav = new QuestNav();
     // Get the latest pose data frames from the Quest
     PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
@@ -64,12 +73,12 @@ public void periodic() {
             double timestamp = questFrame.dataTimestamp();
 
             // Transform by the mount pose to get your robot pose
-            Pose3d robotPose = questPose.transformBy(QuestNavConstants.ROBOT_TO_QUEST.inverse());
+            Pose3d robotPose = questPose.transformBy(Constants.QuestNavConstants.ROBOT_TO_QUEST.inverse());
 
             // You can put some sort of filtering here if you would like!
 
             // Add the measurement to our estimator
-            swerveDriveSubsystem.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
+            swerveSubsystem.getSwerveDrive().addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
         }
     }
 }

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Function;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -184,4 +186,7 @@ public final class Constants {
     public static final double kOutputRunSpeed = 1.0;
   }
 
+  public static class QuestNavConstants {
+    public static final Transform3d ROBOT_TO_QUEST = new Transform3d( /*TODO: Put your x, y, z, yaw, pitch, and roll offsets here!*/ );
+  }
 }
